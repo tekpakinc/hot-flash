@@ -1,1 +1,301 @@
-HOT FLASH INDEX PAGE
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hot Flash Tuning Suite</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* =====================================================
+   HOT FLASH — LANDING PAGE
+   ===================================================== */
+
+:root{
+  --radius:18px;
+  --mono:ui-monospace, Consolas, monospace;
+  --sans:system-ui, Segoe UI, Roboto, Arial;
+
+  --bg:#05080c;
+  --panel:#0f1a22;
+  --text:#e6fff6;
+  --muted:#8af5cf;
+  --accent:#00ff9c;
+
+  --gloss-hi:rgba(255,255,255,.55);
+  --gloss-mid:rgba(255,255,255,.14);
+  --gloss-lo:rgba(0,0,0,.55);
+  --shadow:0 18px 45px rgba(0,0,0,.65);
+}
+
+/* =====================================================
+   GLOBAL
+   ===================================================== */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--text);
+  background:
+    radial-gradient(1400px 700px at 50% -20%, rgba(0,255,160,.18), transparent 60%),
+    linear-gradient(180deg,#04070b,#05080c);
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+header{
+  position:sticky;
+  top:0;
+  z-index:10;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:16px 22px;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.brand h1{
+  margin:0;
+  letter-spacing:3px;
+}
+.brand span{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+}
+
+header nav{
+  display:flex;
+  gap:10px;
+}
+
+header button{
+  padding:10px 16px;
+  border-radius:14px;
+  font-weight:900;
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.28);
+  cursor:pointer;
+}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+.hero{
+  padding:100px 20px 80px;
+  text-align:center;
+  max-width:1100px;
+  margin:auto;
+}
+
+.hero h2{
+  font-size:46px;
+  margin-bottom:16px;
+  letter-spacing:2px;
+}
+.hero p{
+  font-size:18px;
+  color:var(--muted);
+  max-width:700px;
+  margin:0 auto 36px;
+}
+
+.hero .cta{
+  display:flex;
+  gap:16px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.hero .cta a{
+  text-decoration:none;
+}
+
+.hero .cta button{
+  padding:16px 24px;
+  font-size:15px;
+  border-radius:16px;
+  font-weight:900;
+  background:
+    linear-gradient(180deg,var(--accent),rgba(0,0,0,.4));
+  color:#000;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 20px 50px rgba(0,255,160,.35);
+}
+
+/* =====================================================
+   FEATURES
+   ===================================================== */
+.section{
+  padding:80px 20px;
+  max-width:1200px;
+  margin:auto;
+}
+
+.section h3{
+  text-align:center;
+  font-size:32px;
+  margin-bottom:50px;
+  letter-spacing:2px;
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:22px;
+}
+
+.feature{
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),
+    var(--panel);
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:var(--shadow);
+  padding:22px;
+}
+
+.feature h4{
+  margin-top:0;
+  letter-spacing:1px;
+}
+.feature p{
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* =====================================================
+   MODES
+   ===================================================== */
+.modes{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:22px;
+}
+
+.mode{
+  border-radius:var(--radius);
+  padding:24px;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.18);
+}
+
+.mode h4{
+  margin-top:0;
+  letter-spacing:1px;
+}
+.mode span{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+footer{
+  padding:40px 20px;
+  text-align:center;
+  border-top:1px solid rgba(255,255,255,.12);
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <h1>HOT FLASH</h1>
+    <span>TUNING SUITE</span>
+  </div>
+
+  <nav>
+    <button onclick="location.href='core.html'">OPEN CORE</button>
+    <button onclick="location.href='tuning.html'">TUNING SUITE</button>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>Modern ECU Tuning.<br>Built Like a Racing Sim.</h2>
+  <p>
+    Hot Flash is a web-based performance tuning platform that blends
+    real-time telemetry, dyno simulation, and game-inspired tuning
+    interfaces into a single experience.
+  </p>
+
+  <div class="cta">
+    <a href="core.html"><button>Launch Hot Flash Core</button></a>
+    <a href="tuning.html"><button>Enter Tuning Suite</button></a>
+  </div>
+</section>
+
+<section class="section">
+  <h3>What You Can Do</h3>
+
+  <div class="features">
+    <div class="feature">
+      <h4>Live Engine Monitoring</h4>
+      <p>Track RPM, AFR, speed, torque, and horsepower in a clean,
+         high-contrast dashboard designed for dyno rooms and track use.</p>
+    </div>
+
+    <div class="feature">
+      <h4>Sim-Style ECU Tuning</h4>
+      <p>Adjust rev limits, throttle response, braking, boost, and fuel
+         behavior through intuitive sliders and menus inspired by racing games.</p>
+    </div>
+
+    <div class="feature">
+      <h4>Virtual Dyno Runs</h4>
+      <p>Visualize power curves and performance changes instantly
+         without leaving the browser.</p>
+    </div>
+
+    <div class="feature">
+      <h4>Multi-Theme Interface</h4>
+      <p>Choose between Maverik (HUD), Cadivette (Candy Gloss),
+         or Old Skool (Classic Analog).</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h3>Built for Every Driver</h3>
+
+  <div class="modes">
+    <div class="mode">
+      <h4>Street Tuners</h4>
+      <span>Clean • Responsive • Visual</span>
+      <p>Dial in drivability, throttle feel, and reliability for daily performance.</p>
+    </div>
+
+    <div class="mode">
+      <h4>Track & Dyno</h4>
+      <span>Data-Driven • Aggressive</span>
+      <p>Optimize rev limits, power curves, and response under load.</p>
+    </div>
+
+    <div class="mode">
+      <h4>Future-Ready</h4>
+      <span>OBD • CAN • Cloud</span>
+      <p>Designed to grow into real ECU connections and subscription features.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Hot Flash Tuning Suite • Open Alpha  
+  <br>
+  Built for experimentation, performance, and fun.
+</footer>
+
+</body>
+</html>
