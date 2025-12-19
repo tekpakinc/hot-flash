@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hot Flash — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root{
+  --radius:18px;
+  --mono:ui-monospace, Consolas, monospace;
+  --sans:system-ui, Segoe UI, Roboto, Arial;
+
+  --bg:#05080c;
+  --panel:#0f1a22;
+  --panel2:#0b141a;
+  --text:#e6fff6;
+  --muted:#8af5cf;
+  --accent:#00ff9c;
+
+  --gloss-hi:rgba(255,255,255,.55);
+  --gloss-mid:rgba(255,255,255,.14);
+  --gloss-lo:rgba(0,0,0,.55);
+  --shadow:0 18px 45px rgba(0,0,0,.65);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 50% -20%, rgba(0,255,160,.18), transparent 60%),
+    linear-gradient(180deg,#04070b,#05080c);
+}
+
+header{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background:rgba(0,0,0,.65);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.brand h1{margin:0;letter-spacing:2px}
+.brand span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+nav{
+  display:flex; gap:8px; align-items:center;
+}
+
+nav button, nav select{
+  padding:10px 14px;
+  border-radius:14px;
+  font-weight:900;
+  background:linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  border:1px solid rgba(255,255,255,.28);
+  color:var(--text);
+  cursor:pointer;
+}
+
+main{
+  max-width:1400px;
+  margin:auto;
+  padding:22px;
+  display:grid;
+  grid-template-columns:360px 1fr;
+  gap:18px;
+}
+
+.card{
+  background:linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),var(--panel);
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.25);
+  box-shadow:var(--shadow);
+  padding:18px;
+  overflow:hidden;
+}
+
+.card h3{
+  margin:0 0 12px;
+  letter-spacing:1px;
+}
+
+.small{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+}
+
+.row{display:grid; gap:10px; margin-bottom:12px;}
+label{font-weight:900}
+input, textarea, select{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.25);
+  background:#000;
+  color:var(--text);
+  font-family:var(--mono);
+  outline:none;
+}
+textarea{min-height:88px; resize:vertical}
+
+.btn{
+  padding:12px 14px;
+  border-radius:14px;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.28);
+  background:linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  color:var(--text);
+  cursor:pointer;
+}
+.btn.primary{
+  background:linear-gradient(180deg,var(--accent),rgba(0,0,0,.4));
+  color:#000;
+  border:none;
+}
+
+.profileTop{
+  display:flex; gap:14px; align-items:center;
+  margin-bottom:12px;
+}
+.avatar{
+  width:92px; height:92px;
+  border-radius:50%;
+  background:#000 center/cover no-repeat;
+  border:3px solid var(--accent);
+  flex:0 0 auto;
+}
+.profileMeta{flex:1}
+.profileMeta .name{font-size:20px;font-weight:1000}
+.profileMeta .handle{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.list{
+  display:grid;
+  gap:10px;
+}
+.item{
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;
+  padding:12px;
+}
+.itemTop{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+}
+.itemTitle{
+  font-weight:1000;
+}
+.itemSub{
+  margin-top:6px;
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--muted);
+}
+.itemActions{
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.itemActions button{
+  padding:8px 10px;
+  border-radius:12px;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  cursor:pointer;
+}
+.itemActions button.danger{
+  border-color:rgba(255,80,80,.55);
+  color:#ffb3b3;
+}
+.pill{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:1000;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  margin-left:8px;
+}
+
+hr.sep{
+  border:none;
+  border-top:1px solid rgba(255,255,255,.12);
+  margin:14px 0;
+}
+
+/* theme variations for dashboard too */
+body[data-theme="cadivette"]{
+  --bg:#120204;
+  --panel:#7a0d17;
+  --panel2:#4f0810;
+  --text:#fff1f3;
+  --muted:#ffb3bb;
+  --accent:#ff2a3f;
+}
+body[data-theme="oldskool"]{
+  --bg:#1a140c;
+  --panel:#2a2015;
+  --panel2:#231a11;
+  --text:#f6eddc;
+  --muted:#d6c7a1;
+  --accent:#e0c36b;
+}
+</style>
+</head>
+
+<body data-theme="maverik">
+<header>
+  <div class="brand">
+    <h1>HOT FLASH</h1>
+    <span>Private Dashboard • Edit Your Profile</span>
+  </div>
+
+  <nav>
+    <button onclick="location.href='index.html'">HOME</button>
+    <button onclick="location.href='profile.html'">PUBLIC PROFILE</button>
+    <button onclick="location.href='core.html'">CORE</button>
+    <button onclick="location.href='tuning.html'">TUNING</button>
+    <select id="themeSel" title="Theme">
+      <option value="maverik">Maverik 🛩️</option>
+      <option value="cadivette">Cadivette 🍒</option>
+      <option value="oldskool">Old Skool 🪵</option>
+    </select>
+  </nav>
+</header>
+
+<main>
+  <!-- LEFT: PROFILE SETTINGS -->
+  <section class="card">
+    <h3>Profile Settings</h3>
+    <div class="small">This is your private editor. Public pages only display what you publish.</div>
+
+    <div class="profileTop">
+      <div class="avatar" id="avatarPreview"></div>
+      <div class="profileMeta">
+        <div class="name" id="namePreview">—</div>
+        <div class="handle" id="handlePreview">—</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Profile Photo</label>
+      <input type="file" id="avatarFile" accept="image/*">
+      <div class="small">Stored locally for now (GitHub Pages-safe). Cloud storage later.</div>
+    </div>
+
+    <div class="row">
+      <label>Display Name</label>
+      <input id="username" placeholder="e.g., GreaseDaddy">
+    </div>
+
+    <div class="row">
+      <label>Handle</label>
+      <input id="handle" placeholder="@greasedaddy">
+    </div>
+
+    <div class="row">
+      <label>Bio</label>
+      <textarea id="bio" placeholder="Builder. Tuner. What are you about?"></textarea>
+    </div>
+
+    <div class="row">
+      <label>Badges (comma-separated)</label>
+      <input id="badges" placeholder="FOUNDER, PRO, SHOP VERIFIED">
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn primary" id="btnSaveProfile">SAVE PROFILE</button>
+      <button class="btn" id="btnResetProfile">RESET TO DEFAULT</button>
+    </div>
+
+    <hr class="sep">
+
+    <h3 style="margin-top:0;">Quick Publish</h3>
+    <div class="small">This saves your current profile state so the public profile can render it.</div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+      <button class="btn primary" id="btnPublish">PUBLISH TO PUBLIC PROFILE</button>
+      <button class="btn" id="btnWipe">WIPE LOCAL DATA</button>
+    </div>
+  </section>
+
+  <!-- RIGHT: VEHICLES + FILES -->
+  <section class="card">
+    <h3>Vehicles</h3>
+    <div class="small">Add/edit builds here. The public profile shows what’s saved.</div>
+
+    <div class="row" style="margin-top:12px;">
+      <label>Add Vehicle</label>
+      <input id="vName" placeholder="Vehicle name (e.g., 1971 Plymouth Duster)">
+      <input id="vEngine" placeholder="Engine (e.g., 408 Stroker EFI)">
+      <input id="vFuel" placeholder="Fuel (e.g., E85)">
+      <textarea id="vNotes" placeholder="Notes (street/strip, mods, goals, etc.)"></textarea>
+      <button class="btn primary" id="btnAddVehicle">ADD VEHICLE</button>
+    </div>
+
+    <div class="list" id="vehicleList"></div>
+
+    <hr class="sep">
+
+    <h3>Tune / Map Files</h3>
+    <div class="small">Upload ECU tune/map/log files. Mark “Public” to show on your public profile.</div>
+
+    <div class="row" style="margin-top:12px;">
+      <label>Upload File</label>
+      <input type="file" id="fileInput">
+      <input id="fileTitle" placeholder="Title (e.g., Duster_E85_Race.map)">
+      <select id="fileKind">
+        <option value="ecu-map">ECU Map</option>
+        <option value="tune">Tune</option>
+        <option value="datalog">Datalog</option>
+        <option value="other">Other</option>
+      </select>
+      <textarea id="fileDesc" placeholder="Description (mods, fuel, target AFR, notes, etc.)"></textarea>
+      <label style="display:flex; gap:10px; align-items:center; font-weight:900;">
+        <input type="checkbox" id="filePublic" checked>
+        Public (show on profile)
+      </label>
+      <button class="btn primary" id="btnUploadFile">UPLOAD FILE</button>
+      <div class="small">Note: localStorage has size limits. Cloud storage later for real community scaling.</div>
+    </div>
+
+    <div class="list" id="fileList"></div>
+  </section>
+</main>
+
+<script>
+/* =========================================================
+   STEP 1: DASHBOARD DATA MODEL (localStorage)
+   ========================================================= */
+
+const LS_KEY_USER = "hf_user";
+const LS_KEY_THEME = "hf_theme";
+
+const defaultUser = () => ({
+  username: "GreaseDaddy",
+  handle: "@greasedaddy",
+  bio: "Builder. Tuner. Old Mopars & loud things.",
+  avatar: "", // base64 data URL
+  badges: ["FOUNDER","PRO"],
+  vehicles: [
+    {
+      id: crypto.randomUUID(),
+      name: "1971 Plymouth Duster",
+      engine: "408 Stroker • EFI",
+      fuel: "E85",
+      notes: "Street / Strip build"
+    }
+  ],
+  files: [
+    // { id, title, kind, desc, public, data, mime, time }
+  ],
+  updatedAt: Date.now()
+});
+
+function loadUser(){
+  try{
+    const raw = localStorage.getItem(LS_KEY_USER);
+    if(!raw) return defaultUser();
+    const u = JSON.parse(raw);
+    // light validation
+    return {
+      ...defaultUser(),
+      ...u,
+      badges: Array.isArray(u.badges) ? u.badges : defaultUser().badges,
+      vehicles: Array.isArray(u.vehicles) ? u.vehicles : defaultUser().vehicles,
+      files: Array.isArray(u.files) ? u.files : []
+    };
+  }catch{
+    return defaultUser();
+  }
+}
+
+function saveUser(){
+  user.updatedAt = Date.now();
+  localStorage.setItem(LS_KEY_USER, JSON.stringify(user));
+}
+
+let user = loadUser();
+
+/* =========================================================
+   THEME (optional, but keeps everything consistent)
+   ========================================================= */
+let theme = localStorage.getItem(LS_KEY_THEME) || "maverik";
+document.body.dataset.theme = theme;
+themeSel.value = theme;
+
+themeSel.onchange = (e) => {
+  theme = e.target.value;
+  document.body.dataset.theme = theme;
+  localStorage.setItem(LS_KEY_THEME, theme);
+  // also store in user for future sync
+  user.theme = theme;
+  saveUser();
+};
+
+/* =========================================================
+   PROFILE UI BINDINGS
+   ========================================================= */
+function renderProfile(){
+  username.value = user.username || "";
+  handle.value = user.handle || "";
+  bio.value = user.bio || "";
+  badges.value = (user.badges || []).join(", ");
+
+  namePreview.textContent = user.username || "—";
+  handlePreview.textContent = user.handle || "—";
+
+  if(user.avatar){
+    avatarPreview.style.backgroundImage = `url(${user.avatar})`;
+  }else{
+    avatarPreview.style.backgroundImage = "none";
+  }
+}
+
+avatarFile.addEventListener("change", () => {
+  const file = avatarFile.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    user.avatar = reader.result; // base64 data URL
+    saveUser();
+    renderProfile();
+  };
+  reader.readAsDataURL(file);
+});
+
+btnSaveProfile.onclick = () => {
+  user.username = username.value.trim() || "Driver";
+  user.handle = handle.value.trim().startsWith("@") ? handle.value.trim() : ("@" + (handle.value.trim() || "driver"));
+  user.bio = bio.value.trim();
+  user.badges = badges.value
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+
+  saveUser();
+  renderProfile();
+  alert("Profile saved.");
+};
+
+btnResetProfile.onclick = () => {
+  const keepTheme = theme;
+  user = defaultUser();
+  user.theme = keepTheme;
+  saveUser();
+  renderAll();
+  alert("Reset complete.");
+};
+
+btnWipe.onclick = () => {
+  if(!confirm("Wipe all local Hot Flash user data on this browser?")) return;
+  localStorage.removeItem(LS_KEY_USER);
+  user = defaultUser();
+  saveUser();
+  renderAll();
+  alert("Local data wiped.");
+};
+
+/* “Publish” is basically “save” right now.
+   Later it becomes a server write. */
+btnPublish.onclick = () => {
+  saveUser();
+  alert("Published. (Public profile reads from saved data in this alpha.)");
+};
+
+/* =========================================================
+   VEHICLES CRUD
+   ========================================================= */
+function renderVehicles(){
+  vehicleList.innerHTML = "";
+  (user.vehicles || []).forEach(v => {
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `
+      <div class="itemTop">
+        <div class="itemTitle">${escapeHtml(v.name || "Untitled Vehicle")}</div>
+        <div class="itemActions">
+          <button data-act="edit" data-id="${v.id}">EDIT</button>
+          <button class="danger" data-act="del" data-id="${v.id}">REMOVE</button>
+        </div>
+      </div>
+      <div class="itemSub">
+        Engine: ${escapeHtml(v.engine || "—")} • Fuel: ${escapeHtml(v.fuel || "—")}
+      </div>
+      <div class="small" style="margin-top:8px;">
+        ${escapeHtml(v.notes || "")}
+      </div>
+    `;
+    vehicleList.appendChild(el);
+  });
+
+  vehicleList.querySelectorAll("button").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+      const idx = user.vehicles.findIndex(x => x.id === id);
+      if(idx < 0) return;
+
+      if(act === "del"){
+        if(!confirm("Remove this vehicle?")) return;
+        user.vehicles.splice(idx,1);
+        saveUser();
+        renderVehicles();
+      }
+
+      if(act === "edit"){
+        const v = user.vehicles[idx];
+        const name = prompt("Vehicle name:", v.name || "");
+        if(name === null) return;
+        const engine = prompt("Engine:", v.engine || "");
+        if(engine === null) return;
+        const fuel = prompt("Fuel:", v.fuel || "");
+        if(fuel === null) return;
+        const notes = prompt("Notes:", v.notes || "");
+        if(notes === null) return;
+
+        user.vehicles[idx] = { ...v, name, engine, fuel, notes };
+        saveUser();
+        renderVehicles();
+      }
+    };
+  });
+}
+
+btnAddVehicle.onclick = () => {
+  const name = vName.value.trim();
+  if(!name) return alert("Vehicle name required.");
+
+  user.vehicles = user.vehicles || [];
+  user.vehicles.unshift({
+    id: crypto.randomUUID(),
+    name,
+    engine: vEngine.value.trim(),
+    fuel: vFuel.value.trim(),
+    notes: vNotes.value.trim()
+  });
+
+  vName.value = "";
+  vEngine.value = "";
+  vFuel.value = "";
+  vNotes.value = "";
+
+  saveUser();
+  renderVehicles();
+};
+
+/* =========================================================
+   FILES (Tune/Map Sharing)
+   ========================================================= */
+function renderFiles(){
+  fileList.innerHTML = "";
+
+  const files = user.files || [];
+  if(files.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "small";
+    empty.textContent = "No files uploaded yet.";
+    fileList.appendChild(empty);
+    return;
+  }
+
+  files.forEach(f => {
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `
+      <div class="itemTop">
+        <div class="itemTitle">
+          ${escapeHtml(f.title || "Untitled")}
+          <span class="pill">${escapeHtml((f.kind || "other").toUpperCase())}</span>
+          ${f.public ? `<span class="pill" style="border-color: rgba(0,255,160,.35); color: var(--accent);">PUBLIC</span>`
+                    : `<span class="pill" style="border-color: rgba(255,255,255,.18); color: var(--muted);">PRIVATE</span>`}
+        </div>
+        <div class="itemActions">
+          <button data-act="toggle" data-id="${f.id}">${f.public ? "MAKE PRIVATE" : "MAKE PUBLIC"}</button>
+          <button data-act="dl" data-id="${f.id}">DOWNLOAD</button>
+          <button class="danger" data-act="del" data-id="${f.id}">REMOVE</button>
+        </div>
+      </div>
+      <div class="itemSub">
+        ${escapeHtml(f.desc || "")}
+      </div>
+      <div class="small" style="margin-top:8px;">
+        Added: ${new Date(f.time || Date.now()).toLocaleString()}
+      </div>
+    `;
+    fileList.appendChild(el);
+  });
+
+  fileList.querySelectorAll("button").forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+      const idx = (user.files || []).findIndex(x => x.id === id);
+      if(idx < 0) return;
+      const f = user.files[idx];
+
+      if(act === "toggle"){
+        f.public = !f.public;
+        saveUser();
+        renderFiles();
+      }
+
+      if(act === "del"){
+        if(!confirm("Remove this file?")) return;
+        user.files.splice(idx,1);
+        saveUser();
+        renderFiles();
+      }
+
+      if(act === "dl"){
+        if(!f.data) return alert("File data not available.");
+        const a = document.createElement("a");
+        a.href = f.data;
+        a.download = f.title || "hotflash_file";
+        a.click();
+      }
+    };
+  });
+}
+
+btnUploadFile.onclick = () => {
+  const file = fileInput.files?.[0];
+  if(!file) return alert("Choose a file first.");
+
+  const title = fileTitle.value.trim() || file.name;
+  const kind = fileKind.value;
+  const desc = fileDesc.value.trim();
+  const isPublic = !!filePublic.checked;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    user.files = user.files || [];
+    user.files.unshift({
+      id: crypto.randomUUID(),
+      title,
+      kind,
+      desc,
+      public: isPublic,
+      data: reader.result, // base64 data URL
+      mime: file.type || "application/octet-stream",
+      time: Date.now()
+    });
+
+    fileInput.value = "";
+    fileTitle.value = "";
+    fileDesc.value = "";
+    filePublic.checked = true;
+
+    saveUser();
+    renderFiles();
+    alert("File uploaded (local alpha).");
+  };
+  reader.readAsDataURL(file);
+};
+
+/* =========================================================
+   UTIL + RENDER
+   ========================================================= */
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function renderAll(){
+  // ensure theme consistency
+  if(user.theme){
+    theme = user.theme;
+    document.body.dataset.theme = theme;
+    themeSel.value = theme;
+    localStorage.setItem(LS_KEY_THEME, theme);
+  }else{
+    user.theme = theme;
+    saveUser();
+  }
+
+  renderProfile();
+  renderVehicles();
+  renderFiles();
+}
+
+renderAll();
+</script>
+
+</body>
+</html>
