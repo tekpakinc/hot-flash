@@ -6,10 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* =====================================================
-   HOT FLASH — MEMBER PROFILE
-   ===================================================== */
-
 :root{
   --radius:18px;
   --mono:ui-monospace, Consolas, monospace;
@@ -28,9 +24,6 @@
   --shadow:0 18px 45px rgba(0,0,0,.65);
 }
 
-/* =====================================================
-   GLOBAL
-   ===================================================== */
 *{box-sizing:border-box}
 body{
   margin:0;
@@ -41,47 +34,35 @@ body{
     linear-gradient(180deg,#04070b,#05080c);
 }
 
-/* =====================================================
-   HEADER
-   ===================================================== */
+/* HEADER */
 header{
   position:sticky;
   top:0;
   z-index:10;
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   padding:14px 18px;
   background:rgba(0,0,0,.65);
   backdrop-filter:blur(14px);
   border-bottom:1px solid rgba(255,255,255,.12);
 }
 
-.brand h1{
-  margin:0;
-  letter-spacing:2px;
-}
-.brand span{
-  font-family:var(--mono);
-  font-size:11px;
-  color:var(--muted);
-}
+.brand h1{margin:0;letter-spacing:2px}
+.brand span{font-family:var(--mono);font-size:11px;color:var(--muted)}
 
 nav button{
   margin-left:8px;
   padding:10px 14px;
   border-radius:14px;
   font-weight:900;
-  background:
-    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  background:linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
   border:1px solid rgba(255,255,255,.28);
   color:var(--text);
   cursor:pointer;
 }
 
-/* =====================================================
-   LAYOUT
-   ===================================================== */
+/* LAYOUT */
 main{
   max-width:1400px;
   margin:auto;
@@ -91,13 +72,9 @@ main{
   gap:18px;
 }
 
-/* =====================================================
-   PROFILE CARD
-   ===================================================== */
+/* PROFILE */
 .profile{
-  background:
-    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),
-    var(--panel);
+  background:linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),var(--panel);
   border-radius:var(--radius);
   border:1px solid rgba(255,255,255,.25);
   box-shadow:var(--shadow);
@@ -106,76 +83,38 @@ main{
 }
 
 .avatar{
-  width:120px;
-  height:120px;
-  border-radius:50%;
-  background:#000;
+  width:120px;height:120px;border-radius:50%;
+  background:#000;border:3px solid var(--accent);
   margin:0 auto 12px;
-  border:3px solid var(--accent);
 }
 
-.profile h2{
-  margin:8px 0 4px;
-}
-.profile .handle{
-  font-family:var(--mono);
-  font-size:12px;
-  color:var(--muted);
-}
+.profile h2{margin:8px 0 4px}
+.handle{font-family:var(--mono);font-size:12px;color:var(--muted)}
 
-.badges{
-  margin-top:12px;
-  display:flex;
-  gap:6px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
+.badges{margin-top:12px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
 .badge{
-  font-size:10px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:var(--accent);
-  color:#000;
-  font-weight:900;
+  font-size:10px;padding:4px 8px;border-radius:999px;
+  background:var(--accent);color:#000;font-weight:900;
 }
 
-/* =====================================================
-   CONTENT TABS
-   ===================================================== */
+/* CONTENT */
 .content{
-  background:
-    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),
-    var(--panel);
+  background:linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),var(--panel);
   border-radius:var(--radius);
   border:1px solid rgba(255,255,255,.25);
   box-shadow:var(--shadow);
   padding:18px;
 }
 
-.tabs{
-  display:flex;
-  gap:10px;
-  margin-bottom:18px;
-}
-
+.tabs{display:flex;gap:10px;margin-bottom:18px}
 .tabs button{
-  padding:10px 14px;
-  border-radius:14px;
-  font-weight:900;
+  padding:10px 14px;border-radius:14px;font-weight:900;
   border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.1);
-  color:var(--text);
+  background:rgba(255,255,255,.1);color:var(--text);
   cursor:pointer;
 }
-.tabs button.active{
-  background:var(--accent);
-  color:#000;
-}
+.tabs button.active{background:var(--accent);color:#000}
 
-/* =====================================================
-   SECTIONS
-   ===================================================== */
 .section{display:none}
 .section.active{display:block}
 
@@ -187,35 +126,38 @@ main{
   margin-bottom:14px;
 }
 
-.card h4{
-  margin-top:0;
-}
-
-/* =====================================================
-   GALLERY
-   ===================================================== */
-.gallery{
+/* FILE SHARING */
+.upload{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
   gap:10px;
+  margin-bottom:20px;
 }
-.photo{
-  height:100px;
-  background:#000;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.2);
+.upload input, .upload textarea{
+  padding:10px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.25);
+  background:#000;color:var(--text);
+  font-family:var(--mono);
 }
 
-/* =====================================================
-   LOGS
-   ===================================================== */
-.log{
-  font-family:var(--mono);
-  font-size:12px;
-  background:#000;
+.file{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   padding:10px;
   border-radius:10px;
-  margin-bottom:6px;
+  background:#000;
+  border:1px solid rgba(255,255,255,.2);
+  margin-bottom:8px;
+}
+.file span{font-family:var(--mono);font-size:12px}
+.file button{
+  padding:6px 10px;
+  border-radius:8px;
+  font-weight:900;
+  background:var(--accent);
+  color:#000;
+  border:none;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -237,64 +179,66 @@ main{
 
 <main>
 
-  <!-- PROFILE -->
-  <aside class="profile">
-    <div class="avatar"></div>
-    <h2 id="username">GreaseDaddy</h2>
-    <div class="handle">@hotflash</div>
+<aside class="profile">
+  <div class="avatar"></div>
+  <h2>GreaseDaddy</h2>
+  <div class="handle">@hotflash</div>
 
-    <div class="badges">
-      <div class="badge">FOUNDER</div>
-      <div class="badge">PRO</div>
+  <div class="badges">
+    <div class="badge">FOUNDER</div>
+    <div class="badge">PRO</div>
+  </div>
+</aside>
+
+<section class="content">
+  <div class="tabs">
+    <button class="active" data-tab="builds">Builds</button>
+    <button data-tab="specs">Specs</button>
+    <button data-tab="logs">Logs</button>
+    <button data-tab="media">Media</button>
+    <button data-tab="files">Files</button>
+  </div>
+
+  <div id="builds" class="section active">
+    <div class="card">
+      <h4>1971 Plymouth Duster</h4>
+      <p>Street / Strip • 408 Stroker • EFI</p>
     </div>
-  </aside>
+  </div>
 
-  <!-- CONTENT -->
-  <section class="content">
-    <div class="tabs">
-      <button class="active" data-tab="builds">Builds</button>
-      <button data-tab="specs">Specs</button>
-      <button data-tab="logs">Logs</button>
-      <button data-tab="media">Media</button>
+  <div id="specs" class="section">
+    <div class="card">
+      Engine: 6.7L V8<br>
+      Fuel: E85<br>
+      Transmission: Auto
+    </div>
+  </div>
+
+  <div id="logs" class="section">
+    <div class="card">Run #22 — 419 HP / 405 TQ</div>
+  </div>
+
+  <div id="media" class="section">
+    <div class="card">Media gallery coming soon</div>
+  </div>
+
+  <!-- FILE SHARING -->
+  <div id="files" class="section">
+    <div class="upload">
+      <input type="file" id="fileInput">
+      <input type="text" id="fileName" placeholder="Tune / Map Name">
+      <textarea id="fileDesc" placeholder="Description"></textarea>
+      <button onclick="uploadFile()">Upload File</button>
     </div>
 
-    <div id="builds" class="section active">
-      <div class="card">
-        <h4>1971 Plymouth Duster</h4>
-        <p>Street / Strip • 408 Stroker • EFI</p>
-      </div>
-    </div>
+    <div id="fileList"></div>
+  </div>
 
-    <div id="specs" class="section">
-      <div class="card">
-        <ul>
-          <li>Engine: 6.7L V8</li>
-          <li>Transmission: 4-Speed Auto</li>
-          <li>Fuel: E85</li>
-        </ul>
-      </div>
-    </div>
-
-    <div id="logs" class="section">
-      <div class="log">Run #21 — 412 HP / 398 TQ</div>
-      <div class="log">Run #22 — 419 HP / 405 TQ</div>
-    </div>
-
-    <div id="media" class="section">
-      <div class="gallery">
-        <div class="photo"></div>
-        <div class="photo"></div>
-        <div class="photo"></div>
-      </div>
-    </div>
-  </section>
-
+</section>
 </main>
 
 <script>
-/* =====================================================
-   TAB SWITCHING
-   ===================================================== */
+/* TAB SWITCH */
 document.querySelectorAll(".tabs button").forEach(btn=>{
   btn.onclick=()=>{
     document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
@@ -303,6 +247,52 @@ document.querySelectorAll(".tabs button").forEach(btn=>{
     document.getElementById(btn.dataset.tab).classList.add("active");
   };
 });
+
+/* FILE STORAGE (SIM) */
+let files = JSON.parse(localStorage.getItem("hf_files") || "[]");
+
+function renderFiles(){
+  fileList.innerHTML="";
+  files.forEach((f,i)=>{
+    const div=document.createElement("div");
+    div.className="file";
+    div.innerHTML=`
+      <span>${f.name}</span>
+      <button onclick="downloadFile(${i})">DOWNLOAD</button>
+    `;
+    fileList.appendChild(div);
+  });
+}
+
+function uploadFile(){
+  const file = fileInput.files[0];
+  if(!file) return alert("No file selected");
+
+  const reader = new FileReader();
+  reader.onload=()=>{
+    files.push({
+      name:fileName.value||file.name,
+      desc:fileDesc.value||"",
+      data:reader.result,
+      type:file.type,
+      time:Date.now()
+    });
+    localStorage.setItem("hf_files",JSON.stringify(files));
+    renderFiles();
+    fileInput.value="";fileName.value="";fileDesc.value="";
+  };
+  reader.readAsDataURL(file);
+}
+
+function downloadFile(i){
+  const f=files[i];
+  const a=document.createElement("a");
+  a.href=f.data;
+  a.download=f.name;
+  a.click();
+}
+
+renderFiles();
 </script>
 
 </body>
