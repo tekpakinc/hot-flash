@@ -1,1 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hot Flash Tuning Suite</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
+<style>
+/* =====================================================
+   HOT FLASH — TUNING SUITE (SIM STYLE)
+   ===================================================== */
+
+/* ---------- Core Tokens ---------- */
+:root{
+  --radius:18px;
+  --mono:ui-monospace, Consolas, monospace;
+  --sans:system-ui, Segoe UI, Roboto, Arial;
+
+  --gloss-hi:rgba(255,255,255,.55);
+  --gloss-mid:rgba(255,255,255,.14);
+  --gloss-lo:rgba(0,0,0,.55);
+  --shadow:0 18px 45px rgba(0,0,0,.65);
+}
+
+/* ---------- Default Theme (Maverik) ---------- */
+body{
+  --bg:#05080c;
+  --panel:#0f1a22;
+  --panel2:#0b141a;
+  --text:#e6fff6;
+  --muted:#8af5cf;
+  --accent:#00ff9c;
+}
+
+/* ---------- Cadivette ---------- */
+body[data-theme="cadivette"]{
+  --bg:#120204;
+  --panel:#7a0d17;
+  --panel2:#4f0810;
+  --text:#fff1f3;
+  --muted:#ffb3bb;
+  --accent:#ff2a3f;
+}
+
+/* ---------- Old Skool ---------- */
+body[data-theme="oldskool"]{
+  --bg:#1a140c;
+  --panel:#2a2015;
+  --panel2:#231a11;
+  --text:#f6eddc;
+  --muted:#d6c7a1;
+  --accent:#e0c36b;
+}
+
+/* ---------- Global ---------- */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 50% -20%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 60%
+    ),
+    var(--bg);
+  height:100vh;
+  overflow:hidden;
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+header{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.brand h1{
+  margin:0;
+  letter-spacing:2px;
+}
+.brand span{
+  font-size:12px;
+  font-family:var(--mono);
+  color:var(--muted);
+}
+
+/* =====================================================
+   APP LAYOUT
+   ===================================================== */
+.app{
+  display:grid;
+  grid-template-columns:260px 1fr 320px;
+  height:calc(100vh - 70px);
+}
+
+/* =====================================================
+   LEFT MENU (SIM STYLE)
+   ===================================================== */
+.menu{
+  background:rgba(0,0,0,.55);
+  border-right:1px solid rgba(255,255,255,.12);
+  padding:14px;
+}
+
+.menu h3{
+  margin:0 0 12px;
+  font-size:12px;
+  font-family:var(--mono);
+  color:var(--muted);
+  letter-spacing:1px;
+}
+
+.menu button{
+  width:100%;
+  margin-bottom:8px;
+  padding:14px;
+  border-radius:14px;
+  font-weight:900;
+  text-align:left;
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.25);
+  cursor:pointer;
+}
+.menu button.active{
+  background:
+    linear-gradient(180deg,var(--accent),rgba(0,0,0,.45));
+  color:#000;
+}
+
+/* =====================================================
+   CENTER PANEL
+   ===================================================== */
+.center{
+  padding:18px;
+  overflow:auto;
+}
+
+.panel{
+  border-radius:var(--radius);
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),
+    var(--panel);
+  box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,.25);
+  padding:18px;
+}
+
+.panel h2{
+  margin-top:0;
+  letter-spacing:1px;
+}
+
+/* =====================================================
+   TUNING ROWS
+   ===================================================== */
+.tune-row{
+  margin-bottom:18px;
+}
+
+.tune-row label{
+  display:flex;
+  justify-content:space-between;
+  font-weight:900;
+  margin-bottom:6px;
+}
+
+.tune-row .value{
+  font-family:var(--mono);
+  color:var(--accent);
+}
+
+input[type=range]{
+  width:100%;
+}
+
+/* =====================================================
+   RIGHT STATUS PANEL
+   ===================================================== */
+.status{
+  background:rgba(0,0,0,.55);
+  border-left:1px solid rgba(255,255,255,.12);
+  padding:18px;
+}
+
+.stat{
+  margin-bottom:18px;
+}
+.stat .label{
+  font-size:11px;
+  color:var(--muted);
+}
+.stat .val{
+  font-size:28px;
+  font-weight:900;
+}
+
+/* =====================================================
+   FOOTER BAR
+   ===================================================== */
+footer{
+  position:absolute;
+  bottom:0;
+  left:260px;
+  right:320px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  background:rgba(0,0,0,.65);
+  border-top:1px solid rgba(255,255,255,.12);
+}
+
+footer button{
+  padding:12px 18px;
+  border-radius:14px;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.28);
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  color:var(--text);
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body data-theme="maverik">
+
+<header>
+  <div class="brand">
+    <h1>HOT FLASH — TUNING SUITE</h1>
+    <span id="vinText">VIN: —</span>
+  </div>
+  <span style="font-family:var(--mono);color:var(--muted)">SIM ECU CONFIG</span>
+</header>
+
+<div class="app">
+
+  <!-- LEFT MENU -->
+  <div class="menu">
+    <h3>SETUP CATEGORIES</h3>
+    <button class="active">Engine</button>
+    <button>Fuel & Timing</button>
+    <button>Boost Control</button>
+    <button>Rev Limits</button>
+    <button>Traction / Launch</button>
+    <button>Safeties</button>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <div class="panel">
+      <h2>ENGINE — BASE PARAMETERS</h2>
+
+      <div class="tune-row">
+        <label>Rev Limit <span class="value" id="revVal"></span></label>
+        <input type="range" min="5000" max="8200" id="rev">
+      </div>
+
+      <div class="tune-row">
+        <label>Throttle Response <span class="value" id="thrVal"></span></label>
+        <input type="range" min="10" max="100" id="thr">
+      </div>
+
+      <div class="tune-row">
+        <label>Engine Braking <span class="value" id="brkVal"></span></label>
+        <input type="range" min="0" max="100" id="brk">
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="status">
+    <h3>ESTIMATED OUTPUT</h3>
+
+    <div class="stat">
+      <div class="label">Horsepower</div>
+      <div class="val" id="hpOut">—</div>
+    </div>
+
+    <div class="stat">
+      <div class="label">Torque</div>
+      <div class="val" id="tqOut">—</div>
+    </div>
+
+    <div class="stat">
+      <div class="label">Reliability</div>
+      <div class="val" id="relOut">HIGH</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <button id="apply">APPLY TO ECU</button>
+  <button id="save">SAVE TUNE</button>
+  <button id="back">BACK TO CORE</button>
+</footer>
+
+<script>
+/* =====================================================
+   LOAD SHARED STATE
+   ===================================================== */
+let tune = {
+  theme:"maverik",
+  vin:"HF-SIM-0001",
+  rev:6800,
+  thr:60,
+  brk:40
+};
+
+const shared = localStorage.getItem("hf_shared");
+if(shared){
+  try{
+    const data = JSON.parse(shared);
+    tune = {...tune, ...data.tune};
+    tune.theme = data.theme || tune.theme;
+    tune.vin = data.vin || tune.vin;
+  }catch{}
+}
+
+document.body.dataset.theme = tune.theme;
+vinText.textContent = "VIN: " + tune.vin;
+
+/* =====================================================
+   UI BINDINGS
+   ===================================================== */
+rev.value = tune.rev;
+thr.value = tune.thr;
+brk.value = tune.brk;
+
+function update(){
+  revVal.textContent = tune.rev + " RPM";
+  thrVal.textContent = tune.thr + "%";
+  brkVal.textContent = tune.brk + "%";
+
+  hpOut.textContent = Math.round(tune.rev / 16) + " HP";
+  tqOut.textContent = Math.round(tune.rev / 20) + " LB-FT";
+}
+
+[rev,thr,brk].forEach(el=>{
+  el.oninput = ()=>{
+    tune[el.id] = Number(el.value);
+    update();
+  };
+});
+
+update();
+
+/* =====================================================
+   BUTTON ACTIONS
+   ===================================================== */
+apply.onclick = ()=>{
+  alert("Tune applied to ECU (simulated)");
+};
+
+save.onclick = ()=>{
+  localStorage.setItem("hf_suite_last", JSON.stringify(tune));
+  alert("Tune saved");
+};
+
+back.onclick = ()=>{
+  localStorage.setItem("hf_suite_last", JSON.stringify(tune));
+  localStorage.setItem("hf_shared", JSON.stringify({
+    source:"tuning",
+    theme:tune.theme,
+    vin:tune.vin,
+    tune
+  }));
+  window.location.href = "core.html";
+};
+</script>
+
+</body>
+</html>
