@@ -1,1 +1,326 @@
-HOT FLASH DESKTOP CORE
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hot Flash Core</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* =====================================================
+   HOT FLASH CORE — STABLE BASE
+   ===================================================== */
+
+/* ---------- Core Tokens ---------- */
+:root{
+  --radius:18px;
+  --mono:ui-monospace, Consolas, monospace;
+  --sans:system-ui, Segoe UI, Roboto, Arial;
+
+  --gloss-hi:rgba(255,255,255,.55);
+  --gloss-mid:rgba(255,255,255,.14);
+  --gloss-lo:rgba(0,0,0,.55);
+  --shadow:0 18px 45px rgba(0,0,0,.65);
+}
+
+/* ---------- Default Theme (Maverik) ---------- */
+body{
+  --bg:#05080c;
+  --panel:#0f1a22;
+  --text:#e6fff6;
+  --muted:#8af5cf;
+  --accent:#00ff9c;
+}
+
+/* ---------- Cadivette 🍒 ---------- */
+body[data-theme="cadivette"]{
+  --bg:#120204;
+  --panel:#7a0d17;
+  --text:#fff1f3;
+  --muted:#ffb3bb;
+  --accent:#ff2a3f;
+}
+
+/* ---------- Old Skool 🪵 ---------- */
+body[data-theme="oldskool"]{
+  --bg:#1a140c;
+  --panel:#2a2015;
+  --text:#f6eddc;
+  --muted:#d6c7a1;
+  --accent:#e0c36b;
+}
+
+/* ---------- Global ---------- */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:var(--sans);
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 50% -20%,
+      color-mix(in srgb, var(--accent) 20%, transparent),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+header{
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.brand h1{
+  margin:0;
+  letter-spacing:2px;
+}
+.brand span{
+  font-size:12px;
+  font-family:var(--mono);
+  color:var(--muted);
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+button,select{
+  padding:10px 14px;
+  border-radius:14px;
+  font-weight:900;
+  color:var(--text);
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo));
+  border:1px solid rgba(255,255,255,.28);
+  cursor:pointer;
+}
+
+/* =====================================================
+   LAYOUT
+   ===================================================== */
+main{
+  max-width:1500px;
+  margin:auto;
+  padding:18px;
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:14px;
+}
+
+.card{
+  position:relative;
+  border-radius:var(--radius);
+  background:
+    linear-gradient(180deg,var(--gloss-hi),var(--gloss-mid),var(--gloss-lo)),
+    var(--panel);
+  box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,.25);
+  padding:16px;
+  overflow:hidden;
+}
+
+/* Candy highlight sweep */
+.card::after{
+  content:"";
+  position:absolute;
+  inset:-45% -25% auto -25%;
+  height:60%;
+  background:
+    radial-gradient(60% 100% at 50% 0%,
+      rgba(255,255,255,.45),
+      transparent 70%);
+  opacity:.6;
+  pointer-events:none;
+}
+
+/* Old Skool woodgrain */
+body[data-theme="oldskool"] .card{
+  background:
+    linear-gradient(180deg,var(--gloss-mid),var(--gloss-lo)),
+    repeating-linear-gradient(
+      90deg,
+      #6a4326 0px,
+      #6a4326 6px,
+      #5a381f 12px,
+      #7a4d2c 18px,
+      #4c2f18 24px
+    );
+  border:2px solid var(--accent);
+}
+
+/* =====================================================
+   ENGINE CORE
+   ===================================================== */
+.tach{
+  text-align:center;
+}
+.rpm{
+  font-size:92px;
+  font-weight:1000;
+  text-shadow:0 0 32px var(--accent);
+}
+.shift{
+  font-family:var(--mono);
+  letter-spacing:3px;
+  color:var(--muted);
+}
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:18px;
+}
+.metric{text-align:center}
+.metric .val{
+  font-size:26px;
+  font-weight:900;
+}
+.metric .unit{
+  font-size:11px;
+  color:var(--muted);
+}
+
+/* =====================================================
+   DYNO
+   ===================================================== */
+canvas{
+  width:100%;
+  height:260px;
+  background:rgba(0,0,0,.45);
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+footer{
+  margin:12px 18px 18px;
+  display:flex;
+  justify-content:space-between;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body data-theme="maverik">
+
+<header>
+  <div class="brand">
+    <h1>HOT FLASH CORE</h1>
+    <span>Live Monitoring • Dyno • Control</span>
+  </div>
+
+  <div class="controls">
+    <select id="themeSel">
+      <option value="maverik">Maverik 🛩️</option>
+      <option value="cadivette">Cadivette 🍒</option>
+      <option value="oldskool">Old Skool 🪵</option>
+    </select>
+
+    <button id="openTuning">TUNING SUITE</button>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="tach">
+      <div class="rpm" id="rpm">—</div>
+      <div class="shift" id="shift">STANDBY</div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="val" id="spd">—</div><div class="unit">MPH</div></div>
+      <div class="metric"><div class="val" id="afr">—</div><div class="unit">AFR</div></div>
+      <div class="metric"><div class="val" id="hp">—</div><div class="unit">HP EST</div></div>
+      <div class="metric"><div class="val" id="tq">—</div><div class="unit">TQ EST</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <canvas id="dyno"></canvas>
+  </section>
+</main>
+
+<footer>
+  <div id="vinText">VIN: HF-SIM-0001</div>
+  <div>Hot Flash Tuning Platform</div>
+</footer>
+
+<script>
+/* =====================================================
+   STATE + THEME
+   ===================================================== */
+let tune = JSON.parse(localStorage.getItem("hf_suite_last") || "{}");
+let theme = tune.theme || localStorage.getItem("hf_theme") || "maverik";
+let vin   = tune.vin || "HF-SIM-0001";
+
+document.body.dataset.theme = theme;
+themeSel.value = theme;
+vinText.textContent = "VIN: " + vin;
+
+themeSel.onchange = e=>{
+  theme = e.target.value;
+  document.body.dataset.theme = theme;
+  localStorage.setItem("hf_theme", theme);
+};
+
+/* =====================================================
+   OPEN TUNING SUITE
+   ===================================================== */
+openTuning.onclick = ()=>{
+  localStorage.setItem("hf_shared", JSON.stringify({
+    source:"core",
+    theme,
+    vin,
+    tune
+  }));
+  window.location.href = "tuning.html";
+};
+
+/* =====================================================
+   SIM ENGINE + DYNO
+   ===================================================== */
+const rpmEl=rpm, spdEl=spd, afrEl=afr, hpEl=hp, tqEl=tq, shiftEl=shift;
+const canvas=dyno, ctx=canvas.getContext("2d");
+
+let t=0, run=[];
+setInterval(()=>{
+  t+=0.04;
+  const rpm=Math.round(1200+(Math.sin(t)+1)*3200);
+  rpmEl.textContent=rpm;
+  spdEl.textContent=Math.round((Math.sin(t/2)+1)*60);
+  afrEl.textContent=(13.6+Math.sin(t)*0.6).toFixed(1);
+  hpEl.textContent=Math.round(rpm/18);
+  tqEl.textContent=Math.round(rpm/22);
+  shiftEl.textContent=rpm>6500?"SHIFT":"ACTIVE";
+
+  run.push(rpm);
+  if(run.length>120) run.shift();
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue("--accent");
+  ctx.beginPath();
+  run.forEach((v,i)=>{
+    const x=i*(canvas.width/120);
+    const y=canvas.height-(v/8000)*canvas.height;
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  });
+  ctx.stroke();
+},120);
+</script>
+
+</body>
+</html>
