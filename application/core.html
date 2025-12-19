@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -62,6 +61,44 @@ body{
       transparent 60%
     ),
     var(--bg);
+}
+
+/* =====================================================
+   SPLASH SCREEN
+   ===================================================== */
+#splash{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:splashFadeOut 1.2s ease forwards;
+  animation-delay:2.4s;
+}
+
+#splash img{
+  max-width:420px;
+  width:80%;
+  opacity:0;
+  transform:scale(0.96);
+  animation:logoIn 1.2s ease forwards;
+}
+
+@keyframes logoIn{
+  to{
+    opacity:1;
+    transform:scale(1);
+    filter:drop-shadow(0 0 35px rgba(0,255,160,.45));
+  }
+}
+
+@keyframes splashFadeOut{
+  to{
+    opacity:0;
+    visibility:hidden;
+  }
 }
 
 /* =====================================================
@@ -161,9 +198,7 @@ body[data-theme="oldskool"] .card{
 /* =====================================================
    ENGINE CORE
    ===================================================== */
-.tach{
-  text-align:center;
-}
+.tach{text-align:center}
 .rpm{
   font-size:92px;
   font-weight:1000;
@@ -182,14 +217,8 @@ body[data-theme="oldskool"] .card{
   margin-top:18px;
 }
 .metric{text-align:center}
-.metric .val{
-  font-size:26px;
-  font-weight:900;
-}
-.metric .unit{
-  font-size:11px;
-  color:var(--muted);
-}
+.metric .val{font-size:26px;font-weight:900}
+.metric .unit{font-size:11px;color:var(--muted)}
 
 /* =====================================================
    DYNO
@@ -218,6 +247,11 @@ footer{
 
 <body data-theme="maverik">
 
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <img src="logo_blackbg.png" alt="Hot Flash Tuning Suite">
+</div>
+
 <header>
   <div class="brand">
     <h1>HOT FLASH CORE</h1>
@@ -230,7 +264,6 @@ footer{
       <option value="cadivette">Cadivette 🍒</option>
       <option value="oldskool">Old Skool 🪵</option>
     </select>
-
     <button id="openTuning">TUNING SUITE</button>
   </div>
 </header>
@@ -261,6 +294,19 @@ footer{
 </footer>
 
 <script>
+/* =====================================================
+   SPLASH CONTROL
+   ===================================================== */
+const splash = document.getElementById("splash");
+if(splash){
+  splash.addEventListener("click", ()=>{
+    splash.style.transition="opacity .4s ease";
+    splash.style.opacity="0";
+    setTimeout(()=>splash.remove(),400);
+  });
+  setTimeout(()=>{ if(splash) splash.remove(); },4000);
+}
+
 /* =====================================================
    STATE + THEME
    ===================================================== */
