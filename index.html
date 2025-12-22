@@ -3,29 +3,33 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>RaceDash OBD2 Suite — v0.1</title>
+<title>Hot Flash — Racing OBD2 Suite</title>
+<meta name="description" content="Hot Flash is a high-performance OBD2 racing dashboard + logger built for drivers who want real telemetry, real control, and real results." />
+
 <style>
   :root{
-    --bg0:#05070b;
-    --bg1:#070d13;
-    --panel: rgba(18, 28, 40, .72);
-    --panel2: rgba(12, 18, 28, .72);
-    --border: rgba(255,255,255,.10);
-    --text: #e9f7ff;
-    --muted: rgba(233,247,255,.68);
-    --good:#38d67a;
-    --warn:#f7c948;
-    --bad:#ff4d4d;
+    --bg0:#04060a;
+    --bg1:#070c12;
+
+    --panel:rgba(18,24,34,.70);
+    --panel2:rgba(11,16,26,.65);
+    --border:rgba(255,255,255,.12);
+
+    --text:#eaf4ff;
+    --muted:rgba(234,244,255,.70);
+
+    /* Accents: keep it cinematic; easy to tweak later */
     --accent:#63b3ff;
     --accent2:#9b7bff;
-    --radius:18px;
-    --shadow: 0 20px 55px rgba(0,0,0,.55);
-    --glassHi: rgba(255,255,255,.22);
-    --glassMid: rgba(255,255,255,.10);
-    --glassLo: rgba(0,0,0,.35);
+    --hot:#38d67a;     /* “Hot Flash” vibe (works great if your logo has green) */
+    --warn:#f7c948;
+    --bad:#ff4d4d;
 
-    --rpmGlow: 0.0; /* 0..1 driven by rpm */
-    --scanline: rgba(255,255,255,.05);
+    --radius:22px;
+    --shadow: 0 28px 80px rgba(0,0,0,.55);
+    --shadow2: 0 18px 45px rgba(0,0,0,.45);
+
+    --glow: 0.30;   /* driven by pointer / scroll */
   }
 
   *{ box-sizing:border-box; }
@@ -35,1169 +39,1060 @@
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     color:var(--text);
     background:
-      radial-gradient(1200px 700px at 60% 35%, rgba(99,179,255,.15), transparent 60%),
-      radial-gradient(900px 600px at 30% 80%, rgba(155,123,255,.12), transparent 62%),
-      radial-gradient(1100px 900px at 50% 50%, rgba(255,80,80, calc(.05 + var(--rpmGlow)*.20)), transparent 60%),
+      radial-gradient(1200px 700px at 30% 25%, rgba(56,214,122, calc(.08 + var(--glow)*.14)), transparent 62%),
+      radial-gradient(900px 600px at 70% 30%, rgba(99,179,255, calc(.08 + var(--glow)*.16)), transparent 64%),
+      radial-gradient(1200px 900px at 50% 80%, rgba(255,77,77, calc(.06 + var(--glow)*.12)), transparent 62%),
       linear-gradient(180deg, var(--bg0), var(--bg1));
-    overflow:hidden;
+    overflow-x:hidden;
   }
 
-  /* subtle animated scanlines */
-  body::before{
+  a{ color:inherit; text-decoration:none; }
+  .container{ width:min(1180px, calc(100% - 28px)); margin:0 auto; }
+
+  /* ===== Cinematic overlays ===== */
+  .film{
+    position:fixed; inset:0; pointer-events:none; z-index:1;
+    opacity:.85;
+  }
+  .film::before{
     content:"";
-    position:fixed; inset:0;
-    background: repeating-linear-gradient(
-      180deg,
-      transparent 0px,
-      transparent 3px,
-      var(--scanline) 4px
-    );
-    opacity:.16;
-    pointer-events:none;
+    position:absolute; inset:-40px;
+    background:
+      repeating-linear-gradient(180deg,
+        rgba(255,255,255,.00) 0px,
+        rgba(255,255,255,.00) 3px,
+        rgba(255,255,255,.06) 4px
+      );
     mix-blend-mode: overlay;
+    opacity:.18;
     animation: scan 6s linear infinite;
   }
-  @keyframes scan{
-    from{ transform: translateY(0); }
-    to{ transform: translateY(10px); }
+  .film::after{
+    content:"";
+    position:absolute; inset:-40px;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.12), transparent 35%),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,.10), transparent 38%),
+      radial-gradient(circle at 45% 75%, rgba(255,255,255,.08), transparent 42%);
+    opacity:.08;
+    filter: blur(2px);
+    animation: drift 14s ease-in-out infinite;
+  }
+  @keyframes scan{ from{ transform: translateY(0); } to{ transform: translateY(12px); } }
+  @keyframes drift{
+    0%,100%{ transform: translate3d(0,0,0) scale(1.0); }
+    50%{ transform: translate3d(-18px, 8px,0) scale(1.03); }
   }
 
-  /* Top bar */
-  .topbar{
-    position:sticky; top:0;
-    z-index:50;
-    display:flex;
-    gap:12px;
-    align-items:center;
-    padding:12px 14px;
-    background: linear-gradient(180deg, rgba(10,14,20,.85), rgba(10,14,20,.55));
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(14px);
+  /* Grain */
+  .grain{
+    position:fixed; inset:-20%;
+    pointer-events:none; z-index:2;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+    opacity:.07;
+    mix-blend-mode: overlay;
+    animation: grainMove 6s steps(6) infinite;
   }
+  @keyframes grainMove{
+    0%{ transform: translate3d(0,0,0); }
+    20%{ transform: translate3d(-2%, 1%,0); }
+    40%{ transform: translate3d(-1%, -2%,0); }
+    60%{ transform: translate3d(2%, 2%,0); }
+    80%{ transform: translate3d(1%, -1%,0); }
+    100%{ transform: translate3d(0,0,0); }
+  }
+
+  /* ===== Top Nav ===== */
+  header{
+    position:sticky; top:0; z-index:30;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, rgba(5,7,10,.80), rgba(5,7,10,.55));
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 0;
+    gap: 12px;
+  }
+
   .brand{
-    display:flex; align-items:baseline; gap:10px;
+    display:flex; align-items:center; gap:12px;
+    user-select:none;
     min-width: 260px;
   }
-  .brand .title{
-    font-weight:800;
-    letter-spacing:.6px;
+
+  /* ✅ Hot Flash logo */
+  .logoWrap{
+    width:42px; height:42px;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.18);
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    display:grid;
+    place-items:center;
+    overflow:hidden;
+    position:relative;
   }
-  .brand .ver{
-    color: var(--muted);
-    font-size:12px;
-    padding: 3px 10px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: rgba(255,255,255,.05);
+  .logoWrap::after{
+    content:"";
+    position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.22), transparent 45%);
+    opacity:.55;
+    pointer-events:none;
+  }
+  .logoImg{
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
   }
 
-  .chip{
-    display:flex; align-items:center; gap:8px;
-    padding:8px 10px;
-    border-radius:999px;
-    border:1px solid var(--border);
-    background: rgba(255,255,255,.06);
-    box-shadow: 0 10px 25px rgba(0,0,0,.25);
+  .brandName{
+    font-weight: 950;
+    font-size: 15px;
+    letter-spacing:.6px;
+    text-transform: uppercase;
+    line-height: 1.1;
   }
-  .chip label{
+  .brandTag{
     color:var(--muted);
     font-size:12px;
+    margin-top:2px;
+  }
+
+  .navLinks{
+    display:flex; gap:16px; align-items:center;
+  }
+  .navLinks a{
+    color:var(--muted);
+    font-weight:650;
+    font-size:13px;
+    padding: 8px 10px;
+    border-radius:999px;
+    transition: background .15s ease, color .15s ease, transform .15s ease;
+    white-space: nowrap;
+  }
+  .navLinks a:hover{
+    color:var(--text);
+    background: rgba(255,255,255,.06);
+    transform: translateY(-1px);
+  }
+
+  .navCtas{ display:flex; gap:10px; align-items:center; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:10px;
+    padding: 11px 14px;
+    border-radius:999px;
+    border: 1px solid rgba(255,255,255,.16);
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+    box-shadow: var(--shadow2);
+    font-weight:900;
     letter-spacing:.2px;
+    transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+    cursor:pointer;
+    user-select:none;
     white-space:nowrap;
   }
-  select,input{
-    color:var(--text);
-    background: rgba(0,0,0,.30);
-    border: 1px solid rgba(255,255,255,.14);
-    outline:none;
-    border-radius: 999px;
-    padding: 7px 10px;
+  .btn:hover{ transform: translateY(-1px); border-color: rgba(56,214,122,.45); filter: brightness(1.05); }
+  .btn:active{ transform: translateY(0) scale(.99); }
+  .btn.primary{
+    border-color: rgba(56,214,122,.45);
+    background: linear-gradient(180deg, rgba(56,214,122,.28), rgba(255,255,255,.06));
   }
-  input{ width: 240px; }
-  select:focus,input:focus{ border-color: rgba(99,179,255,.55); box-shadow: 0 0 0 3px rgba(99,179,255,.15); }
+  .btn.ghost{
+    background: rgba(0,0,0,.18);
+  }
 
-  .btn{
-    cursor:pointer;
-    border:1px solid rgba(255,255,255,.16);
-    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
-    color: var(--text);
-    border-radius: 999px;
-    padding: 9px 12px;
-    font-weight:650;
-    letter-spacing:.2px;
-    display:inline-flex; gap:10px; align-items:center;
-    box-shadow: 0 18px 40px rgba(0,0,0,.35);
-    backdrop-filter: blur(8px);
-    transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+  /* ===== Hero ===== */
+  .hero{
+    position:relative;
+    padding: 54px 0 28px 0;
+    z-index:10;
+  }
+  .poster{
+    position:relative;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,.12);
+    background:
+      radial-gradient(1000px 700px at 20% 20%, rgba(56,214,122,.20), transparent 62%),
+      radial-gradient(900px 650px at 70% 25%, rgba(99,179,255,.16), transparent 64%),
+      radial-gradient(1200px 900px at 45% 80%, rgba(255,77,77,.12), transparent 62%),
+      linear-gradient(180deg, rgba(18,24,34,.78), rgba(10,14,22,.74));
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .poster::before{
+    content:"";
+    position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.20), transparent 38%);
+    opacity:.40;
+    pointer-events:none;
+  }
+  .poster::after{
+    content:"";
+    position:absolute; inset:-40px;
+    background:
+      conic-gradient(from 180deg at 55% 40%,
+        rgba(255,255,255,.05),
+        rgba(56,214,122,.10),
+        rgba(99,179,255,.08),
+        rgba(255,77,77,.06),
+        rgba(255,255,255,.05)
+      );
+    filter: blur(22px);
+    opacity: calc(.55 + var(--glow)*.20);
+    mix-blend-mode: overlay;
+    transform: translate3d(calc(var(--mx, .5) * -18px), calc(var(--my, .5) * -10px), 0);
+    pointer-events:none;
+  }
+
+  /* ✅ Hero watermark logo */
+  .watermark{
+    position:absolute;
+    right: -40px;
+    top: -40px;
+    width: min(520px, 55vw);
+    opacity: .10;
+    transform: rotate(10deg);
+    filter: blur(.2px) drop-shadow(0 25px 40px rgba(0,0,0,.6));
+    pointer-events:none;
     user-select:none;
   }
-  .btn:hover{ transform: translateY(-1px); border-color: rgba(99,179,255,.45); filter: brightness(1.06); }
-  .btn:active{ transform: translateY(0px) scale(.99); }
 
-  .btn.good{ border-color: rgba(56,214,122,.35); }
-  .btn.warn{ border-color: rgba(247,201,72,.35); }
-  .btn.bad{ border-color: rgba(255,77,77,.35); }
+  .heroGrid{
+    display:grid;
+    grid-template-columns: 1.2fr .9fr;
+    gap: 18px;
+    padding: 26px;
+    align-items:stretch;
+    position:relative;
+  }
 
-  .status{
-    margin-left:auto;
-    display:flex;
-    gap:10px;
+  .heroLeft{ padding: 6px 6px 14px 6px; }
+
+  .kicker{
+    display:inline-flex;
     align-items:center;
-    color: var(--muted);
-    font-size:12.5px;
-  }
-  .dot{
-    width:10px; height:10px;
+    gap:10px;
+    padding: 8px 12px;
     border-radius:999px;
-    background: rgba(255,77,77,.85);
-    box-shadow: 0 0 18px rgba(255,77,77,.35);
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.18);
+    color:var(--muted);
+    font-weight:800;
+    font-size:12px;
+    letter-spacing:.35px;
   }
-  .dot.on{
+  .kDot{
+    width:10px; height:10px; border-radius:999px;
     background: rgba(56,214,122,.95);
     box-shadow: 0 0 18px rgba(56,214,122,.35);
   }
 
-  /* Shift light bar */
-  .shiftbar{
-    position:fixed;
-    left:0; right:0;
-    top:56px;
-    z-index:45;
-    height:14px;
-    background: rgba(0,0,0,.35);
-    border-bottom: 1px solid rgba(255,255,255,.10);
-    backdrop-filter: blur(10px);
-    overflow:hidden;
+  h1{
+    margin: 14px 0 10px 0;
+    line-height: .95;
+    letter-spacing: .6px;
+    font-size: clamp(42px, 6vw, 74px);
+    text-transform: uppercase;
+    font-weight: 950;
+    text-shadow: 0 18px 55px rgba(0,0,0,.6);
   }
-  .shiftfill{
-    height:100%;
-    width:0%;
-    background: linear-gradient(90deg,
-      rgba(56,214,122,.95),
-      rgba(247,201,72,.95),
-      rgba(255,77,77,.95)
-    );
-    box-shadow: 0 0 25px rgba(255,77,77,.25);
-    transition: width .06s linear;
+  .glitch{
     position:relative;
+    display:inline-block;
   }
-  .shiftfill::after{
-    content:"";
-    position:absolute; inset:0;
-    background: linear-gradient(180deg, rgba(255,255,255,.35), transparent 55%);
-    opacity:.55;
-    mix-blend-mode: overlay;
-  }
-  .limiterFlash{
-    animation: flash .10s steps(2) infinite;
-  }
-  @keyframes flash{
-    50%{ filter: brightness(1.75) saturate(1.3); }
-  }
-
-  /* Main layout */
-  .wrap{
-    height: calc(100% - 56px);
-    padding-top: 20px; /* accounts for shiftbar + spacing */
-  }
-  .content{
-    height: 100%;
-    display:grid;
-    grid-template-columns: 1.55fr 1fr;
-    gap: 14px;
-    padding: 12px 14px 14px 14px;
-  }
-
-  .panel{
-    background: linear-gradient(180deg, var(--panel), var(--panel2));
-    border:1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(16px);
-    overflow:hidden;
-    position:relative;
-  }
-  .panel::before{
-    content:"";
-    position:absolute; inset:0;
-    background: radial-gradient(900px 300px at 20% 10%, rgba(255,255,255,.16), transparent 62%);
+  .glitch::before,
+  .glitch::after{
+    content: attr(data-text);
+    position:absolute; left:0; top:0;
+    opacity:.16;
     pointer-events:none;
   }
-  .panelHead{
+  .glitch::before{ transform: translate3d(-2px, 0, 0); color: rgba(56,214,122,.95); }
+  .glitch::after{ transform: translate3d(2px, 0, 0); color: rgba(99,179,255,.95); }
+
+  .tagline{
+    margin: 0 0 16px 0;
+    color: rgba(234,244,255,.86);
+    font-size: 16.5px;
+    line-height: 1.4;
+    max-width: 58ch;
+  }
+  .tagline b{ color: var(--text); }
+
+  .heroCtas{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .btn.big{
+    padding: 13px 16px;
+    font-size: 14px;
+  }
+
+  .badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top: 16px;
+  }
+  .badge{
+    font-size:12px;
+    color: var(--muted);
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.16);
+    padding: 8px 10px;
+    border-radius: 999px;
+  }
+
+  /* Right “poster panel” */
+  .heroRight{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+  .card{
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    overflow:hidden;
+    position:relative;
+  }
+  .card::after{
+    content:"";
+    position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.26), transparent 45%);
+    opacity:.42;
+    pointer-events:none;
+  }
+  .cardHead{
     padding: 12px 14px;
     display:flex;
     align-items:center;
     justify-content:space-between;
     border-bottom: 1px solid rgba(255,255,255,.10);
   }
-  .panelHead .h{
-    font-weight:800;
-    letter-spacing:.35px;
+  .cardHead .t{ font-weight:950; letter-spacing:.35px; text-transform:uppercase; }
+  .cardHead .s{ color:var(--muted); font-size:12px; }
+
+  .hud{
+    padding: 14px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
-  .panelHead .sub{
-    color: var(--muted);
-    font-size:12px;
+  .stat{
+    padding: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.18);
+    position:relative;
+    overflow:hidden;
+  }
+  .stat .k{ color:var(--muted); font-size:12px; font-weight:800; letter-spacing:.2px; }
+  .stat .v{ font-size:20px; font-weight:950; margin-top:2px; letter-spacing:.3px; }
+  .stat .mini{ color:rgba(234,244,255,.82); font-size:12px; margin-top:4px; }
+  .stat .bar{
+    margin-top:10px;
+    height:8px; border-radius:999px;
+    background: rgba(255,255,255,.08);
+    overflow:hidden;
+  }
+  .stat .fill{
+    height:100%;
+    width: 40%;
+    border-radius:999px;
+    background: linear-gradient(90deg, rgba(56,214,122,.95), rgba(247,201,72,.92), rgba(255,77,77,.92));
+    box-shadow: 0 0 22px rgba(255,77,77,.20);
+    transition: width .25s ease;
   }
 
-  /* Gauge grid */
-  .grid{
-    padding: 12px;
+  .miniConsole{
+    padding: 14px;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px;
+    color: rgba(234,244,255,.78);
+    background: rgba(0,0,0,.22);
+    border-top: 1px solid rgba(255,255,255,.10);
+    line-height: 1.35;
+    min-height: 114px;
+  }
+  .line{ display:flex; gap:10px; }
+  .prompt{ color: rgba(56,214,122,.95); }
+  .ok{ color: rgba(56,214,122,.9); }
+  .warn{ color: rgba(247,201,72,.92); }
+
+  /* ===== Sections ===== */
+  section.block{
+    position:relative;
+    z-index:10;
+    padding: 22px 0;
+  }
+  .sectionHead{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin: 14px 0 12px 0;
+  }
+  .sectionHead h2{
+    margin:0;
+    font-size: 22px;
+    letter-spacing:.3px;
+    text-transform: uppercase;
+    font-weight: 950;
+  }
+  .sectionHead p{
+    margin:0;
+    color:var(--muted);
+    max-width: 62ch;
+    line-height:1.4;
+    font-size: 13.5px;
+  }
+
+  .grid3{
     display:grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
-  .tile{
-    border-radius: 16px;
-    border:1px solid rgba(255,255,255,.10);
-    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-    box-shadow: 0 16px 40px rgba(0,0,0,.35);
-    overflow:hidden;
-    position:relative;
+  .grid2{
+    display:grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 12px;
   }
-  .tile::after{
+  .feat{
+    padding: 14px;
+    border-radius: 20px;
+    border:1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(18,24,34,.72), rgba(10,14,22,.66));
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    position:relative;
+    overflow:hidden;
+  }
+  .feat::after{
     content:"";
     position:absolute; inset:-1px;
-    background: linear-gradient(180deg, rgba(255,255,255,.30), transparent 40%);
-    opacity:.42;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), transparent 45%);
+    opacity:.35;
     pointer-events:none;
   }
-  .tileTop{
-    padding: 10px 10px 0 10px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+  .icon{
+    width:40px; height:40px;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,.12);
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 55%),
+      linear-gradient(135deg, rgba(56,214,122,.28), rgba(99,179,255,.22));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 14px 30px rgba(0,0,0,.35);
+    margin-bottom:10px;
   }
-  .tileTop .name{
-    color: var(--muted);
-    font-size:12px;
-    letter-spacing:.3px;
-    font-weight:650;
-  }
-  .tileTop .val{
-    font-weight:900;
+  .feat h3{
+    margin: 6px 0 6px 0;
+    font-size: 15px;
+    font-weight: 950;
     letter-spacing:.2px;
   }
-  .tile canvas{
-    width:100%;
-    height:160px;
-    display:block;
+  .feat p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.4;
+  }
+  .feat ul{
+    margin: 10px 0 0 0;
+    padding-left: 18px;
+    color: rgba(234,244,255,.78);
+    font-size: 12.8px;
+    line-height: 1.45;
   }
 
-  /* Right side */
-  .rightInner{
-    padding: 12px;
-    display:grid;
-    grid-template-rows: 1fr auto;
-    gap: 12px;
-    height: calc(100% - 49px);
+  .steps{ display:grid; gap:10px; }
+  .step{
+    display:flex; gap:12px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.16);
   }
+  .num{
+    width:34px; height:34px;
+    border-radius: 12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:950;
+    background: rgba(56,214,122,.16);
+    border:1px solid rgba(56,214,122,.28);
+  }
+  .step b{ display:block; font-weight:950; }
+  .step span{ color:var(--muted); font-size:13px; line-height:1.35; }
 
-  .chartBox{
-    border-radius: 16px;
-    border:1px solid rgba(255,255,255,.10);
-    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-    box-shadow: 0 16px 40px rgba(0,0,0,.35);
-    overflow:hidden;
-    position:relative;
+  .pillRow{
+    display:flex; flex-wrap:wrap; gap:8px;
+    margin-top: 10px;
   }
-  .chartBox header{
-    padding: 10px 12px;
-    border-bottom: 1px solid rgba(255,255,255,.10);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .chartBox header .k{
-    font-weight:800;
-    letter-spacing:.3px;
-  }
-  .chartBox header .meta{
-    color: var(--muted);
+  .pill{
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.14);
+    padding: 8px 10px;
+    color: rgba(234,244,255,.78);
     font-size:12px;
-  }
-  .chartBox canvas{
-    width:100%;
-    height: 100%;
-    display:block;
+    font-weight:800;
   }
 
-  .runBox{
-    border-radius: 16px;
-    border:1px solid rgba(255,255,255,.10);
-    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
-    box-shadow: 0 16px 40px rgba(0,0,0,.35);
-    padding: 10px 12px;
-    display:grid;
-    gap: 8px;
+  .faq{ display:grid; gap:10px; }
+  details{
+    border-radius: 18px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.16);
+    padding: 12px 14px;
   }
-  .runRow{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    justify-content:space-between;
+  summary{
+    cursor:pointer;
+    font-weight: 950;
+    letter-spacing:.2px;
+  }
+  details p{
+    margin: 10px 0 0 0;
+    color:var(--muted);
+    line-height:1.45;
+    font-size:13px;
+  }
+
+  footer{
+    padding: 30px 0 40px 0;
     color: var(--muted);
-    font-size:12.5px;
+    position:relative;
+    z-index:10;
   }
-  .runRow b{ color: var(--text); }
-
-  .kbd{
-    font-family: ui-monospace, Consolas, monospace;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.25);
-    border-radius: 8px;
-    padding: 2px 6px;
-    color: var(--text);
+  .footGrid{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,.10);
+  }
+  .fine{
+    font-size: 12px;
+    line-height: 1.45;
   }
 
-  /* Responsive */
-  @media (max-width: 1100px){
-    body{ overflow:auto; }
-    .wrap{ height:auto; }
-    .content{ grid-template-columns: 1fr; }
-    .rightInner{ height:auto; }
-    .tile canvas{ height:150px; }
-    .shiftbar{ top: 92px; }
-    .topbar{ flex-wrap:wrap; }
-    .status{ margin-left:0; width:100%; justify-content:space-between; }
+  /* ===== Mobile ===== */
+  .mobileMenuBtn{ display:none; }
+  @media (max-width: 980px){
+    .heroGrid{ grid-template-columns: 1fr; }
+    .grid3{ grid-template-columns: 1fr; }
+    .grid2{ grid-template-columns: 1fr; }
+    .navLinks{ display:none; }
+    .mobileMenuBtn{ display:inline-flex; }
+    .btn{ padding: 10px 12px; }
+    .watermark{ right: -90px; top: -70px; opacity:.08; }
   }
 </style>
 </head>
+
 <body>
+  <div class="film"></div>
+  <div class="grain"></div>
 
-  <div class="topbar">
-    <div class="brand">
-      <div class="title">RaceDash OBD2 Suite</div>
-      <div class="ver">v0.1</div>
-    </div>
+  <!-- ✅ QUICK EDITS: change your CTA URLs here -->
+  <script>
+    window.LANDING = {
+      primaryCtaUrl: "#get-started",   // e.g. "https://yourdomain.com/app"
+      secondaryCtaUrl: "#features",    // e.g. "https://yourdomain.com/demo"
+      contactEmail: "support@yourdomain.com",
+      logoPath: "hf-logo.png"          // ✅ your uploaded logo file
+    };
+  </script>
 
-    <div class="chip">
-      <label>Data Source</label>
-      <select id="sourceSel">
-        <option value="sim">Simulated</option>
-        <option value="ws">WebSocket Bridge</option>
-        <option value="csv">CSV Playback</option>
-      </select>
-    </div>
-
-    <div class="chip" id="wsChip">
-      <label>WS URL</label>
-      <input id="wsUrl" value="ws://localhost:8787" />
-    </div>
-
-    <button class="btn good" id="connectBtn">🔌 Connect</button>
-    <button class="btn warn" id="recordBtn">⏺ Record</button>
-    <button class="btn" id="exportBtn">⬇ Export CSV</button>
-
-    <div class="status">
-      <div style="display:flex;gap:10px;align-items:center;">
-        <div class="dot" id="dot"></div>
-        <div id="statusText">Disconnected</div>
-      </div>
-      <div id="hint">
-        Shortcuts: <span class="kbd">C</span> connect • <span class="kbd">Space</span> record • <span class="kbd">E</span> export
-      </div>
-    </div>
-  </div>
-
-  <div class="shiftbar">
-    <div class="shiftfill" id="shiftFill"></div>
-  </div>
-
-  <div class="wrap">
-    <div class="content">
-
-      <!-- LEFT: Gauges -->
-      <section class="panel">
-        <div class="panelHead">
-          <div>
-            <div class="h">Live Telemetry</div>
-            <div class="sub" id="subText">Simulated engine & vehicle data</div>
+  <header>
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="#top" aria-label="Hot Flash Home">
+          <div class="logoWrap" aria-hidden="true">
+            <img class="logoImg" id="navLogo" src="hf-logo.png" alt="Hot Flash Logo" />
           </div>
-          <div class="sub" id="clock">--:--:--</div>
+          <div>
+            <div class="brandName">Hot Flash</div>
+            <div class="brandTag">Racing OBD2 Suite • Dashboard • Logger • Run Analysis</div>
+          </div>
+        </a>
+
+        <nav class="navLinks" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#bridge">Bridge</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+
+        <div class="navCtas">
+          <a class="btn ghost mobileMenuBtn" href="#features">☰ Menu</a>
+          <a class="btn ghost" id="demoBtn" href="#demo">▶ Live Demo</a>
+          <a class="btn primary" id="getBtn" href="#get-started">⬇ Get Started</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="hero">
+    <div class="container">
+      <div class="poster" id="poster">
+
+        <!-- ✅ Watermark logo in the hero poster -->
+        <img class="watermark" id="wmLogo" src="hf-logo.png" alt="" aria-hidden="true" />
+
+        <div class="heroGrid">
+
+          <div class="heroLeft">
+            <div class="kicker">
+              <span class="kDot"></span>
+              <span><b>Action-grade telemetry</b> for real drivers • built to be fast, not cute</span>
+            </div>
+
+            <h1>
+              <span class="glitch" data-text="HEAT UP THE DATA.">HEAT UP THE DATA.</span><br/>
+              <span class="glitch" data-text="COOL DOWN THE COMPETITION.">COOL DOWN THE COMPETITION.</span>
+            </h1>
+
+            <p class="tagline">
+              <b>Hot Flash</b> is a serious OBD2 dashboard + logger with a videogame HUD vibe—
+              delivering real telemetry: RPM, speed, temps, throttle, MAP/boost estimation, logs, and run summaries.
+            </p>
+
+            <div class="heroCtas" id="demo">
+              <a class="btn big primary" id="ctaPrimary" href="#get-started">🔥 Launch Hot Flash</a>
+              <a class="btn big ghost" id="ctaSecondary" href="#features">🧭 Explore Features</a>
+            </div>
+
+            <div class="badges">
+              <span class="badge">✅ Standalone HTML UI</span>
+              <span class="badge">✅ WebSocket-ready bridge</span>
+              <span class="badge">✅ CSV logs / replay friendly</span>
+              <span class="badge">✅ Track & street testing</span>
+            </div>
+          </div>
+
+          <div class="heroRight">
+            <div class="card">
+              <div class="cardHead">
+                <div class="t">LIVE HUD</div>
+                <div class="s">simulated preview</div>
+              </div>
+              <div class="hud">
+                <div class="stat">
+                  <div class="k">RPM</div>
+                  <div class="v" id="hudRpm">—</div>
+                  <div class="mini">Redline-aware shift light</div>
+                  <div class="bar"><div class="fill" id="rpmFill"></div></div>
+                </div>
+                <div class="stat">
+                  <div class="k">SPEED</div>
+                  <div class="v" id="hudSpd">—</div>
+                  <div class="mini">Run-friendly smoothing</div>
+                  <div class="bar"><div class="fill" id="spdFill" style="width:35%"></div></div>
+                </div>
+                <div class="stat">
+                  <div class="k">COOLANT</div>
+                  <div class="v" id="hudEct">—</div>
+                  <div class="mini">Alerts before it’s cooked</div>
+                  <div class="bar"><div class="fill" id="ectFill" style="width:50%"></div></div>
+                </div>
+                <div class="stat">
+                  <div class="k">THROTTLE</div>
+                  <div class="v" id="hudThr">—</div>
+                  <div class="mini">Instant driver intent</div>
+                  <div class="bar"><div class="fill" id="thrFill" style="width:40%"></div></div>
+                </div>
+              </div>
+              <div class="miniConsole" id="console">
+                <div class="line"><span class="prompt">hotflash</span><span>$</span><span>connect --source sim</span></div>
+                <div class="line"><span class="ok">OK</span><span>Telemetry stream online.</span></div>
+                <div class="line"><span class="warn">TIP</span><span>Swap to WebSocket bridge when you’re ready for real OBD2.</span></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="cardHead">
+                <div class="t">WHY IT HITS</div>
+                <div class="s">serious + useful</div>
+              </div>
+              <div class="hud" style="grid-template-columns:1fr; gap:10px;">
+                <div class="stat">
+                  <div class="k">Designed like a game HUD</div>
+                  <div class="v" style="font-size:16px;">Fast to read at speed.</div>
+                  <div class="mini">Big type • high contrast • attention cues • no clutter</div>
+                </div>
+                <div class="stat">
+                  <div class="k">Built like a tool</div>
+                  <div class="v" style="font-size:16px;">Logs you can trust.</div>
+                  <div class="mini">CSV export • run comparison • graph-ready data</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <section id="features" class="block">
+        <div class="sectionHead">
+          <div>
+            <h2>Features that feel illegal (but aren’t)</h2>
+            <p>Poster energy up top. Tool energy where it matters. Here’s the “serious useful” checklist.</p>
+          </div>
         </div>
 
-        <div class="grid" id="gaugeGrid">
-          <!-- tiles injected by JS -->
+        <div class="grid3">
+          <div class="feat">
+            <div class="icon" aria-hidden="true">⚡</div>
+            <h3>Race HUD Dashboard</h3>
+            <p>High-contrast gauges, shift-light behavior, limiter flash, alerts, and themes that react to RPM.</p>
+            <ul>
+              <li>RPM / speed / throttle / temps / MAP / volts</li>
+              <li>Shift cues with redline targets</li>
+              <li>Track-friendly readability</li>
+            </ul>
+          </div>
+
+          <div class="feat">
+            <div class="icon" aria-hidden="true">🧾</div>
+            <h3>Logging + Export</h3>
+            <p>Record sessions and export clean CSV logs for graphs, replay, or analysis.</p>
+            <ul>
+              <li>One-click record</li>
+              <li>CSV export in seconds</li>
+              <li>Replay-ready structure</li>
+            </ul>
+          </div>
+
+          <div class="feat">
+            <div class="icon" aria-hidden="true">🧠</div>
+            <h3>Run Analysis (Next)</h3>
+            <p>Built to expand: 0–60, 60–130, peak metrics, run compare, and overlays.</p>
+            <ul>
+              <li>Acceleration timers</li>
+              <li>Peak RPM / speed / temps</li>
+              <li>Session summaries</li>
+            </ul>
+          </div>
+
+          <div class="feat">
+            <div class="icon" aria-hidden="true">🔌</div>
+            <h3>WebSocket Bridge Ready</h3>
+            <p>OBD2 dongles don’t always play nice with browsers. We bridge locally and stream data clean.</p>
+            <ul>
+              <li>Local Node/Python bridge</li>
+              <li>Works with USB/BT/Wi-Fi dongles</li>
+              <li>Stable telemetry feed to UI</li>
+            </ul>
+          </div>
+
+          <div class="feat">
+            <div class="icon" aria-hidden="true">🧩</div>
+            <h3>Modular by Design</h3>
+            <p>Swap data sources without rewriting UI. Sim mode for dev, real mode for the car.</p>
+            <ul>
+              <li>Simulated stream (dev)</li>
+              <li>Real stream (bridge)</li>
+              <li>CSV playback (replay)</li>
+            </ul>
+          </div>
+
+          <div class="feat">
+            <div class="icon" aria-hidden="true">🛡️</div>
+            <h3>Driver-first Safety</h3>
+            <p>Big readouts, minimal distractions, and clear warnings. This is meant to be glanced at.</p>
+            <ul>
+              <li>Focus on critical info</li>
+              <li>Optional alerts</li>
+              <li>Clean layout scaling</li>
+            </ul>
+          </div>
         </div>
       </section>
 
-      <!-- RIGHT: Chart + Run Stats -->
-      <section class="panel">
-        <div class="panelHead">
+      <section id="how" class="block">
+        <div class="sectionHead">
           <div>
-            <div class="h">Run View</div>
-            <div class="sub">RPM + Speed history • peaks • alerts</div>
+            <h2>How it works</h2>
+            <p>Three steps. No drama. Unless your coolant temp wants to become a plot twist.</p>
           </div>
-          <div class="sub" id="sessionText">Session: idle</div>
         </div>
 
-        <div class="rightInner">
-          <div class="chartBox">
-            <header>
-              <div class="k">History</div>
-              <div class="meta" id="chartMeta">last 60s</div>
-            </header>
-            <canvas id="chart"></canvas>
+        <div class="grid2">
+          <div class="feat">
+            <h3>Quick Start</h3>
+            <div class="steps">
+              <div class="step">
+                <div class="num">1</div>
+                <div>
+                  <b>Launch the UI</b>
+                  <span>Open the dashboard and select your data source.</span>
+                </div>
+              </div>
+              <div class="step">
+                <div class="num">2</div>
+                <div>
+                  <b>Connect to Telemetry</b>
+                  <span>Start in Sim mode, then switch to WebSocket bridge for real OBD2.</span>
+                </div>
+              </div>
+              <div class="step">
+                <div class="num">3</div>
+                <div>
+                  <b>Record + Export</b>
+                  <span>Hit record for a run, export CSV, and compare sessions.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pillRow" style="margin-top:12px;">
+              <span class="pill">RPM</span>
+              <span class="pill">Speed</span>
+              <span class="pill">Throttle</span>
+              <span class="pill">Coolant</span>
+              <span class="pill">IAT</span>
+              <span class="pill">MAP</span>
+              <span class="pill">Volts</span>
+              <span class="pill">Timing*</span>
+              <span class="pill">AFR (est)**</span>
+            </div>
+
+            <p style="margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.45;">
+              *Timing availability depends on vehicle / PID support.<br/>
+              **AFR is estimated unless a wideband is integrated.
+            </p>
           </div>
 
-          <div class="runBox">
-            <div class="runRow"><span>RPM</span> <b id="rpmTxt">0</b></div>
-            <div class="runRow"><span>Speed</span> <b id="spdTxt">0 mph</b></div>
-            <div class="runRow"><span>Throttle</span> <b id="thrTxt">0%</b></div>
-            <div class="runRow"><span>Coolant</span> <b id="ectTxt">-- °F</b></div>
-            <div class="runRow"><span>Boost (est)</span> <b id="bstTxt">-- psi</b></div>
-            <div class="runRow"><span>Peak RPM</span> <b id="peakRpm">0</b></div>
-            <div class="runRow"><span>Peak Speed</span> <b id="peakSpd">0 mph</b></div>
-            <div class="runRow"><span>Recording</span> <b id="recTxt">No</b></div>
+          <div class="feat">
+            <h3>What makes it “serious”</h3>
+            <p>It’s flashy on purpose—but the structure is clean so you can actually build on it.</p>
+            <ul>
+              <li><b>One telemetry object</b> → UI never cares where data comes from</li>
+              <li><b>Bridge-based approach</b> → fewer connection headaches in browsers</li>
+              <li><b>Log format first</b> → analysis becomes easy later</li>
+              <li><b>Readable at speed</b> → minimal clutter, clear hierarchy</li>
+            </ul>
           </div>
         </div>
       </section>
 
+      <section id="bridge" class="block">
+        <div class="sectionHead">
+          <div>
+            <h2>OBD2 Bridge</h2>
+            <p>Browsers + OBD2 dongles are awkward. The bridge is the adult in the room.</p>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="feat">
+            <h3>Recommended setup</h3>
+            <p>Local bridge reads the adapter (USB/Bluetooth/Wi-Fi) and streams JSON telemetry over WebSocket.</p>
+            <ul>
+              <li>Bridge: Node.js or Python</li>
+              <li>UI connects to <b>ws://localhost:8787</b> (editable)</li>
+              <li>Format: JSON keys like <code>rpm</code>, <code>speed_mph</code>, <code>throttle</code>, <code>ect_f</code>…</li>
+            </ul>
+            <div class="pillRow">
+              <span class="pill">USB ELM327</span>
+              <span class="pill">OBDLink</span>
+              <span class="pill">Wi-Fi dongles</span>
+              <span class="pill">Bluetooth (bridge-side)</span>
+            </div>
+          </div>
+
+          <div class="feat">
+            <h3>Privacy / safety</h3>
+            <p>You own your data. Default design is local-first.</p>
+            <ul>
+              <li>No cloud required</li>
+              <li>Logs stay on your machine unless you export/share</li>
+              <li>UI is glance-friendly — don’t stare at it while driving</li>
+            </ul>
+            <p style="margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.45;">
+              <b>Disclaimer:</b> For off-road / track use and testing. Always prioritize driving and safety.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="get-started" class="block">
+        <div class="poster" style="padding: 18px;">
+          <div class="heroGrid" style="padding: 0;">
+            <div class="feat" style="margin:0;">
+              <h3 style="font-size:18px;">Ready to launch?</h3>
+              <p>Use this landing page as your front door. Then link the real dashboard behind it.</p>
+              <div class="heroCtas" style="margin-top:12px;">
+                <a class="btn big primary" id="ctaPrimary2" href="#top">🔥 Launch Hot Flash</a>
+                <a class="btn big ghost" id="ctaSecondary2" href="#features">📌 See Features</a>
+              </div>
+              <p style="margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.45;">
+                Tip: point “Launch Hot Flash” to your dashboard URL once it’s hosted.
+              </p>
+            </div>
+            <div class="feat" style="margin:0;">
+              <h3 style="font-size:18px;">Contact</h3>
+              <p>Need a branded variant (more “tuning suite”, less “dashboard”)? Easy rewrite.</p>
+              <div class="pillRow">
+                <span class="pill" id="emailPill">support@yourdomain.com</span>
+                <span class="pill">Brandable</span>
+                <span class="pill">Single-file deploy</span>
+              </div>
+              <p style="margin-top:10px; font-size:12.5px; color:var(--muted); line-height:1.45;">
+                GitHub Pages friendly: just drop <b>index.html</b> + <b>hf-logo.png</b>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" class="block">
+        <div class="sectionHead">
+          <div>
+            <h2>FAQ</h2>
+            <p>Real questions, real answers. No marketing smoke machine.</p>
+          </div>
+        </div>
+
+        <div class="faq">
+          <details>
+            <summary>Do I need an assets folder?</summary>
+            <p>Nope. If <code>hf-logo.png</code> is next to <code>index.html</code>, you’re good. If you use <code>/assets</code>, change the logo path to <code>assets/hf-logo.png</code>.</p>
+          </details>
+          <details>
+            <summary>Will this connect directly to my Bluetooth OBD2 dongle?</summary>
+            <p>Usually not in a normal browser. The clean solution is a <b>local bridge</b> that talks to the dongle and streams data to the UI via WebSocket.</p>
+          </details>
+          <details>
+            <summary>What should the main CTA link to?</summary>
+            <p>Best practice: link it to your <b>dashboard app</b> (hosted HTML, Electron build, or download page). It’s editable at the top in the <code>window.LANDING</code> config.</p>
+          </details>
+        </div>
+      </section>
+
+      <footer>
+        <div class="container">
+          <div class="footGrid">
+            <div>
+              <div class="brandName" style="font-size:14px;">Hot Flash</div>
+              <div class="fine">
+                Built for drivers who want clean telemetry, clean logs, and clean decisions.<br/>
+                <b>Safety note:</b> Use responsibly. Don’t “scroll and roll.”
+              </div>
+            </div>
+            <div class="fine" style="text-align:right;">
+              <div>© <span id="year"></span> Hot Flash</div>
+              <div id="emailFoot">support@yourdomain.com</div>
+            </div>
+          </div>
+        </div>
+      </footer>
+
     </div>
-  </div>
+  </main>
 
 <script>
-/* =========================================================
-   RaceDash OBD2 Suite v0.1
-   - Standalone dashboard with:
-     ✅ simulated data source
-     ✅ WebSocket source (bridge-ready)
-     ✅ CSV playback placeholder
-     ✅ shift light + limiter flash
-     ✅ logging + CSV export
-   ========================================================= */
+  // Wire CTAs + logo from quick-edit config
+  (function(){
+    const cfg = window.LANDING || {};
+    const primary = cfg.primaryCtaUrl || "#get-started";
+    const secondary = cfg.secondaryCtaUrl || "#features";
+    const email = cfg.contactEmail || "support@yourdomain.com";
+    const logo = cfg.logoPath || "hf-logo.png";
 
-/* ---------- Utilities ---------- */
-const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
-const lerp = (a,b,t)=>a+(b-a)*t;
-const nowMs = ()=>performance.now();
-const fmtTime = (d)=>d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-function downloadText(filename, text){
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([text], {type:'text/plain'}));
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
-}
+    ["ctaPrimary","ctaPrimary2"].forEach(id => { const a=document.getElementById(id); if(a) a.href = primary; });
+    ["ctaSecondary","ctaSecondary2"].forEach(id => { const a=document.getElementById(id); if(a) a.href = secondary; });
 
-/* ---------- Telemetry State (single source of truth) ---------- */
-const telemetry = {
-  t: Date.now(),
-  rpm: 0,
-  speed_mph: 0,
-  throttle: 0,
-  ect_f: 180,
-  iat_f: 80,
-  map_kpa: 35,
-  afr: 14.7,      // estimated unless wideband
-  timing: 10,
-  fueltrim: 0,
-  oil_f: 190,
-  volts: 13.8,
-  gear: 0,
-  limiter: false
-};
+    const ep = document.getElementById("emailPill");
+    const ef = document.getElementById("emailFoot");
+    if(ep) ep.textContent = email;
+    if(ef) ef.textContent = email;
 
-/* ---------- Config (tweakable) ---------- */
-const cfg = {
-  redline: 6800,
-  limiter: 7050,
-  idle: 850,
-  chartSeconds: 60,
-  sampleHz: 20,
-  speedMax: 160,
-};
+    const y = document.getElementById("year");
+    if(y) y.textContent = new Date().getFullYear();
 
-/* ---------- Data Sources ---------- */
-class DataSource {
-  async connect(){ return true; }
-  async disconnect(){ return true; }
-  update(dt){ /* write into telemetry */ }
-  get connected(){ return false; }
-  get name(){ return "base"; }
-}
+    // logo paths
+    const navLogo = document.getElementById("navLogo");
+    const wmLogo = document.getElementById("wmLogo");
+    if(navLogo) navLogo.src = logo;
+    if(wmLogo) wmLogo.src = logo;
+  })();
 
-class SimSource extends DataSource{
-  constructor(){
-    super();
-    this._connected=false;
-    this._phase=0;
-    this._rpm=cfg.idle;
-    this._speed=0;
-    this._thr=0;
-    this._limiter=false;
-    this._cutTimer=0;
-  }
-  get name(){ return "sim"; }
-  get connected(){ return this._connected; }
-  async connect(){ this._connected=true; return true; }
-  async disconnect(){ this._connected=false; return true; }
-
-  update(dt){
-    // dt seconds
-    if(!this._connected) return;
-
-    this._phase += dt;
-
-    // Driver behavior: throttle pulses with some "racing" flair
-    const base = 0.48 + 0.45*Math.sin(this._phase*0.55) + 0.12*Math.sin(this._phase*2.2);
-    this._thr = clamp(base, 0.02, 1.0);
-
-    // RPM target based on throttle and some drivetrain load
-    const load = clamp(this._speed/cfg.speedMax, 0, 1);
-    let targetRpm = lerp(cfg.idle, cfg.redline + 900, this._thr) - load*1400;
-
-    // Limiter cut simulation
-    if(this._rpm >= cfg.limiter || this._cutTimer>0){
-      this._limiter = true;
-      this._cutTimer = Math.max(this._cutTimer, 0.09); // brief stutter
-      targetRpm = cfg.redline - 300;
-      this._cutTimer -= dt;
-      if(this._cutTimer<=0){
-        this._limiter = false;
-        this._cutTimer = 0;
-      }
+  // Cinematic parallax glow based on pointer/scroll
+  (function(){
+    let mx = .5, my = .5;
+    function setVars(){
+      document.documentElement.style.setProperty("--mx", mx.toFixed(3));
+      document.documentElement.style.setProperty("--my", my.toFixed(3));
     }
 
-    // RPM dynamics
-    const rpmRateUp = 4200;
-    const rpmRateDown = 5200;
-    const rate = (targetRpm>this._rpm) ? rpmRateUp : rpmRateDown;
-    this._rpm += (targetRpm - this._rpm) * clamp(dt*rate/1000, 0, 1);
+    window.addEventListener("pointermove", (e)=>{
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      mx = e.clientX / w;
+      my = e.clientY / h;
+      setVars();
 
-    // Speed dynamics (very simplified)
-    const accel = (this._thr*1.1 - load*0.35) * 22; // mph/s-ish
-    this._speed = clamp(this._speed + accel*dt, 0, cfg.speedMax);
+      const g = Math.max(0.20, Math.min(0.75,
+        0.22 + (1-Math.abs(mx-.5))*0.25 + (1-Math.abs(my-.5))*0.18
+      ));
+      document.documentElement.style.setProperty("--glow", g.toFixed(3));
+    }, {passive:true});
 
-    // Fake MAP (kPa) + boost estimate
-    const map = lerp(25, 160, this._thr) - load*35 + 10*Math.sin(this._phase*1.3);
-    const map_kpa = clamp(map, 18, 180);
+    window.addEventListener("scroll", ()=>{
+      const s = window.scrollY || 0;
+      const g = Math.max(0.20, Math.min(0.70, 0.28 + (1/(1+s/500))*0.15));
+      document.documentElement.style.setProperty("--glow", g.toFixed(3));
+    }, {passive:true});
+  })();
 
-    // Temps
-    const ect = 178 + 8*Math.sin(this._phase*0.13) + load*10;
-    const iat = 82 + this._thr*30 + 6*Math.sin(this._phase*0.21);
-    const oil = 190 + load*18 + 5*Math.sin(this._phase*0.11);
+  // Fake live HUD stats (poster panel)
+  (function(){
+    const rpmEl = document.getElementById("hudRpm");
+    const spdEl = document.getElementById("hudSpd");
+    const ectEl = document.getElementById("hudEct");
+    const thrEl = document.getElementById("hudThr");
+    const rpmFill = document.getElementById("rpmFill");
+    const spdFill = document.getElementById("spdFill");
+    const ectFill = document.getElementById("ectFill");
+    const thrFill = document.getElementById("thrFill");
 
-    // Timing + trims
-    const timing = 8 + (1-this._thr)*18 - load*6 + 2*Math.sin(this._phase*0.8);
-    const fueltrim = (this._thr*6 - load*3) + 2*Math.sin(this._phase*0.35);
+    const REDLINE = 6800;
+    const SPEEDMAX = 160;
+    let t = 0;
 
-    // AFR estimate
-    const afr = lerp(14.7, 11.8, clamp(this._thr*1.05, 0, 1));
+    function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+    function lerp(a,b,x){ return a + (b-a)*x; }
 
-    // Gear guess (just for fun)
-    const gear = this._speed < 10 ? 1 :
-                 this._speed < 28 ? 2 :
-                 this._speed < 50 ? 3 :
-                 this._speed < 78 ? 4 :
-                 this._speed < 110 ? 5 : 6;
+    function frame(){
+      t += 0.016;
+      const thr = clamp(0.52 + 0.40*Math.sin(t*0.9) + 0.14*Math.sin(t*2.7), 0.02, 1.0);
+      let rpm = lerp(900, REDLINE+700, thr) - (0.18 + 0.12*Math.sin(t*0.4))*1200;
+      rpm = clamp(rpm, 780, 7400);
+      const spd = clamp(lerp(12, SPEEDMAX, thr) + 8*Math.sin(t*0.35), 0, SPEEDMAX);
+      const ect = clamp(180 + 14*thr + 6*Math.sin(t*0.22), 160, 235);
 
-    // Write telemetry
-    telemetry.t = Date.now();
-    telemetry.rpm = Math.round(this._rpm);
-    telemetry.speed_mph = this._speed;
-    telemetry.throttle = this._thr*100;
-    telemetry.ect_f = ect;
-    telemetry.iat_f = iat;
-    telemetry.oil_f = oil;
-    telemetry.map_kpa = map_kpa;
-    telemetry.timing = timing;
-    telemetry.fueltrim = fueltrim;
-    telemetry.afr = afr;
-    telemetry.volts = 13.6 + 0.3*Math.sin(this._phase*0.4);
-    telemetry.gear = gear;
-    telemetry.limiter = this._limiter;
-  }
-}
+      if(rpmEl) rpmEl.textContent = Math.round(rpm).toLocaleString();
+      if(spdEl) spdEl.textContent = Math.round(spd) + " mph";
+      if(ectEl) ectEl.textContent = Math.round(ect) + " °F";
+      if(thrEl) thrEl.textContent = Math.round(thr*100) + "%";
 
-class WebSocketSource extends DataSource{
-  constructor(url){
-    super();
-    this.url=url;
-    this.ws=null;
-    this._connected=false;
-    this._lastMsg=0;
-  }
-  get name(){ return "ws"; }
-  get connected(){ return this._connected; }
+      if(rpmFill) rpmFill.style.width = (clamp(rpm/REDLINE,0,1)*100).toFixed(1) + "%";
+      if(spdFill) spdFill.style.width = (clamp(spd/SPEEDMAX,0,1)*100).toFixed(1) + "%";
+      if(ectFill) ectFill.style.width = (clamp((ect-160)/(235-160),0,1)*100).toFixed(1) + "%";
+      if(thrFill) thrFill.style.width = (thr*100).toFixed(1) + "%";
 
-  async connect(){
-    if(this.ws) this.ws.close();
-    return new Promise((resolve)=>{
-      try{
-        this.ws = new WebSocket(this.url);
-        this.ws.onopen = ()=>{
-          this._connected=true;
-          resolve(true);
-        };
-        this.ws.onclose = ()=>{
-          this._connected=false;
-          this.ws=null;
-          setStatus(false, "Disconnected");
-        };
-        this.ws.onerror = ()=>{
-          this._connected=false;
-          resolve(false);
-        };
-        this.ws.onmessage = (ev)=>{
-          this._lastMsg = Date.now();
-          // Expected payload: JSON object with any of these keys:
-          // rpm, speed_mph, throttle, ect_f, iat_f, map_kpa, afr, timing, fueltrim, oil_f, volts, gear, limiter
-          try{
-            const obj = JSON.parse(ev.data);
-            Object.assign(telemetry, obj);
-            telemetry.t = Date.now();
-          }catch(e){}
-        };
-      }catch(e){
-        resolve(false);
-      }
-    });
-  }
-  async disconnect(){
-    if(this.ws) this.ws.close();
-    this.ws=null;
-    this._connected=false;
-    return true;
-  }
-  update(dt){
-    // If no message in 2s, consider "stale" but stay connected
-    if(this._connected && Date.now()-this._lastMsg > 2000){
-      // optional: show stale warning
+      requestAnimationFrame(frame);
     }
-  }
-}
-
-class CsvPlaybackSource extends DataSource{
-  constructor(){
-    super();
-    this._connected=false;
-  }
-  get name(){ return "csv"; }
-  get connected(){ return this._connected; }
-  async connect(){
-    alert("CSV Playback is stubbed in v0.1.\n\nNext: we'll let you load a CSV and scrub time like a replay.");
-    this._connected=false;
-    return false;
-  }
-  async disconnect(){ this._connected=false; return true; }
-}
-
-/* ---------- Logger ---------- */
-class Logger {
-  constructor(){
-    this.rows=[];
-    this.recording=false;
-    this.startMs=0;
-    this.peaks = { rpm:0, speed:0 };
-  }
-  start(){
-    this.rows=[];
-    this.recording=true;
-    this.startMs=Date.now();
-    this.peaks = { rpm:0, speed:0 };
-  }
-  stop(){ this.recording=false; }
-  tick(){
-    // peaks always track during a session
-    this.peaks.rpm = Math.max(this.peaks.rpm, telemetry.rpm||0);
-    this.peaks.speed = Math.max(this.peaks.speed, telemetry.speed_mph||0);
-
-    if(!this.recording) return;
-    const t = (Date.now()-this.startMs)/1000;
-
-    this.rows.push({
-      t,
-      rpm: telemetry.rpm,
-      speed_mph: telemetry.speed_mph,
-      throttle: telemetry.throttle,
-      ect_f: telemetry.ect_f,
-      iat_f: telemetry.iat_f,
-      oil_f: telemetry.oil_f,
-      map_kpa: telemetry.map_kpa,
-      afr: telemetry.afr,
-      timing: telemetry.timing,
-      fueltrim: telemetry.fueltrim,
-      volts: telemetry.volts,
-      gear: telemetry.gear,
-      limiter: telemetry.limiter ? 1 : 0
-    });
-  }
-  toCSV(){
-    if(this.rows.length===0) return "t,rpm,speed_mph,throttle,ect_f,iat_f,oil_f,map_kpa,afr,timing,fueltrim,volts,gear,limiter\n";
-    const header = Object.keys(this.rows[0]).join(",");
-    const lines = this.rows.map(r => Object.values(r).map(v=>{
-      if(typeof v === "number") return (Math.round(v*1000)/1000).toString();
-      return String(v).replaceAll('"','""');
-    }).join(","));
-    return header + "\n" + lines.join("\n");
-  }
-}
-const logger = new Logger();
-
-/* ---------- UI Definitions ---------- */
-const gauges = [
-  { key:"rpm",       label:"RPM",         unit:"",      min:0,   max:8000,  major:1000, decimals:0 },
-  { key:"speed_mph", label:"Speed",       unit:"mph",   min:0,   max:cfg.speedMax, major:20, decimals:0 },
-  { key:"throttle",  label:"Throttle",    unit:"%",     min:0,   max:100,   major:20, decimals:0 },
-  { key:"ect_f",     label:"Coolant",     unit:"°F",    min:120, max:240,  major:20, decimals:0 },
-  { key:"iat_f",     label:"IAT",         unit:"°F",    min:40,  max:200,  major:20, decimals:0 },
-  { key:"map_kpa",   label:"MAP",         unit:"kPa",   min:15,  max:200,  major:25, decimals:0 },
-  { key:"afr",       label:"AFR (est)",   unit:"",      min:10,  max:16.5, major:1,  decimals:1 },
-  { key:"timing",    label:"Timing",      unit:"°",     min:-5,  max:40,   major:5,  decimals:0 },
-  { key:"volts",     label:"Volts",       unit:"V",     min:11,  max:15.5, major:1,  decimals:1 },
-];
-
-const el = {
-  sourceSel: document.getElementById("sourceSel"),
-  wsChip: document.getElementById("wsChip"),
-  wsUrl: document.getElementById("wsUrl"),
-  connectBtn: document.getElementById("connectBtn"),
-  recordBtn: document.getElementById("recordBtn"),
-  exportBtn: document.getElementById("exportBtn"),
-  dot: document.getElementById("dot"),
-  statusText: document.getElementById("statusText"),
-  subText: document.getElementById("subText"),
-  sessionText: document.getElementById("sessionText"),
-  shiftFill: document.getElementById("shiftFill"),
-  clock: document.getElementById("clock"),
-  chart: document.getElementById("chart"),
-  chartMeta: document.getElementById("chartMeta"),
-  rpmTxt: document.getElementById("rpmTxt"),
-  spdTxt: document.getElementById("spdTxt"),
-  thrTxt: document.getElementById("thrTxt"),
-  ectTxt: document.getElementById("ectTxt"),
-  bstTxt: document.getElementById("bstTxt"),
-  peakRpm: document.getElementById("peakRpm"),
-  peakSpd: document.getElementById("peakSpd"),
-  recTxt: document.getElementById("recTxt"),
-  gaugeGrid: document.getElementById("gaugeGrid"),
-};
-
-let source = new SimSource();
-
-/* ---------- Status helpers ---------- */
-function setStatus(connected, text){
-  el.dot.classList.toggle("on", !!connected);
-  el.statusText.textContent = text || (connected ? "Connected" : "Disconnected");
-}
-
-/* ---------- Gauge tile creation ---------- */
-const gaugeTiles = [];
-function makeGaugeTiles(){
-  el.gaugeGrid.innerHTML = "";
-  gaugeTiles.length = 0;
-
-  for(const g of gauges){
-    const tile = document.createElement("div");
-    tile.className = "tile";
-
-    const top = document.createElement("div");
-    top.className = "tileTop";
-
-    const name = document.createElement("div");
-    name.className = "name";
-    name.textContent = g.label;
-
-    const val = document.createElement("div");
-    val.className = "val";
-    val.textContent = "--";
-
-    top.appendChild(name);
-    top.appendChild(val);
-
-    const c = document.createElement("canvas");
-    c.width = 560;
-    c.height = 360;
-
-    tile.appendChild(top);
-    tile.appendChild(c);
-    el.gaugeGrid.appendChild(tile);
-
-    gaugeTiles.push({ g, tile, top, name, val, c, ctx: c.getContext("2d") });
-  }
-}
-makeGaugeTiles();
-
-/* ---------- Gauge rendering (glossy dial) ---------- */
-function drawGauge(ctx, w, h, g, value){
-  ctx.clearRect(0,0,w,h);
-
-  // dial geometry
-  const cx = w*0.5;
-  const cy = h*0.62;
-  const r  = Math.min(w,h)*0.42;
-
-  // background
-  const bg = ctx.createRadialGradient(cx, cy-r*0.7, r*0.2, cx, cy, r*1.2);
-  bg.addColorStop(0, "rgba(255,255,255,.10)");
-  bg.addColorStop(1, "rgba(0,0,0,.55)");
-  ctx.fillStyle = bg;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r*1.12, 0, Math.PI*2);
-  ctx.fill();
-
-  // inner ring
-  ctx.strokeStyle = "rgba(255,255,255,.14)";
-  ctx.lineWidth = r*0.09;
-  ctx.beginPath();
-  ctx.arc(cx, cy, r*0.94, 0, Math.PI*2);
-  ctx.stroke();
-
-  // arc range: -210° to +30°
-  const a0 = (-210 * Math.PI)/180;
-  const a1 = (  30 * Math.PI)/180;
-
-  // ticks
-  ctx.save();
-  ctx.translate(cx,cy);
-  for(let i=0;i<=60;i++){
-    const t = i/60;
-    const a = lerp(a0,a1,t);
-    const major = (i%6===0);
-    const len = major ? r*0.18 : r*0.10;
-    ctx.strokeStyle = major ? "rgba(255,255,255,.20)" : "rgba(255,255,255,.12)";
-    ctx.lineWidth = major ? 3 : 2;
-
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(a)*(r*0.78), Math.sin(a)*(r*0.78));
-    ctx.lineTo(Math.cos(a)*(r*0.78-len), Math.sin(a)*(r*0.78-len));
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // value arc
-  const min = g.min, max = g.max;
-  const v = clamp(value, min, max);
-  const pct = (v-min)/(max-min);
-
-  // color based on severity for some gauges
-  let arcCol = "rgba(99,179,255,.95)";
-  if(g.key==="rpm"){
-    const rPct = v/cfg.redline;
-    if(rPct>0.92) arcCol = "rgba(255,77,77,.95)";
-    else if(rPct>0.78) arcCol = "rgba(247,201,72,.95)";
-    else arcCol = "rgba(56,214,122,.95)";
-  }
-  if(g.key==="ect_f"){
-    if(v>220) arcCol="rgba(255,77,77,.95)";
-    else if(v>205) arcCol="rgba(247,201,72,.95)";
-    else arcCol="rgba(56,214,122,.95)";
-  }
-
-  ctx.lineWidth = r*0.10;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "rgba(0,0,0,.35)";
-  ctx.beginPath();
-  ctx.arc(cx,cy, r*0.78, a0, a1);
-  ctx.stroke();
-
-  ctx.strokeStyle = arcCol;
-  ctx.shadowColor = arcCol;
-  ctx.shadowBlur = 18;
-  ctx.beginPath();
-  ctx.arc(cx,cy, r*0.78, a0, lerp(a0,a1,pct));
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // needle
-  const na = lerp(a0,a1,pct);
-  const nx = cx + Math.cos(na)*(r*0.70);
-  const ny = cy + Math.sin(na)*(r*0.70);
-
-  ctx.strokeStyle = "rgba(255,255,255,.75)";
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(cx,cy);
-  ctx.lineTo(nx,ny);
-  ctx.stroke();
-
-  // hub
-  const hub = ctx.createRadialGradient(cx-8, cy-8, 2, cx, cy, r*0.16);
-  hub.addColorStop(0, "rgba(255,255,255,.55)");
-  hub.addColorStop(1, "rgba(0,0,0,.75)");
-  ctx.fillStyle = hub;
-  ctx.beginPath();
-  ctx.arc(cx,cy, r*0.11, 0, Math.PI*2);
-  ctx.fill();
-
-  // gloss overlay
-  const gloss = ctx.createLinearGradient(0, cy-r*1.05, 0, cy+r*0.95);
-  gloss.addColorStop(0, "rgba(255,255,255,.24)");
-  gloss.addColorStop(.35, "rgba(255,255,255,.08)");
-  gloss.addColorStop(1, "rgba(0,0,0,.35)");
-  ctx.fillStyle = gloss;
-  ctx.beginPath();
-  ctx.arc(cx,cy, r*1.12, 0, Math.PI*2);
-  ctx.fill();
-
-  // labels
-  ctx.fillStyle = "rgba(233,247,255,.88)";
-  ctx.font = `800 ${Math.round(r*0.22)}px system-ui`;
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  const mainText = (g.decimals ? v.toFixed(g.decimals) : Math.round(v).toString());
-  ctx.fillText(mainText, cx, h*0.86);
-
-  ctx.fillStyle = "rgba(233,247,255,.62)";
-  ctx.font = `700 ${Math.round(r*0.14)}px system-ui`;
-  ctx.fillText(g.unit, cx, h*0.93);
-}
-
-/* ---------- Chart (RPM + Speed history) ---------- */
-const chartCtx = el.chart.getContext("2d");
-function fitCanvas(canvas){
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.round(rect.width * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-  return dpr;
-}
-let chartDpr = 1;
-function resizeAll(){
-  for(const t of gaugeTiles){
-    // keep internal size fixed; CSS handles scale
-  }
-  chartDpr = fitCanvas(el.chart);
-}
-window.addEventListener("resize", resizeAll);
-resizeAll();
-
-const history = []; // {t, rpm, spd}
-function pushHistory(){
-  const t = Date.now()/1000;
-  history.push({ t, rpm: telemetry.rpm||0, spd: telemetry.speed_mph||0 });
-  const cutoff = t - cfg.chartSeconds;
-  while(history.length && history[0].t < cutoff) history.shift();
-}
-
-function drawChart(){
-  const w = el.chart.width, h = el.chart.height;
-  chartCtx.clearRect(0,0,w,h);
-
-  // background
-  chartCtx.fillStyle = "rgba(0,0,0,.22)";
-  chartCtx.fillRect(0,0,w,h);
-
-  if(history.length < 2) return;
-
-  const t0 = history[0].t;
-  const t1 = history[history.length-1].t;
-  const span = Math.max(1e-6, t1 - t0);
-
-  // scales
-  const rpmMax = 8000;
-  const spdMax = cfg.speedMax;
-
-  // grid
-  chartCtx.globalAlpha = 1;
-  chartCtx.strokeStyle = "rgba(255,255,255,.10)";
-  chartCtx.lineWidth = 1;
-
-  const pad = 18*chartDpr;
-  const gx0 = pad, gx1 = w-pad, gy0 = pad, gy1 = h-pad;
-
-  for(let i=0;i<=5;i++){
-    const y = lerp(gy1, gy0, i/5);
-    chartCtx.beginPath();
-    chartCtx.moveTo(gx0,y);
-    chartCtx.lineTo(gx1,y);
-    chartCtx.stroke();
-  }
-  for(let i=0;i<=6;i++){
-    const x = lerp(gx0,gx1,i/6);
-    chartCtx.beginPath();
-    chartCtx.moveTo(x,gy0);
-    chartCtx.lineTo(x,gy1);
-    chartCtx.stroke();
-  }
-
-  // rpm line
-  chartCtx.lineWidth = 2.5*chartDpr;
-  chartCtx.strokeStyle = "rgba(99,179,255,.95)";
-  chartCtx.shadowColor = "rgba(99,179,255,.55)";
-  chartCtx.shadowBlur = 10*chartDpr;
-  chartCtx.beginPath();
-  for(let i=0;i<history.length;i++){
-    const p = history[i];
-    const x = lerp(gx0,gx1,(p.t - t0)/span);
-    const y = lerp(gy1,gy0, clamp(p.rpm/rpmMax,0,1));
-    if(i===0) chartCtx.moveTo(x,y);
-    else chartCtx.lineTo(x,y);
-  }
-  chartCtx.stroke();
-  chartCtx.shadowBlur = 0;
-
-  // speed line
-  chartCtx.lineWidth = 2.5*chartDpr;
-  chartCtx.strokeStyle = "rgba(56,214,122,.90)";
-  chartCtx.shadowColor = "rgba(56,214,122,.45)";
-  chartCtx.shadowBlur = 10*chartDpr;
-  chartCtx.beginPath();
-  for(let i=0;i<history.length;i++){
-    const p = history[i];
-    const x = lerp(gx0,gx1,(p.t - t0)/span);
-    const y = lerp(gy1,gy0, clamp(p.spd/spdMax,0,1));
-    if(i===0) chartCtx.moveTo(x,y);
-    else chartCtx.lineTo(x,y);
-  }
-  chartCtx.stroke();
-  chartCtx.shadowBlur = 0;
-
-  // labels
-  chartCtx.fillStyle = "rgba(233,247,255,.72)";
-  chartCtx.font = `${12*chartDpr}px system-ui`;
-  chartCtx.fillText("RPM (blue) • Speed (green)", gx0, gy0 - 6*chartDpr);
-}
-
-/* ---------- Derived metrics ---------- */
-function kpaToPsi(kpa){
-  // kPa absolute to psi gauge (approx)
-  // atmospheric ~101.3 kPa. Boost psi = (kpa-101.3)*0.145
-  return (kpa - 101.3) * 0.1450377;
-}
-
-/* ---------- Source management ---------- */
-function currentSourceFromUI(){
-  const v = el.sourceSel.value;
-  if(v==="sim") return new SimSource();
-  if(v==="ws") return new WebSocketSource(el.wsUrl.value.trim());
-  if(v==="csv") return new CsvPlaybackSource();
-  return new SimSource();
-}
-
-async function applySource(){
-  // disconnect old
-  try{ await source.disconnect(); }catch(e){}
-  source = currentSourceFromUI();
-
-  // update UI
-  const v = el.sourceSel.value;
-  el.wsChip.style.display = (v==="ws") ? "flex" : "none";
-  el.subText.textContent =
-    v==="sim" ? "Simulated engine & vehicle data" :
-    v==="ws" ? "Live data from WebSocket bridge" :
-    "CSV playback (coming next)";
-
-  setStatus(false, "Disconnected");
-}
-el.sourceSel.addEventListener("change", applySource);
-applySource();
-
-/* ---------- Connect / Record / Export ---------- */
-async function onConnectToggle(){
-  if(source.connected){
-    await source.disconnect();
-    setStatus(false, "Disconnected");
-    el.connectBtn.textContent = "🔌 Connect";
-    return;
-  }
-  const ok = await source.connect();
-  if(ok){
-    setStatus(true, "Connected");
-    el.connectBtn.textContent = "🧯 Disconnect";
-  }else{
-    setStatus(false, "Failed to connect");
-    el.connectBtn.textContent = "🔌 Connect";
-  }
-}
-el.connectBtn.addEventListener("click", onConnectToggle);
-
-function onRecordToggle(){
-  if(!logger.recording){
-    logger.start();
-    el.recordBtn.textContent = "⏹ Stop";
-    el.sessionText.textContent = "Session: recording";
-    el.recTxt.textContent = "Yes";
-  }else{
-    logger.stop();
-    el.recordBtn.textContent = "⏺ Record";
-    el.sessionText.textContent = "Session: stopped";
-    el.recTxt.textContent = "No";
-  }
-}
-el.recordBtn.addEventListener("click", onRecordToggle);
-
-function onExport(){
-  const csv = logger.toCSV();
-  const stamp = new Date().toISOString().replaceAll(":","-").slice(0,19);
-  downloadText(`racedash_log_${stamp}.csv`, csv);
-}
-el.exportBtn.addEventListener("click", onExport);
-
-/* ---------- Keyboard shortcuts ---------- */
-window.addEventListener("keydown", (e)=>{
-  if(e.repeat) return;
-  if(e.code==="KeyC") onConnectToggle();
-  if(e.code==="Space"){ e.preventDefault(); onRecordToggle(); }
-  if(e.code==="KeyE") onExport();
-});
-
-/* ---------- Main loop ---------- */
-let last = nowMs();
-let accum = 0;
-const step = 1/cfg.sampleHz;
-
-function tick(){
-  const t = nowMs();
-  let dt = (t-last)/1000;
-  last = t;
-
-  // keep stable under tab switching
-  dt = clamp(dt, 0, 0.1);
-
-  accum += dt;
-  while(accum >= step){
-    source.update(step);
-
-    // History & logging at sampleHz
-    pushHistory();
-    logger.tick();
-
-    accum -= step;
-  }
-
-  // RPM reactive UI glow
-  const rpmPct = clamp((telemetry.rpm||0) / cfg.redline, 0, 1);
-  document.documentElement.style.setProperty("--rpmGlow", (rpmPct*rpmPct).toFixed(3));
-
-  // Shift bar
-  const shiftPct = clamp((telemetry.rpm||0) / cfg.redline, 0, 1);
-  el.shiftFill.style.width = (shiftPct*100).toFixed(1) + "%";
-  el.shiftFill.classList.toggle("limiterFlash", !!telemetry.limiter);
-
-  // Update right metrics
-  el.rpmTxt.textContent = telemetry.rpm?.toLocaleString() ?? "0";
-  el.spdTxt.textContent = `${Math.round(telemetry.speed_mph||0)} mph`;
-  el.thrTxt.textContent = `${Math.round(telemetry.throttle||0)}%`;
-  el.ectTxt.textContent = `${Math.round(telemetry.ect_f||0)} °F`;
-  const boostPsi = kpaToPsi(telemetry.map_kpa||101.3);
-  el.bstTxt.textContent = `${boostPsi.toFixed(1)} psi`;
-  el.peakRpm.textContent = logger.peaks.rpm.toLocaleString();
-  el.peakSpd.textContent = `${Math.round(logger.peaks.speed)} mph`;
-
-  // Gauges
-  for(const tile of gaugeTiles){
-    const g = tile.g;
-    const v = telemetry[g.key];
-    tile.val.textContent = (v==null) ? "--" : (g.decimals ? Number(v).toFixed(g.decimals) : Math.round(v)).toString() + (g.unit ? " " + g.unit : "");
-    drawGauge(tile.ctx, tile.c.width, tile.c.height, g, Number(v ?? 0));
-  }
-
-  // Chart
-  drawChart();
-
-  // Clock
-  const d = new Date();
-  el.clock.textContent = fmtTime(d);
-
-  // status (keep green if connected)
-  setStatus(source.connected, source.connected ? "Connected" : "Disconnected");
-
-  requestAnimationFrame(tick);
-}
-requestAnimationFrame(tick);
+    requestAnimationFrame(frame);
+  })();
 </script>
 </body>
 </html>
