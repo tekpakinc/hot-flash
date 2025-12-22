@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hot Flash — Login</title>
+<meta name="description" content="Hot Flash Racing Suite login. Start a 7-day free trial, then subscribe to continue." />
+
+<style>
+  :root{
+    --bg0:#04060a;
+    --bg1:#070c12;
+
+    --panel:rgba(18,24,34,.70);
+    --panel2:rgba(11,16,26,.65);
+    --border:rgba(255,255,255,.12);
+
+    --text:#eaf4ff;
+    --muted:rgba(234,244,255,.70);
+
+    --hot:#38d67a;
+    --accent:#63b3ff;
+    --accent2:#9b7bff;
+    --warn:#f7c948;
+    --bad:#ff4d4d;
+
+    --radius:22px;
+    --shadow: 0 28px 80px rgba(0,0,0,.55);
+    --shadow2: 0 18px 45px rgba(0,0,0,.45);
+
+    --glow:.30;
+    --mx:.5;
+    --my:.5;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 30% 25%, rgba(56,214,122, calc(.08 + var(--glow)*.14)), transparent 62%),
+      radial-gradient(900px 600px at 70% 30%, rgba(99,179,255, calc(.08 + var(--glow)*.16)), transparent 64%),
+      radial-gradient(1200px 900px at 50% 80%, rgba(255,77,77, calc(.06 + var(--glow)*.12)), transparent 62%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
+    overflow-x:hidden;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  .container{ width:min(1120px, calc(100% - 28px)); margin:0 auto; }
+
+  /* cinematic overlays */
+  .film{ position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.85; }
+  .film::before{
+    content:""; position:absolute; inset:-40px;
+    background: repeating-linear-gradient(180deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0) 3px, rgba(255,255,255,.06) 4px);
+    mix-blend-mode: overlay; opacity:.18; animation: scan 6s linear infinite;
+  }
+  .film::after{
+    content:""; position:absolute; inset:-40px;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.12), transparent 35%),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,.10), transparent 38%),
+      radial-gradient(circle at 45% 75%, rgba(255,255,255,.08), transparent 42%);
+    opacity:.08; filter: blur(2px); animation: drift 14s ease-in-out infinite;
+  }
+  @keyframes scan{ from{ transform: translateY(0);} to{ transform: translateY(12px);} }
+  @keyframes drift{ 0%,100%{ transform: translate3d(0,0,0) scale(1);} 50%{ transform: translate3d(-18px, 8px,0) scale(1.03);} }
+  .grain{
+    position:fixed; inset:-20%;
+    pointer-events:none; z-index:2;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+    opacity:.07; mix-blend-mode: overlay; animation: grainMove 6s steps(6) infinite;
+  }
+  @keyframes grainMove{
+    0%{ transform: translate3d(0,0,0); }
+    20%{ transform: translate3d(-2%, 1%,0); }
+    40%{ transform: translate3d(-1%, -2%,0); }
+    60%{ transform: translate3d(2%, 2%,0); }
+    80%{ transform: translate3d(1%, -1%,0); }
+    100%{ transform: translate3d(0,0,0); }
+  }
+
+  header{
+    position:sticky; top:0; z-index:30;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, rgba(5,7,10,.80), rgba(5,7,10,.55));
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 0;
+    gap: 12px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    user-select:none;
+  }
+  .logoWrap{
+    width:42px; height:42px;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.18);
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    display:grid; place-items:center;
+    overflow:hidden; position:relative;
+  }
+  .logoWrap::after{
+    content:""; position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.22), transparent 45%);
+    opacity:.55; pointer-events:none;
+  }
+  .logoImg{ width:78%; height:78%; object-fit:contain; filter: drop-shadow(0 10px 18px rgba(0,0,0,.55)); }
+  .brandName{ font-weight: 950; font-size: 15px; letter-spacing:.6px; text-transform: uppercase; line-height:1.1; }
+  .brandTag{ color:var(--muted); font-size:12px; margin-top:2px; }
+
+  .navRight{ display:flex; align-items:center; gap:10px; }
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    padding: 8px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.18);
+    color: var(--muted);
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.2px;
+    white-space:nowrap;
+  }
+  .dot{ width:10px; height:10px; border-radius:999px; background: rgba(247,201,72,.95); box-shadow: 0 0 18px rgba(247,201,72,.28); }
+  .dot.ok{ background: rgba(56,214,122,.95); box-shadow: 0 0 18px rgba(56,214,122,.28); }
+  .dot.bad{ background: rgba(255,77,77,.95); box-shadow: 0 0 18px rgba(255,77,77,.28); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:10px;
+    padding: 11px 14px;
+    border-radius:999px;
+    border: 1px solid rgba(255,255,255,.16);
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+    box-shadow: var(--shadow2);
+    font-weight:950;
+    letter-spacing:.2px;
+    transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+    cursor:pointer;
+    user-select:none;
+    white-space:nowrap;
+  }
+  .btn:hover{ transform: translateY(-1px); border-color: rgba(56,214,122,.45); filter: brightness(1.05); }
+  .btn:active{ transform: translateY(0) scale(.99); }
+  .btn.primary{
+    border-color: rgba(56,214,122,.45);
+    background: linear-gradient(180deg, rgba(56,214,122,.28), rgba(255,255,255,.06));
+  }
+  .btn.ghost{ background: rgba(0,0,0,.18); }
+  .btn.danger{ border-color: rgba(255,77,77,.45); background: linear-gradient(180deg, rgba(255,77,77,.20), rgba(255,255,255,.06)); }
+
+  main{ position:relative; z-index:10; }
+  .wrap{
+    padding: 34px 0 46px;
+  }
+
+  .poster{
+    position:relative;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,.12);
+    background:
+      radial-gradient(1000px 700px at 20% 20%, rgba(56,214,122,.20), transparent 62%),
+      radial-gradient(900px 650px at 70% 25%, rgba(99,179,255,.16), transparent 64%),
+      radial-gradient(1200px 900px at 45% 80%, rgba(255,77,77,.12), transparent 62%),
+      linear-gradient(180deg, rgba(18,24,34,.78), rgba(10,14,22,.74));
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .poster::before{
+    content:""; position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.20), transparent 38%);
+    opacity:.40; pointer-events:none;
+  }
+  .poster::after{
+    content:""; position:absolute; inset:-40px;
+    background:
+      conic-gradient(from 180deg at 55% 40%,
+        rgba(255,255,255,.05),
+        rgba(56,214,122,.10),
+        rgba(99,179,255,.08),
+        rgba(255,77,77,.06),
+        rgba(255,255,255,.05)
+      );
+    filter: blur(22px);
+    opacity: calc(.55 + var(--glow)*.20);
+    mix-blend-mode: overlay;
+    transform: translate3d(calc(var(--mx, .5) * -18px), calc(var(--my, .5) * -10px), 0);
+    pointer-events:none;
+  }
+
+  .watermark{
+    position:absolute;
+    right: -40px;
+    top: -60px;
+    width: min(520px, 55vw);
+    opacity: .10;
+    transform: rotate(10deg);
+    filter: blur(.2px) drop-shadow(0 25px 40px rgba(0,0,0,.6));
+    pointer-events:none;
+    user-select:none;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .left{
+    padding: 10px 10px 14px;
+  }
+  .kicker{
+    display:inline-flex; align-items:center; gap:10px;
+    padding: 8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.18);
+    color:var(--muted);
+    font-weight:900;
+    font-size:12px;
+    letter-spacing:.35px;
+  }
+  .kDot{
+    width:10px; height:10px; border-radius:999px;
+    background: rgba(56,214,122,.95);
+    box-shadow: 0 0 18px rgba(56,214,122,.35);
+  }
+
+  h1{
+    margin: 14px 0 10px;
+    line-height:.95;
+    letter-spacing:.6px;
+    font-size: clamp(40px, 5vw, 62px);
+    text-transform: uppercase;
+    font-weight: 950;
+    text-shadow: 0 18px 55px rgba(0,0,0,.6);
+  }
+  .glitch{ position:relative; display:inline-block; }
+  .glitch::before,.glitch::after{
+    content: attr(data-text);
+    position:absolute; left:0; top:0;
+    opacity:.16; pointer-events:none;
+  }
+  .glitch::before{ transform: translate3d(-2px,0,0); color: rgba(56,214,122,.95); }
+  .glitch::after{ transform: translate3d(2px,0,0); color: rgba(99,179,255,.95); }
+
+  .sub{
+    margin:0 0 12px;
+    color: rgba(234,244,255,.86);
+    font-size: 15.5px;
+    line-height: 1.45;
+    max-width: 60ch;
+  }
+  .sub b{ color:var(--text); }
+
+  .bullets{
+    display:grid;
+    gap:10px;
+    margin-top: 14px;
+  }
+  .bullet{
+    display:flex; gap:12px;
+    padding: 12px 14px;
+    border-radius: 18px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.16);
+  }
+  .num{
+    width:34px; height:34px;
+    border-radius: 12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:950;
+    background: rgba(56,214,122,.16);
+    border:1px solid rgba(56,214,122,.28);
+    flex: 0 0 auto;
+  }
+  .bullet b{ display:block; font-weight:950; }
+  .bullet span{ color:var(--muted); font-size:13px; line-height:1.35; }
+
+  .right{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .card{
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    overflow:hidden;
+    position:relative;
+  }
+  .card::after{
+    content:""; position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.26), transparent 45%);
+    opacity:.42; pointer-events:none;
+  }
+  .cardHead{
+    padding: 12px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+  .cardHead .t{ font-weight:950; letter-spacing:.35px; text-transform:uppercase; }
+  .cardHead .s{ color:var(--muted); font-size:12px; }
+
+  .tabs{
+    display:flex; gap:8px;
+    padding: 12px 14px 0;
+  }
+  .tab{
+    flex:1;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.18);
+    color: var(--muted);
+    font-weight: 950;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+    transition: transform .12s ease, border-color .12s ease, color .12s ease, background .12s ease;
+  }
+  .tab:hover{ transform: translateY(-1px); border-color: rgba(56,214,122,.35); color: rgba(234,244,255,.88); }
+  .tab.active{
+    color: var(--text);
+    border-color: rgba(56,214,122,.45);
+    background: linear-gradient(180deg, rgba(56,214,122,.18), rgba(0,0,0,.16));
+  }
+
+  form{
+    padding: 12px 14px 14px;
+    display:grid;
+    gap: 10px;
+  }
+  label{
+    font-size:12px;
+    color: var(--muted);
+    font-weight: 900;
+    letter-spacing:.25px;
+  }
+  .field{
+    display:grid;
+    gap: 6px;
+  }
+  input{
+    width:100%;
+    padding: 12px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.22);
+    color: var(--text);
+    outline:none;
+    font-weight: 750;
+    transition: border-color .12s ease, transform .12s ease;
+  }
+  input:focus{
+    border-color: rgba(56,214,122,.45);
+    transform: translateY(-1px);
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .help{
+    font-size:12px;
+    color: var(--muted);
+    line-height:1.35;
+  }
+  .msg{
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.18);
+    color: rgba(234,244,255,.86);
+    font-size: 12.5px;
+    line-height:1.35;
+    display:none;
+  }
+  .msg.show{ display:block; }
+  .msg.ok{ border-color: rgba(56,214,122,.35); }
+  .msg.bad{ border-color: rgba(255,77,77,.35); }
+  .msg.warn{ border-color: rgba(247,201,72,.35); }
+
+  .meter{
+    padding: 12px 14px 14px;
+    border-top: 1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.16);
+  }
+  .meterTop{
+    display:flex; align-items:center; justify-content:space-between; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .meterTop b{ font-weight: 950; }
+  .bar{
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    overflow:hidden;
+  }
+  .fill{
+    height:100%;
+    width:0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(56,214,122,.95), rgba(247,201,72,.92), rgba(255,77,77,.92));
+    box-shadow: 0 0 22px rgba(255,77,77,.20);
+    transition: width .25s ease;
+  }
+
+  footer{
+    padding: 18px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 980px){
+    .grid{ grid-template-columns: 1fr; }
+    .watermark{ right:-90px; top:-70px; opacity:.08; }
+    .navRight .chip{ display:none; }
+  }
+</style>
+</head>
+
+<body>
+  <div class="film"></div>
+  <div class="grain"></div>
+
+  <!-- ✅ QUICK EDITS -->
+  <script>
+    window.HF = {
+      productName: "Hot Flash",
+      logoPath: "hf-logo.png",
+      trialDays: 7,
+      appUrl: "dashboard.html",            // <-- where to send active users (your suite UI)
+      subscribeUrl: "https://example.com",  // <-- your checkout link (Stripe, etc.)
+      supportEmail: "support@yourdomain.com",
+
+      // PROTOTYPE ONLY:
+      // If your checkout can redirect back to this page with ?subscribed=1, this demo will unlock "subscribed" mode.
+      // Real version should verify server-side.
+      acceptSubscribedQueryParam: true
+    };
+  </script>
+
+  <header>
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="#" aria-label="Hot Flash Login">
+          <div class="logoWrap">
+            <img class="logoImg" id="navLogo" src="hf-logo.png" alt="Hot Flash Logo" />
+          </div>
+          <div>
+            <div class="brandName" id="brandName">Hot Flash</div>
+            <div class="brandTag">Secure Login • 7-day Trial • Subscription Access</div>
+          </div>
+        </a>
+
+        <div class="navRight">
+          <div class="chip" id="statusChip">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">Checking access…</span>
+          </div>
+          <a class="btn ghost" id="subscribeTop" href="#" style="display:none;">💳 Subscribe</a>
+          <a class="btn primary" id="continueTop" href="#" style="display:none;">🚀 Continue</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="container">
+      <div class="poster" id="poster">
+        <img class="watermark" id="wmLogo" src="hf-logo.png" alt="" aria-hidden="true" />
+
+        <div class="grid">
+          <section class="left">
+            <div class="kicker">
+              <span class="kDot"></span>
+              <span><b>1-week free trial</b> — after that, subscription required</span>
+            </div>
+
+            <h1>
+              <span class="glitch" data-text="LOGIN. ARM. LAUNCH.">LOGIN. ARM. LAUNCH.</span>
+            </h1>
+
+            <p class="sub">
+              Welcome to <b id="pn1">Hot Flash</b>. Start your <b id="trialWord">7-day</b> trial, test the suite,
+              then subscribe to keep access.
+            </p>
+
+            <div class="bullets">
+              <div class="bullet">
+                <div class="num">1</div>
+                <div>
+                  <b>Create an account</b>
+                  <span>Trial begins immediately on first signup.</span>
+                </div>
+              </div>
+              <div class="bullet">
+                <div class="num">2</div>
+                <div>
+                  <b>Use the suite</b>
+                  <span>Dashboard + logging + run analysis workflows (as you build them out).</span>
+                </div>
+              </div>
+              <div class="bullet">
+                <div class="num">3</div>
+                <div>
+                  <b>Subscribe to continue</b>
+                  <span>When the trial ends, you’ll need an active subscription.</span>
+                </div>
+              </div>
+            </div>
+
+            <footer>
+              <div>
+                <b>Prototype note:</b> this page uses localStorage for trial timing.
+                For real subscriptions, wire your checkout + server verification.
+              </div>
+              <div style="margin-top:8px;">
+                Support: <span id="supportEmail">support@yourdomain.com</span>
+              </div>
+            </footer>
+          </section>
+
+          <aside class="right">
+            <div class="card">
+              <div class="cardHead">
+                <div class="t">ACCESS</div>
+                <div class="s" id="accessSub">trial status</div>
+              </div>
+
+              <div class="tabs">
+                <div class="tab active" id="tabLogin">Sign In</div>
+                <div class="tab" id="tabSignup">Start Trial</div>
+              </div>
+
+              <div class="msg" id="msg"></div>
+
+              <!-- LOGIN FORM -->
+              <form id="loginForm" autocomplete="on">
+                <div class="field">
+                  <label for="loginEmail">Email</label>
+                  <input id="loginEmail" type="email" placeholder="you@domain.com" required />
+                </div>
+                <div class="field">
+                  <label for="loginPass">Password</label>
+                  <input id="loginPass" type="password" placeholder="••••••••" required />
+                </div>
+                <div class="row">
+                  <span class="help">Forgot password? (prototype: re-signup)</span>
+                  <button class="btn primary" type="submit">🔓 Sign In</button>
+                </div>
+              </form>
+
+              <!-- SIGNUP FORM -->
+              <form id="signupForm" style="display:none;" autocomplete="on">
+                <div class="field">
+                  <label for="signupEmail">Email</label>
+                  <input id="signupEmail" type="email" placeholder="you@domain.com" required />
+                </div>
+                <div class="field">
+                  <label for="signupPass">Password</label>
+                  <input id="signupPass" type="password" placeholder="Create a password" required />
+                </div>
+                <div class="field">
+                  <label for="signupPass2">Confirm Password</label>
+                  <input id="signupPass2" type="password" placeholder="Confirm password" required />
+                </div>
+                <div class="row">
+                  <span class="help">Trial begins immediately. Cancel anytime.</span>
+                  <button class="btn primary" type="submit">🔥 Start Free Trial</button>
+                </div>
+              </form>
+
+              <div class="meter">
+                <div class="meterTop">
+                  <div>
+                    <b id="meterTitle">Trial meter</b>
+                    <div class="help" id="meterHelp">Create an account to start your trial.</div>
+                  </div>
+                  <div class="chip" style="padding:6px 10px;">
+                    <span class="dot" id="meterDot"></span>
+                    <span id="meterText">—</span>
+                  </div>
+                </div>
+                <div class="bar"><div class="fill" id="meterFill"></div></div>
+
+                <div class="row" style="margin-top:12px;">
+                  <a class="btn ghost" id="subscribeBtn" href="#" style="display:none;">💳 Subscribe</a>
+                  <a class="btn primary" id="continueBtn" href="#" style="display:none;">🚀 Continue to Suite</a>
+                  <button class="btn danger" id="logoutBtn" type="button" style="display:none;">🚪 Log out</button>
+                </div>
+
+                <div class="help" style="margin-top:10px;">
+                  If you subscribed and got sent back here, this demo can accept <code>?subscribed=1</code> to unlock.
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="cardHead">
+                <div class="t">SECURITY NOTE</div>
+                <div class="s">important</div>
+              </div>
+              <div style="padding: 12px 14px 14px; color: var(--muted); line-height:1.45; font-size: 13px;">
+                This page is a <b>front-end prototype gate</b>. Anyone with dev tools could bypass it.
+                When you’re ready, we’ll plug in real auth + Stripe (server verified) so it’s legit.
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+  // ========= Helpers =========
+  const CFG = window.HF || {};
+  const LS_USER = "HF_USER_V1";
+  const LS_TRIAL = "HF_TRIAL_V1";
+  const LS_SUB = "HF_SUB_V1"; // { active: true, until: epochMs }
+
+  const $ = (id) => document.getElementById(id);
+  const now = () => Date.now();
+  const daysToMs = (d) => d * 24 * 60 * 60 * 1000;
+
+  function safeJsonParse(s){ try{ return JSON.parse(s); } catch(e){ return null; } }
+  function setMsg(type, text){
+    const el = $("msg");
+    el.className = "msg show " + (type || "");
+    el.textContent = text;
+  }
+  function clearMsg(){
+    const el = $("msg");
+    el.className = "msg";
+    el.textContent = "";
+  }
+
+  function getUser(){
+    return safeJsonParse(localStorage.getItem(LS_USER));
+  }
+  function setUser(u){
+    localStorage.setItem(LS_USER, JSON.stringify(u));
+  }
+  function clearUser(){
+    localStorage.removeItem(LS_USER);
+  }
+
+  function getTrial(){
+    return safeJsonParse(localStorage.getItem(LS_TRIAL));
+  }
+  function setTrial(t){
+    localStorage.setItem(LS_TRIAL, JSON.stringify(t));
+  }
+  function clearTrial(){
+    localStorage.removeItem(LS_TRIAL);
+  }
+
+  function getSub(){
+    return safeJsonParse(localStorage.getItem(LS_SUB));
+  }
+  function setSub(s){
+    localStorage.setItem(LS_SUB, JSON.stringify(s));
+  }
+  function clearSub(){
+    localStorage.removeItem(LS_SUB);
+  }
+
+  function remainingMs(trial){
+    if(!trial?.start) return null;
+    const end = trial.start + daysToMs(CFG.trialDays || 7);
+    return end - now();
+  }
+
+  function isSubscribed(){
+    const s = getSub();
+    if(!s || !s.active) return false;
+    if(!s.until) return true;
+    return s.until > now();
+  }
+
+  function hasActiveTrial(){
+    const t = getTrial();
+    const rem = remainingMs(t);
+    return rem !== null && rem > 0;
+  }
+
+  function accessState(){
+    const user = getUser();
+    if(!user) return { state:"logged_out" };
+
+    if(isSubscribed()) return { state:"subscribed" };
+
+    const t = getTrial();
+    const rem = remainingMs(t);
+    if(rem === null) return { state:"trial_not_started" };
+    if(rem > 0) return { state:"trial_active", remaining: rem };
+    return { state:"trial_expired", remaining: 0 };
+  }
+
+  // ========= UI Wiring =========
+  function setActiveTab(which){
+    const login = $("loginForm");
+    const signup = $("signupForm");
+    const tLogin = $("tabLogin");
+    const tSignup = $("tabSignup");
+
+    if(which === "signup"){
+      tSignup.classList.add("active");
+      tLogin.classList.remove("active");
+      signup.style.display = "";
+      login.style.display = "none";
+    }else{
+      tLogin.classList.add("active");
+      tSignup.classList.remove("active");
+      login.style.display = "";
+      signup.style.display = "none";
+    }
+    clearMsg();
+  }
+
+  $("tabLogin").addEventListener("click", ()=> setActiveTab("login"));
+  $("tabSignup").addEventListener("click", ()=> setActiveTab("signup"));
+
+  function formatTime(ms){
+    const total = Math.max(0, Math.floor(ms/1000));
+    const d = Math.floor(total / 86400);
+    const h = Math.floor((total % 86400)/3600);
+    const m = Math.floor((total % 3600)/60);
+    return `${d}d ${h}h ${m}m`;
+  }
+
+  function paint(){
+    const brand = $("brandName");
+    const pn1 = $("pn1");
+    const trialWord = $("trialWord");
+    const support = $("supportEmail");
+    const navLogo = $("navLogo");
+    const wmLogo = $("wmLogo");
+
+    brand.textContent = CFG.productName || "Hot Flash";
+    pn1.textContent = CFG.productName || "Hot Flash";
+    trialWord.textContent = `${CFG.trialDays || 7}-day`;
+    support.textContent = CFG.supportEmail || "support@yourdomain.com";
+    navLogo.src = CFG.logoPath || "hf-logo.png";
+    wmLogo.src = CFG.logoPath || "hf-logo.png";
+
+    const st = accessState();
+
+    // Top chip
+    const dot = $("statusDot");
+    const text = $("statusText");
+    const subscribeTop = $("subscribeTop");
+    const continueTop = $("continueTop");
+
+    // Meter
+    const meterTitle = $("meterTitle");
+    const meterHelp = $("meterHelp");
+    const meterText = $("meterText");
+    const meterDot = $("meterDot");
+    const fill = $("meterFill");
+
+    const subscribeBtn = $("subscribeBtn");
+    const continueBtn = $("continueBtn");
+    const logoutBtn = $("logoutBtn");
+    const accessSub = $("accessSub");
+
+    // default hide
+    subscribeTop.style.display = "none";
+    continueTop.style.display = "none";
+    subscribeBtn.style.display = "none";
+    continueBtn.style.display = "none";
+    logoutBtn.style.display = "none";
+
+    // set subscribe link
+    subscribeTop.href = CFG.subscribeUrl || "#";
+    subscribeBtn.href = CFG.subscribeUrl || "#";
+    continueTop.href = CFG.appUrl || "#";
+    continueBtn.href = CFG.appUrl || "#";
+
+    if(st.state === "logged_out"){
+      dot.className = "dot";
+      text.textContent = "Not signed in";
+      accessSub.textContent = "create account or sign in";
+
+      meterTitle.textContent = "Trial meter";
+      meterHelp.textContent = "Create an account to start your trial.";
+      meterText.textContent = "—";
+      meterDot.className = "dot";
+      fill.style.width = "0%";
+      return;
+    }
+
+    logoutBtn.style.display = "inline-flex";
+
+    if(st.state === "subscribed"){
+      dot.className = "dot ok";
+      text.textContent = "Subscription active";
+      accessSub.textContent = "full access";
+
+      meterTitle.textContent = "Subscription";
+      meterHelp.textContent = "You’re subscribed. Full access unlocked.";
+      meterText.textContent = "ACTIVE";
+      meterDot.className = "dot ok";
+      fill.style.width = "100%";
+
+      continueTop.style.display = "inline-flex";
+      continueBtn.style.display = "inline-flex";
+      return;
+    }
+
+    if(st.state === "trial_active"){
+      dot.className = "dot ok";
+      text.textContent = "Trial active";
+      accessSub.textContent = "trial in progress";
+
+      const total = daysToMs(CFG.trialDays || 7);
+      const used = total - st.remaining;
+      const pct = Math.max(0, Math.min(100, (used/total)*100));
+
+      meterTitle.textContent = "Trial meter";
+      meterHelp.textContent = "You can continue while your trial is active.";
+      meterText.textContent = formatTime(st.remaining) + " left";
+      meterDot.className = "dot ok";
+      fill.style.width = pct.toFixed(1) + "%";
+
+      continueTop.style.display = "inline-flex";
+      continueBtn.style.display = "inline-flex";
+      return;
+    }
+
+    if(st.state === "trial_expired"){
+      dot.className = "dot bad";
+      text.textContent = "Trial expired";
+      accessSub.textContent = "subscription required";
+
+      meterTitle.textContent = "Trial ended";
+      meterHelp.textContent = "Subscription required to continue.";
+      meterText.textContent = "LOCKED";
+      meterDot.className = "dot bad";
+      fill.style.width = "100%";
+
+      subscribeTop.style.display = "inline-flex";
+      subscribeBtn.style.display = "inline-flex";
+      return;
+    }
+
+    // fallback
+    dot.className = "dot";
+    text.textContent = "Access check";
+  }
+
+  // ========= Prototype auth logic =========
+  // NOTE: This is not secure. It's a demo gate.
+  function pseudoHash(s){
+    // tiny obfuscation; not real security
+    let h = 2166136261;
+    for(let i=0;i<s.length;i++){
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(16);
+  }
+
+  $("signupForm").addEventListener("submit", (e)=>{
+    e.preventDefault();
+    clearMsg();
+
+    const email = $("signupEmail").value.trim().toLowerCase();
+    const p1 = $("signupPass").value;
+    const p2 = $("signupPass2").value;
+
+    if(!email || !p1){ setMsg("bad","Email and password required."); return; }
+    if(p1.length < 6){ setMsg("bad","Use a stronger password (6+ chars)."); return; }
+    if(p1 !== p2){ setMsg("bad","Passwords do not match."); return; }
+
+    const user = { email, pass: pseudoHash(p1), created: now() };
+    setUser(user);
+
+    // start trial if not already started
+    const existing = getTrial();
+    if(!existing?.start){
+      setTrial({ start: now(), days: CFG.trialDays || 7 });
+      setMsg("ok", `Trial started! You have ${(CFG.trialDays||7)} days of access.`);
+    }else{
+      setMsg("warn", "Account created. Trial was already started on this device.");
+    }
+
+    paint();
+  });
+
+  $("loginForm").addEventListener("submit", (e)=>{
+    e.preventDefault();
+    clearMsg();
+
+    const email = $("loginEmail").value.trim().toLowerCase();
+    const pass = $("loginPass").value;
+
+    const user = getUser();
+    if(!user){
+      setMsg("bad", "No account found on this device. Click “Start Trial” to create one.");
+      return;
+    }
+    if(user.email !== email){
+      setMsg("bad", "Email does not match the account on this device.");
+      return;
+    }
+    if(user.pass !== pseudoHash(pass)){
+      setMsg("bad", "Incorrect password.");
+      return;
+    }
+
+    // ensure trial exists
+    const t = getTrial();
+    if(!t?.start){
+      setTrial({ start: now(), days: CFG.trialDays || 7 });
+      setMsg("ok", "Signed in. Trial started.");
+    }else{
+      const st = accessState();
+      if(st.state === "trial_expired" && !isSubscribed()){
+        setMsg("warn", "Signed in — but the trial is expired. Subscription required.");
+      }else{
+        setMsg("ok", "Signed in. Access verified.");
+      }
+    }
+
+    paint();
+  });
+
+  $("logoutBtn").addEventListener("click", ()=>{
+    clearMsg();
+    clearUser();
+    // keep trial/sub by default? depends on what you want.
+    // For “device-based demo,” leaving trial data can be okay. If you want a hard reset, uncomment below:
+    // clearTrial(); clearSub();
+    setMsg("warn", "Logged out.");
+    paint();
+  });
+
+  // ========= Subscription demo unlock (optional) =========
+  (function subscriptionQueryParam(){
+    if(!CFG.acceptSubscribedQueryParam) return;
+    const params = new URLSearchParams(location.search);
+    if(params.get("subscribed") === "1"){
+      // demo: set subscription active for 1 year
+      setSub({ active:true, until: now() + daysToMs(365) });
+      // clean URL (no reload loop)
+      const url = new URL(location.href);
+      url.searchParams.delete("subscribed");
+      history.replaceState({}, "", url.toString());
+      setMsg("ok", "Subscription activated (demo). Full access unlocked.");
+    }
+  })();
+
+  // ========= Cinematic parallax glow =========
+  (function parallax(){
+    function setVars(){
+      document.documentElement.style.setProperty("--mx", mx.toFixed(3));
+      document.documentElement.style.setProperty("--my", my.toFixed(3));
+    }
+    let mx = .5, my = .5;
+
+    window.addEventListener("pointermove", (e)=>{
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      mx = e.clientX / w;
+      my = e.clientY / h;
+      setVars();
+
+      const g = Math.max(0.20, Math.min(0.75,
+        0.22 + (1-Math.abs(mx-.5))*0.25 + (1-Math.abs(my-.5))*0.18
+      ));
+      document.documentElement.style.setProperty("--glow", g.toFixed(3));
+    }, {passive:true});
+
+    window.addEventListener("scroll", ()=>{
+      const s = window.scrollY || 0;
+      const g = Math.max(0.20, Math.min(0.70, 0.28 + (1/(1+s/500))*0.15));
+      document.documentElement.style.setProperty("--glow", g.toFixed(3));
+    }, {passive:true});
+  })();
+
+  // ========= Boot =========
+  (function init(){
+    // Apply config strings
+    $("navLogo").src = CFG.logoPath || "hf-logo.png";
+    $("wmLogo").src = CFG.logoPath || "hf-logo.png";
+    $("brandName").textContent = CFG.productName || "Hot Flash";
+    $("pn1").textContent = CFG.productName || "Hot Flash";
+    $("supportEmail").textContent = CFG.supportEmail || "support@yourdomain.com";
+    $("trialWord").textContent = `${CFG.trialDays || 7}-day`;
+
+    // If a user exists but no trial exists, don't auto-start trial (keeps behavior “start on signup/login”)
+    paint();
+  })();
+</script>
+</body>
+</html>
