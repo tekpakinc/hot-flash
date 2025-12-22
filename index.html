@@ -1,1 +1,1203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RaceDash OBD2 Suite — v0.1</title>
+<style>
+  :root{
+    --bg0:#05070b;
+    --bg1:#070d13;
+    --panel: rgba(18, 28, 40, .72);
+    --panel2: rgba(12, 18, 28, .72);
+    --border: rgba(255,255,255,.10);
+    --text: #e9f7ff;
+    --muted: rgba(233,247,255,.68);
+    --good:#38d67a;
+    --warn:#f7c948;
+    --bad:#ff4d4d;
+    --accent:#63b3ff;
+    --accent2:#9b7bff;
+    --radius:18px;
+    --shadow: 0 20px 55px rgba(0,0,0,.55);
+    --glassHi: rgba(255,255,255,.22);
+    --glassMid: rgba(255,255,255,.10);
+    --glassLo: rgba(0,0,0,.35);
 
+    --rpmGlow: 0.0; /* 0..1 driven by rpm */
+    --scanline: rgba(255,255,255,.05);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 60% 35%, rgba(99,179,255,.15), transparent 60%),
+      radial-gradient(900px 600px at 30% 80%, rgba(155,123,255,.12), transparent 62%),
+      radial-gradient(1100px 900px at 50% 50%, rgba(255,80,80, calc(.05 + var(--rpmGlow)*.20)), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
+    overflow:hidden;
+  }
+
+  /* subtle animated scanlines */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 3px,
+      var(--scanline) 4px
+    );
+    opacity:.16;
+    pointer-events:none;
+    mix-blend-mode: overlay;
+    animation: scan 6s linear infinite;
+  }
+  @keyframes scan{
+    from{ transform: translateY(0); }
+    to{ transform: translateY(10px); }
+  }
+
+  /* Top bar */
+  .topbar{
+    position:sticky; top:0;
+    z-index:50;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:12px 14px;
+    background: linear-gradient(180deg, rgba(10,14,20,.85), rgba(10,14,20,.55));
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+  }
+  .brand{
+    display:flex; align-items:baseline; gap:10px;
+    min-width: 260px;
+  }
+  .brand .title{
+    font-weight:800;
+    letter-spacing:.6px;
+  }
+  .brand .ver{
+    color: var(--muted);
+    font-size:12px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255,255,255,.05);
+  }
+
+  .chip{
+    display:flex; align-items:center; gap:8px;
+    padding:8px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background: rgba(255,255,255,.06);
+    box-shadow: 0 10px 25px rgba(0,0,0,.25);
+  }
+  .chip label{
+    color:var(--muted);
+    font-size:12px;
+    letter-spacing:.2px;
+    white-space:nowrap;
+  }
+  select,input{
+    color:var(--text);
+    background: rgba(0,0,0,.30);
+    border: 1px solid rgba(255,255,255,.14);
+    outline:none;
+    border-radius: 999px;
+    padding: 7px 10px;
+  }
+  input{ width: 240px; }
+  select:focus,input:focus{ border-color: rgba(99,179,255,.55); box-shadow: 0 0 0 3px rgba(99,179,255,.15); }
+
+  .btn{
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,.16);
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+    color: var(--text);
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-weight:650;
+    letter-spacing:.2px;
+    display:inline-flex; gap:10px; align-items:center;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    backdrop-filter: blur(8px);
+    transition: transform .12s ease, border-color .12s ease, filter .12s ease;
+    user-select:none;
+  }
+  .btn:hover{ transform: translateY(-1px); border-color: rgba(99,179,255,.45); filter: brightness(1.06); }
+  .btn:active{ transform: translateY(0px) scale(.99); }
+
+  .btn.good{ border-color: rgba(56,214,122,.35); }
+  .btn.warn{ border-color: rgba(247,201,72,.35); }
+  .btn.bad{ border-color: rgba(255,77,77,.35); }
+
+  .status{
+    margin-left:auto;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    color: var(--muted);
+    font-size:12.5px;
+  }
+  .dot{
+    width:10px; height:10px;
+    border-radius:999px;
+    background: rgba(255,77,77,.85);
+    box-shadow: 0 0 18px rgba(255,77,77,.35);
+  }
+  .dot.on{
+    background: rgba(56,214,122,.95);
+    box-shadow: 0 0 18px rgba(56,214,122,.35);
+  }
+
+  /* Shift light bar */
+  .shiftbar{
+    position:fixed;
+    left:0; right:0;
+    top:56px;
+    z-index:45;
+    height:14px;
+    background: rgba(0,0,0,.35);
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    backdrop-filter: blur(10px);
+    overflow:hidden;
+  }
+  .shiftfill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg,
+      rgba(56,214,122,.95),
+      rgba(247,201,72,.95),
+      rgba(255,77,77,.95)
+    );
+    box-shadow: 0 0 25px rgba(255,77,77,.25);
+    transition: width .06s linear;
+    position:relative;
+  }
+  .shiftfill::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(255,255,255,.35), transparent 55%);
+    opacity:.55;
+    mix-blend-mode: overlay;
+  }
+  .limiterFlash{
+    animation: flash .10s steps(2) infinite;
+  }
+  @keyframes flash{
+    50%{ filter: brightness(1.75) saturate(1.3); }
+  }
+
+  /* Main layout */
+  .wrap{
+    height: calc(100% - 56px);
+    padding-top: 20px; /* accounts for shiftbar + spacing */
+  }
+  .content{
+    height: 100%;
+    display:grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 14px;
+    padding: 12px 14px 14px 14px;
+  }
+
+  .panel{
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(16px);
+    overflow:hidden;
+    position:relative;
+  }
+  .panel::before{
+    content:"";
+    position:absolute; inset:0;
+    background: radial-gradient(900px 300px at 20% 10%, rgba(255,255,255,.16), transparent 62%);
+    pointer-events:none;
+  }
+  .panelHead{
+    padding: 12px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+  }
+  .panelHead .h{
+    font-weight:800;
+    letter-spacing:.35px;
+  }
+  .panelHead .sub{
+    color: var(--muted);
+    font-size:12px;
+  }
+
+  /* Gauge grid */
+  .grid{
+    padding: 12px;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .tile{
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,.10);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    overflow:hidden;
+    position:relative;
+  }
+  .tile::after{
+    content:"";
+    position:absolute; inset:-1px;
+    background: linear-gradient(180deg, rgba(255,255,255,.30), transparent 40%);
+    opacity:.42;
+    pointer-events:none;
+  }
+  .tileTop{
+    padding: 10px 10px 0 10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .tileTop .name{
+    color: var(--muted);
+    font-size:12px;
+    letter-spacing:.3px;
+    font-weight:650;
+  }
+  .tileTop .val{
+    font-weight:900;
+    letter-spacing:.2px;
+  }
+  .tile canvas{
+    width:100%;
+    height:160px;
+    display:block;
+  }
+
+  /* Right side */
+  .rightInner{
+    padding: 12px;
+    display:grid;
+    grid-template-rows: 1fr auto;
+    gap: 12px;
+    height: calc(100% - 49px);
+  }
+
+  .chartBox{
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,.10);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    overflow:hidden;
+    position:relative;
+  }
+  .chartBox header{
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .chartBox header .k{
+    font-weight:800;
+    letter-spacing:.3px;
+  }
+  .chartBox header .meta{
+    color: var(--muted);
+    font-size:12px;
+  }
+  .chartBox canvas{
+    width:100%;
+    height: 100%;
+    display:block;
+  }
+
+  .runBox{
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,.10);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+    padding: 10px 12px;
+    display:grid;
+    gap: 8px;
+  }
+  .runRow{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    color: var(--muted);
+    font-size:12.5px;
+  }
+  .runRow b{ color: var(--text); }
+
+  .kbd{
+    font-family: ui-monospace, Consolas, monospace;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.25);
+    border-radius: 8px;
+    padding: 2px 6px;
+    color: var(--text);
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px){
+    body{ overflow:auto; }
+    .wrap{ height:auto; }
+    .content{ grid-template-columns: 1fr; }
+    .rightInner{ height:auto; }
+    .tile canvas{ height:150px; }
+    .shiftbar{ top: 92px; }
+    .topbar{ flex-wrap:wrap; }
+    .status{ margin-left:0; width:100%; justify-content:space-between; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="title">RaceDash OBD2 Suite</div>
+      <div class="ver">v0.1</div>
+    </div>
+
+    <div class="chip">
+      <label>Data Source</label>
+      <select id="sourceSel">
+        <option value="sim">Simulated</option>
+        <option value="ws">WebSocket Bridge</option>
+        <option value="csv">CSV Playback</option>
+      </select>
+    </div>
+
+    <div class="chip" id="wsChip">
+      <label>WS URL</label>
+      <input id="wsUrl" value="ws://localhost:8787" />
+    </div>
+
+    <button class="btn good" id="connectBtn">🔌 Connect</button>
+    <button class="btn warn" id="recordBtn">⏺ Record</button>
+    <button class="btn" id="exportBtn">⬇ Export CSV</button>
+
+    <div class="status">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div class="dot" id="dot"></div>
+        <div id="statusText">Disconnected</div>
+      </div>
+      <div id="hint">
+        Shortcuts: <span class="kbd">C</span> connect • <span class="kbd">Space</span> record • <span class="kbd">E</span> export
+      </div>
+    </div>
+  </div>
+
+  <div class="shiftbar">
+    <div class="shiftfill" id="shiftFill"></div>
+  </div>
+
+  <div class="wrap">
+    <div class="content">
+
+      <!-- LEFT: Gauges -->
+      <section class="panel">
+        <div class="panelHead">
+          <div>
+            <div class="h">Live Telemetry</div>
+            <div class="sub" id="subText">Simulated engine & vehicle data</div>
+          </div>
+          <div class="sub" id="clock">--:--:--</div>
+        </div>
+
+        <div class="grid" id="gaugeGrid">
+          <!-- tiles injected by JS -->
+        </div>
+      </section>
+
+      <!-- RIGHT: Chart + Run Stats -->
+      <section class="panel">
+        <div class="panelHead">
+          <div>
+            <div class="h">Run View</div>
+            <div class="sub">RPM + Speed history • peaks • alerts</div>
+          </div>
+          <div class="sub" id="sessionText">Session: idle</div>
+        </div>
+
+        <div class="rightInner">
+          <div class="chartBox">
+            <header>
+              <div class="k">History</div>
+              <div class="meta" id="chartMeta">last 60s</div>
+            </header>
+            <canvas id="chart"></canvas>
+          </div>
+
+          <div class="runBox">
+            <div class="runRow"><span>RPM</span> <b id="rpmTxt">0</b></div>
+            <div class="runRow"><span>Speed</span> <b id="spdTxt">0 mph</b></div>
+            <div class="runRow"><span>Throttle</span> <b id="thrTxt">0%</b></div>
+            <div class="runRow"><span>Coolant</span> <b id="ectTxt">-- °F</b></div>
+            <div class="runRow"><span>Boost (est)</span> <b id="bstTxt">-- psi</b></div>
+            <div class="runRow"><span>Peak RPM</span> <b id="peakRpm">0</b></div>
+            <div class="runRow"><span>Peak Speed</span> <b id="peakSpd">0 mph</b></div>
+            <div class="runRow"><span>Recording</span> <b id="recTxt">No</b></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+<script>
+/* =========================================================
+   RaceDash OBD2 Suite v0.1
+   - Standalone dashboard with:
+     ✅ simulated data source
+     ✅ WebSocket source (bridge-ready)
+     ✅ CSV playback placeholder
+     ✅ shift light + limiter flash
+     ✅ logging + CSV export
+   ========================================================= */
+
+/* ---------- Utilities ---------- */
+const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+const lerp = (a,b,t)=>a+(b-a)*t;
+const nowMs = ()=>performance.now();
+const fmtTime = (d)=>d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+function downloadText(filename, text){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type:'text/plain'}));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+}
+
+/* ---------- Telemetry State (single source of truth) ---------- */
+const telemetry = {
+  t: Date.now(),
+  rpm: 0,
+  speed_mph: 0,
+  throttle: 0,
+  ect_f: 180,
+  iat_f: 80,
+  map_kpa: 35,
+  afr: 14.7,      // estimated unless wideband
+  timing: 10,
+  fueltrim: 0,
+  oil_f: 190,
+  volts: 13.8,
+  gear: 0,
+  limiter: false
+};
+
+/* ---------- Config (tweakable) ---------- */
+const cfg = {
+  redline: 6800,
+  limiter: 7050,
+  idle: 850,
+  chartSeconds: 60,
+  sampleHz: 20,
+  speedMax: 160,
+};
+
+/* ---------- Data Sources ---------- */
+class DataSource {
+  async connect(){ return true; }
+  async disconnect(){ return true; }
+  update(dt){ /* write into telemetry */ }
+  get connected(){ return false; }
+  get name(){ return "base"; }
+}
+
+class SimSource extends DataSource{
+  constructor(){
+    super();
+    this._connected=false;
+    this._phase=0;
+    this._rpm=cfg.idle;
+    this._speed=0;
+    this._thr=0;
+    this._limiter=false;
+    this._cutTimer=0;
+  }
+  get name(){ return "sim"; }
+  get connected(){ return this._connected; }
+  async connect(){ this._connected=true; return true; }
+  async disconnect(){ this._connected=false; return true; }
+
+  update(dt){
+    // dt seconds
+    if(!this._connected) return;
+
+    this._phase += dt;
+
+    // Driver behavior: throttle pulses with some "racing" flair
+    const base = 0.48 + 0.45*Math.sin(this._phase*0.55) + 0.12*Math.sin(this._phase*2.2);
+    this._thr = clamp(base, 0.02, 1.0);
+
+    // RPM target based on throttle and some drivetrain load
+    const load = clamp(this._speed/cfg.speedMax, 0, 1);
+    let targetRpm = lerp(cfg.idle, cfg.redline + 900, this._thr) - load*1400;
+
+    // Limiter cut simulation
+    if(this._rpm >= cfg.limiter || this._cutTimer>0){
+      this._limiter = true;
+      this._cutTimer = Math.max(this._cutTimer, 0.09); // brief stutter
+      targetRpm = cfg.redline - 300;
+      this._cutTimer -= dt;
+      if(this._cutTimer<=0){
+        this._limiter = false;
+        this._cutTimer = 0;
+      }
+    }
+
+    // RPM dynamics
+    const rpmRateUp = 4200;
+    const rpmRateDown = 5200;
+    const rate = (targetRpm>this._rpm) ? rpmRateUp : rpmRateDown;
+    this._rpm += (targetRpm - this._rpm) * clamp(dt*rate/1000, 0, 1);
+
+    // Speed dynamics (very simplified)
+    const accel = (this._thr*1.1 - load*0.35) * 22; // mph/s-ish
+    this._speed = clamp(this._speed + accel*dt, 0, cfg.speedMax);
+
+    // Fake MAP (kPa) + boost estimate
+    const map = lerp(25, 160, this._thr) - load*35 + 10*Math.sin(this._phase*1.3);
+    const map_kpa = clamp(map, 18, 180);
+
+    // Temps
+    const ect = 178 + 8*Math.sin(this._phase*0.13) + load*10;
+    const iat = 82 + this._thr*30 + 6*Math.sin(this._phase*0.21);
+    const oil = 190 + load*18 + 5*Math.sin(this._phase*0.11);
+
+    // Timing + trims
+    const timing = 8 + (1-this._thr)*18 - load*6 + 2*Math.sin(this._phase*0.8);
+    const fueltrim = (this._thr*6 - load*3) + 2*Math.sin(this._phase*0.35);
+
+    // AFR estimate
+    const afr = lerp(14.7, 11.8, clamp(this._thr*1.05, 0, 1));
+
+    // Gear guess (just for fun)
+    const gear = this._speed < 10 ? 1 :
+                 this._speed < 28 ? 2 :
+                 this._speed < 50 ? 3 :
+                 this._speed < 78 ? 4 :
+                 this._speed < 110 ? 5 : 6;
+
+    // Write telemetry
+    telemetry.t = Date.now();
+    telemetry.rpm = Math.round(this._rpm);
+    telemetry.speed_mph = this._speed;
+    telemetry.throttle = this._thr*100;
+    telemetry.ect_f = ect;
+    telemetry.iat_f = iat;
+    telemetry.oil_f = oil;
+    telemetry.map_kpa = map_kpa;
+    telemetry.timing = timing;
+    telemetry.fueltrim = fueltrim;
+    telemetry.afr = afr;
+    telemetry.volts = 13.6 + 0.3*Math.sin(this._phase*0.4);
+    telemetry.gear = gear;
+    telemetry.limiter = this._limiter;
+  }
+}
+
+class WebSocketSource extends DataSource{
+  constructor(url){
+    super();
+    this.url=url;
+    this.ws=null;
+    this._connected=false;
+    this._lastMsg=0;
+  }
+  get name(){ return "ws"; }
+  get connected(){ return this._connected; }
+
+  async connect(){
+    if(this.ws) this.ws.close();
+    return new Promise((resolve)=>{
+      try{
+        this.ws = new WebSocket(this.url);
+        this.ws.onopen = ()=>{
+          this._connected=true;
+          resolve(true);
+        };
+        this.ws.onclose = ()=>{
+          this._connected=false;
+          this.ws=null;
+          setStatus(false, "Disconnected");
+        };
+        this.ws.onerror = ()=>{
+          this._connected=false;
+          resolve(false);
+        };
+        this.ws.onmessage = (ev)=>{
+          this._lastMsg = Date.now();
+          // Expected payload: JSON object with any of these keys:
+          // rpm, speed_mph, throttle, ect_f, iat_f, map_kpa, afr, timing, fueltrim, oil_f, volts, gear, limiter
+          try{
+            const obj = JSON.parse(ev.data);
+            Object.assign(telemetry, obj);
+            telemetry.t = Date.now();
+          }catch(e){}
+        };
+      }catch(e){
+        resolve(false);
+      }
+    });
+  }
+  async disconnect(){
+    if(this.ws) this.ws.close();
+    this.ws=null;
+    this._connected=false;
+    return true;
+  }
+  update(dt){
+    // If no message in 2s, consider "stale" but stay connected
+    if(this._connected && Date.now()-this._lastMsg > 2000){
+      // optional: show stale warning
+    }
+  }
+}
+
+class CsvPlaybackSource extends DataSource{
+  constructor(){
+    super();
+    this._connected=false;
+  }
+  get name(){ return "csv"; }
+  get connected(){ return this._connected; }
+  async connect(){
+    alert("CSV Playback is stubbed in v0.1.\n\nNext: we'll let you load a CSV and scrub time like a replay.");
+    this._connected=false;
+    return false;
+  }
+  async disconnect(){ this._connected=false; return true; }
+}
+
+/* ---------- Logger ---------- */
+class Logger {
+  constructor(){
+    this.rows=[];
+    this.recording=false;
+    this.startMs=0;
+    this.peaks = { rpm:0, speed:0 };
+  }
+  start(){
+    this.rows=[];
+    this.recording=true;
+    this.startMs=Date.now();
+    this.peaks = { rpm:0, speed:0 };
+  }
+  stop(){ this.recording=false; }
+  tick(){
+    // peaks always track during a session
+    this.peaks.rpm = Math.max(this.peaks.rpm, telemetry.rpm||0);
+    this.peaks.speed = Math.max(this.peaks.speed, telemetry.speed_mph||0);
+
+    if(!this.recording) return;
+    const t = (Date.now()-this.startMs)/1000;
+
+    this.rows.push({
+      t,
+      rpm: telemetry.rpm,
+      speed_mph: telemetry.speed_mph,
+      throttle: telemetry.throttle,
+      ect_f: telemetry.ect_f,
+      iat_f: telemetry.iat_f,
+      oil_f: telemetry.oil_f,
+      map_kpa: telemetry.map_kpa,
+      afr: telemetry.afr,
+      timing: telemetry.timing,
+      fueltrim: telemetry.fueltrim,
+      volts: telemetry.volts,
+      gear: telemetry.gear,
+      limiter: telemetry.limiter ? 1 : 0
+    });
+  }
+  toCSV(){
+    if(this.rows.length===0) return "t,rpm,speed_mph,throttle,ect_f,iat_f,oil_f,map_kpa,afr,timing,fueltrim,volts,gear,limiter\n";
+    const header = Object.keys(this.rows[0]).join(",");
+    const lines = this.rows.map(r => Object.values(r).map(v=>{
+      if(typeof v === "number") return (Math.round(v*1000)/1000).toString();
+      return String(v).replaceAll('"','""');
+    }).join(","));
+    return header + "\n" + lines.join("\n");
+  }
+}
+const logger = new Logger();
+
+/* ---------- UI Definitions ---------- */
+const gauges = [
+  { key:"rpm",       label:"RPM",         unit:"",      min:0,   max:8000,  major:1000, decimals:0 },
+  { key:"speed_mph", label:"Speed",       unit:"mph",   min:0,   max:cfg.speedMax, major:20, decimals:0 },
+  { key:"throttle",  label:"Throttle",    unit:"%",     min:0,   max:100,   major:20, decimals:0 },
+  { key:"ect_f",     label:"Coolant",     unit:"°F",    min:120, max:240,  major:20, decimals:0 },
+  { key:"iat_f",     label:"IAT",         unit:"°F",    min:40,  max:200,  major:20, decimals:0 },
+  { key:"map_kpa",   label:"MAP",         unit:"kPa",   min:15,  max:200,  major:25, decimals:0 },
+  { key:"afr",       label:"AFR (est)",   unit:"",      min:10,  max:16.5, major:1,  decimals:1 },
+  { key:"timing",    label:"Timing",      unit:"°",     min:-5,  max:40,   major:5,  decimals:0 },
+  { key:"volts",     label:"Volts",       unit:"V",     min:11,  max:15.5, major:1,  decimals:1 },
+];
+
+const el = {
+  sourceSel: document.getElementById("sourceSel"),
+  wsChip: document.getElementById("wsChip"),
+  wsUrl: document.getElementById("wsUrl"),
+  connectBtn: document.getElementById("connectBtn"),
+  recordBtn: document.getElementById("recordBtn"),
+  exportBtn: document.getElementById("exportBtn"),
+  dot: document.getElementById("dot"),
+  statusText: document.getElementById("statusText"),
+  subText: document.getElementById("subText"),
+  sessionText: document.getElementById("sessionText"),
+  shiftFill: document.getElementById("shiftFill"),
+  clock: document.getElementById("clock"),
+  chart: document.getElementById("chart"),
+  chartMeta: document.getElementById("chartMeta"),
+  rpmTxt: document.getElementById("rpmTxt"),
+  spdTxt: document.getElementById("spdTxt"),
+  thrTxt: document.getElementById("thrTxt"),
+  ectTxt: document.getElementById("ectTxt"),
+  bstTxt: document.getElementById("bstTxt"),
+  peakRpm: document.getElementById("peakRpm"),
+  peakSpd: document.getElementById("peakSpd"),
+  recTxt: document.getElementById("recTxt"),
+  gaugeGrid: document.getElementById("gaugeGrid"),
+};
+
+let source = new SimSource();
+
+/* ---------- Status helpers ---------- */
+function setStatus(connected, text){
+  el.dot.classList.toggle("on", !!connected);
+  el.statusText.textContent = text || (connected ? "Connected" : "Disconnected");
+}
+
+/* ---------- Gauge tile creation ---------- */
+const gaugeTiles = [];
+function makeGaugeTiles(){
+  el.gaugeGrid.innerHTML = "";
+  gaugeTiles.length = 0;
+
+  for(const g of gauges){
+    const tile = document.createElement("div");
+    tile.className = "tile";
+
+    const top = document.createElement("div");
+    top.className = "tileTop";
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = g.label;
+
+    const val = document.createElement("div");
+    val.className = "val";
+    val.textContent = "--";
+
+    top.appendChild(name);
+    top.appendChild(val);
+
+    const c = document.createElement("canvas");
+    c.width = 560;
+    c.height = 360;
+
+    tile.appendChild(top);
+    tile.appendChild(c);
+    el.gaugeGrid.appendChild(tile);
+
+    gaugeTiles.push({ g, tile, top, name, val, c, ctx: c.getContext("2d") });
+  }
+}
+makeGaugeTiles();
+
+/* ---------- Gauge rendering (glossy dial) ---------- */
+function drawGauge(ctx, w, h, g, value){
+  ctx.clearRect(0,0,w,h);
+
+  // dial geometry
+  const cx = w*0.5;
+  const cy = h*0.62;
+  const r  = Math.min(w,h)*0.42;
+
+  // background
+  const bg = ctx.createRadialGradient(cx, cy-r*0.7, r*0.2, cx, cy, r*1.2);
+  bg.addColorStop(0, "rgba(255,255,255,.10)");
+  bg.addColorStop(1, "rgba(0,0,0,.55)");
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r*1.12, 0, Math.PI*2);
+  ctx.fill();
+
+  // inner ring
+  ctx.strokeStyle = "rgba(255,255,255,.14)";
+  ctx.lineWidth = r*0.09;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r*0.94, 0, Math.PI*2);
+  ctx.stroke();
+
+  // arc range: -210° to +30°
+  const a0 = (-210 * Math.PI)/180;
+  const a1 = (  30 * Math.PI)/180;
+
+  // ticks
+  ctx.save();
+  ctx.translate(cx,cy);
+  for(let i=0;i<=60;i++){
+    const t = i/60;
+    const a = lerp(a0,a1,t);
+    const major = (i%6===0);
+    const len = major ? r*0.18 : r*0.10;
+    ctx.strokeStyle = major ? "rgba(255,255,255,.20)" : "rgba(255,255,255,.12)";
+    ctx.lineWidth = major ? 3 : 2;
+
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a)*(r*0.78), Math.sin(a)*(r*0.78));
+    ctx.lineTo(Math.cos(a)*(r*0.78-len), Math.sin(a)*(r*0.78-len));
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // value arc
+  const min = g.min, max = g.max;
+  const v = clamp(value, min, max);
+  const pct = (v-min)/(max-min);
+
+  // color based on severity for some gauges
+  let arcCol = "rgba(99,179,255,.95)";
+  if(g.key==="rpm"){
+    const rPct = v/cfg.redline;
+    if(rPct>0.92) arcCol = "rgba(255,77,77,.95)";
+    else if(rPct>0.78) arcCol = "rgba(247,201,72,.95)";
+    else arcCol = "rgba(56,214,122,.95)";
+  }
+  if(g.key==="ect_f"){
+    if(v>220) arcCol="rgba(255,77,77,.95)";
+    else if(v>205) arcCol="rgba(247,201,72,.95)";
+    else arcCol="rgba(56,214,122,.95)";
+  }
+
+  ctx.lineWidth = r*0.10;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "rgba(0,0,0,.35)";
+  ctx.beginPath();
+  ctx.arc(cx,cy, r*0.78, a0, a1);
+  ctx.stroke();
+
+  ctx.strokeStyle = arcCol;
+  ctx.shadowColor = arcCol;
+  ctx.shadowBlur = 18;
+  ctx.beginPath();
+  ctx.arc(cx,cy, r*0.78, a0, lerp(a0,a1,pct));
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // needle
+  const na = lerp(a0,a1,pct);
+  const nx = cx + Math.cos(na)*(r*0.70);
+  const ny = cy + Math.sin(na)*(r*0.70);
+
+  ctx.strokeStyle = "rgba(255,255,255,.75)";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(nx,ny);
+  ctx.stroke();
+
+  // hub
+  const hub = ctx.createRadialGradient(cx-8, cy-8, 2, cx, cy, r*0.16);
+  hub.addColorStop(0, "rgba(255,255,255,.55)");
+  hub.addColorStop(1, "rgba(0,0,0,.75)");
+  ctx.fillStyle = hub;
+  ctx.beginPath();
+  ctx.arc(cx,cy, r*0.11, 0, Math.PI*2);
+  ctx.fill();
+
+  // gloss overlay
+  const gloss = ctx.createLinearGradient(0, cy-r*1.05, 0, cy+r*0.95);
+  gloss.addColorStop(0, "rgba(255,255,255,.24)");
+  gloss.addColorStop(.35, "rgba(255,255,255,.08)");
+  gloss.addColorStop(1, "rgba(0,0,0,.35)");
+  ctx.fillStyle = gloss;
+  ctx.beginPath();
+  ctx.arc(cx,cy, r*1.12, 0, Math.PI*2);
+  ctx.fill();
+
+  // labels
+  ctx.fillStyle = "rgba(233,247,255,.88)";
+  ctx.font = `800 ${Math.round(r*0.22)}px system-ui`;
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  const mainText = (g.decimals ? v.toFixed(g.decimals) : Math.round(v).toString());
+  ctx.fillText(mainText, cx, h*0.86);
+
+  ctx.fillStyle = "rgba(233,247,255,.62)";
+  ctx.font = `700 ${Math.round(r*0.14)}px system-ui`;
+  ctx.fillText(g.unit, cx, h*0.93);
+}
+
+/* ---------- Chart (RPM + Speed history) ---------- */
+const chartCtx = el.chart.getContext("2d");
+function fitCanvas(canvas){
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  return dpr;
+}
+let chartDpr = 1;
+function resizeAll(){
+  for(const t of gaugeTiles){
+    // keep internal size fixed; CSS handles scale
+  }
+  chartDpr = fitCanvas(el.chart);
+}
+window.addEventListener("resize", resizeAll);
+resizeAll();
+
+const history = []; // {t, rpm, spd}
+function pushHistory(){
+  const t = Date.now()/1000;
+  history.push({ t, rpm: telemetry.rpm||0, spd: telemetry.speed_mph||0 });
+  const cutoff = t - cfg.chartSeconds;
+  while(history.length && history[0].t < cutoff) history.shift();
+}
+
+function drawChart(){
+  const w = el.chart.width, h = el.chart.height;
+  chartCtx.clearRect(0,0,w,h);
+
+  // background
+  chartCtx.fillStyle = "rgba(0,0,0,.22)";
+  chartCtx.fillRect(0,0,w,h);
+
+  if(history.length < 2) return;
+
+  const t0 = history[0].t;
+  const t1 = history[history.length-1].t;
+  const span = Math.max(1e-6, t1 - t0);
+
+  // scales
+  const rpmMax = 8000;
+  const spdMax = cfg.speedMax;
+
+  // grid
+  chartCtx.globalAlpha = 1;
+  chartCtx.strokeStyle = "rgba(255,255,255,.10)";
+  chartCtx.lineWidth = 1;
+
+  const pad = 18*chartDpr;
+  const gx0 = pad, gx1 = w-pad, gy0 = pad, gy1 = h-pad;
+
+  for(let i=0;i<=5;i++){
+    const y = lerp(gy1, gy0, i/5);
+    chartCtx.beginPath();
+    chartCtx.moveTo(gx0,y);
+    chartCtx.lineTo(gx1,y);
+    chartCtx.stroke();
+  }
+  for(let i=0;i<=6;i++){
+    const x = lerp(gx0,gx1,i/6);
+    chartCtx.beginPath();
+    chartCtx.moveTo(x,gy0);
+    chartCtx.lineTo(x,gy1);
+    chartCtx.stroke();
+  }
+
+  // rpm line
+  chartCtx.lineWidth = 2.5*chartDpr;
+  chartCtx.strokeStyle = "rgba(99,179,255,.95)";
+  chartCtx.shadowColor = "rgba(99,179,255,.55)";
+  chartCtx.shadowBlur = 10*chartDpr;
+  chartCtx.beginPath();
+  for(let i=0;i<history.length;i++){
+    const p = history[i];
+    const x = lerp(gx0,gx1,(p.t - t0)/span);
+    const y = lerp(gy1,gy0, clamp(p.rpm/rpmMax,0,1));
+    if(i===0) chartCtx.moveTo(x,y);
+    else chartCtx.lineTo(x,y);
+  }
+  chartCtx.stroke();
+  chartCtx.shadowBlur = 0;
+
+  // speed line
+  chartCtx.lineWidth = 2.5*chartDpr;
+  chartCtx.strokeStyle = "rgba(56,214,122,.90)";
+  chartCtx.shadowColor = "rgba(56,214,122,.45)";
+  chartCtx.shadowBlur = 10*chartDpr;
+  chartCtx.beginPath();
+  for(let i=0;i<history.length;i++){
+    const p = history[i];
+    const x = lerp(gx0,gx1,(p.t - t0)/span);
+    const y = lerp(gy1,gy0, clamp(p.spd/spdMax,0,1));
+    if(i===0) chartCtx.moveTo(x,y);
+    else chartCtx.lineTo(x,y);
+  }
+  chartCtx.stroke();
+  chartCtx.shadowBlur = 0;
+
+  // labels
+  chartCtx.fillStyle = "rgba(233,247,255,.72)";
+  chartCtx.font = `${12*chartDpr}px system-ui`;
+  chartCtx.fillText("RPM (blue) • Speed (green)", gx0, gy0 - 6*chartDpr);
+}
+
+/* ---------- Derived metrics ---------- */
+function kpaToPsi(kpa){
+  // kPa absolute to psi gauge (approx)
+  // atmospheric ~101.3 kPa. Boost psi = (kpa-101.3)*0.145
+  return (kpa - 101.3) * 0.1450377;
+}
+
+/* ---------- Source management ---------- */
+function currentSourceFromUI(){
+  const v = el.sourceSel.value;
+  if(v==="sim") return new SimSource();
+  if(v==="ws") return new WebSocketSource(el.wsUrl.value.trim());
+  if(v==="csv") return new CsvPlaybackSource();
+  return new SimSource();
+}
+
+async function applySource(){
+  // disconnect old
+  try{ await source.disconnect(); }catch(e){}
+  source = currentSourceFromUI();
+
+  // update UI
+  const v = el.sourceSel.value;
+  el.wsChip.style.display = (v==="ws") ? "flex" : "none";
+  el.subText.textContent =
+    v==="sim" ? "Simulated engine & vehicle data" :
+    v==="ws" ? "Live data from WebSocket bridge" :
+    "CSV playback (coming next)";
+
+  setStatus(false, "Disconnected");
+}
+el.sourceSel.addEventListener("change", applySource);
+applySource();
+
+/* ---------- Connect / Record / Export ---------- */
+async function onConnectToggle(){
+  if(source.connected){
+    await source.disconnect();
+    setStatus(false, "Disconnected");
+    el.connectBtn.textContent = "🔌 Connect";
+    return;
+  }
+  const ok = await source.connect();
+  if(ok){
+    setStatus(true, "Connected");
+    el.connectBtn.textContent = "🧯 Disconnect";
+  }else{
+    setStatus(false, "Failed to connect");
+    el.connectBtn.textContent = "🔌 Connect";
+  }
+}
+el.connectBtn.addEventListener("click", onConnectToggle);
+
+function onRecordToggle(){
+  if(!logger.recording){
+    logger.start();
+    el.recordBtn.textContent = "⏹ Stop";
+    el.sessionText.textContent = "Session: recording";
+    el.recTxt.textContent = "Yes";
+  }else{
+    logger.stop();
+    el.recordBtn.textContent = "⏺ Record";
+    el.sessionText.textContent = "Session: stopped";
+    el.recTxt.textContent = "No";
+  }
+}
+el.recordBtn.addEventListener("click", onRecordToggle);
+
+function onExport(){
+  const csv = logger.toCSV();
+  const stamp = new Date().toISOString().replaceAll(":","-").slice(0,19);
+  downloadText(`racedash_log_${stamp}.csv`, csv);
+}
+el.exportBtn.addEventListener("click", onExport);
+
+/* ---------- Keyboard shortcuts ---------- */
+window.addEventListener("keydown", (e)=>{
+  if(e.repeat) return;
+  if(e.code==="KeyC") onConnectToggle();
+  if(e.code==="Space"){ e.preventDefault(); onRecordToggle(); }
+  if(e.code==="KeyE") onExport();
+});
+
+/* ---------- Main loop ---------- */
+let last = nowMs();
+let accum = 0;
+const step = 1/cfg.sampleHz;
+
+function tick(){
+  const t = nowMs();
+  let dt = (t-last)/1000;
+  last = t;
+
+  // keep stable under tab switching
+  dt = clamp(dt, 0, 0.1);
+
+  accum += dt;
+  while(accum >= step){
+    source.update(step);
+
+    // History & logging at sampleHz
+    pushHistory();
+    logger.tick();
+
+    accum -= step;
+  }
+
+  // RPM reactive UI glow
+  const rpmPct = clamp((telemetry.rpm||0) / cfg.redline, 0, 1);
+  document.documentElement.style.setProperty("--rpmGlow", (rpmPct*rpmPct).toFixed(3));
+
+  // Shift bar
+  const shiftPct = clamp((telemetry.rpm||0) / cfg.redline, 0, 1);
+  el.shiftFill.style.width = (shiftPct*100).toFixed(1) + "%";
+  el.shiftFill.classList.toggle("limiterFlash", !!telemetry.limiter);
+
+  // Update right metrics
+  el.rpmTxt.textContent = telemetry.rpm?.toLocaleString() ?? "0";
+  el.spdTxt.textContent = `${Math.round(telemetry.speed_mph||0)} mph`;
+  el.thrTxt.textContent = `${Math.round(telemetry.throttle||0)}%`;
+  el.ectTxt.textContent = `${Math.round(telemetry.ect_f||0)} °F`;
+  const boostPsi = kpaToPsi(telemetry.map_kpa||101.3);
+  el.bstTxt.textContent = `${boostPsi.toFixed(1)} psi`;
+  el.peakRpm.textContent = logger.peaks.rpm.toLocaleString();
+  el.peakSpd.textContent = `${Math.round(logger.peaks.speed)} mph`;
+
+  // Gauges
+  for(const tile of gaugeTiles){
+    const g = tile.g;
+    const v = telemetry[g.key];
+    tile.val.textContent = (v==null) ? "--" : (g.decimals ? Number(v).toFixed(g.decimals) : Math.round(v)).toString() + (g.unit ? " " + g.unit : "");
+    drawGauge(tile.ctx, tile.c.width, tile.c.height, g, Number(v ?? 0));
+  }
+
+  // Chart
+  drawChart();
+
+  // Clock
+  const d = new Date();
+  el.clock.textContent = fmtTime(d);
+
+  // status (keep green if connected)
+  setStatus(source.connected, source.connected ? "Connected" : "Disconnected");
+
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
