@@ -1,0 +1,1590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hot Flash — Tuning Console</title>
+<style>
+  :root{
+    --bg:#07090c;
+    --panel:#0d1218;
+    --panel2:#0b1015;
+    --border:rgba(255,255,255,.10);
+    --border2:rgba(120,255,200,.18);
+    --text:#eaf2ff;
+    --muted:#98a7bc;
+    --accent:#38ffb3;
+    --accent2:#7cffd2;
+    --warn:#ffd166;
+    --bad:#ff4d6d;
+    --good:#38ffb3;
+
+    --shadow: 0 18px 50px rgba(0,0,0,.55);
+    --radius:16px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  }
+
+  *{ box-sizing:border-box }
+  body{
+    margin:0;
+    background: radial-gradient(1200px 700px at 20% 10%, rgba(56,255,179,.12), transparent 60%),
+                radial-gradient(900px 600px at 85% 30%, rgba(124,255,210,.07), transparent 55%),
+                linear-gradient(180deg, #05070a, #07090c);
+    color:var(--text);
+    font-family:var(--sans);
+  }
+
+  /* Layout */
+  .app{
+    display:grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 64px 1fr;
+    min-height:100vh;
+  }
+
+  header{
+    grid-column: 1 / -1;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 14px 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:0;
+    z-index:10;
+    backdrop-filter: blur(10px);
+  }
+
+  .brand{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    user-select:none;
+  }
+
+  .logoMark{
+    width:38px;height:38px;border-radius:12px;
+    background:
+      radial-gradient(16px 16px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
+      radial-gradient(28px 22px at 60% 65%, rgba(56,255,179,.22), transparent 65%),
+      linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    position:relative;
+    overflow:hidden;
+  }
+  .logoMark:after{
+    content:"";
+    position:absolute; inset:-40% -60%;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.18) 45%, transparent 55%);
+    transform: rotate(10deg);
+    animation: sheen 4.2s linear infinite;
+  }
+  @keyframes sheen{
+    0%{ transform: translateX(-40%) rotate(10deg); opacity:.0 }
+    20%{ opacity:.65 }
+    55%{ opacity:.15 }
+    100%{ transform: translateX(40%) rotate(10deg); opacity:0 }
+  }
+
+  .brand h1{
+    margin:0;
+    font-size:15px;
+    letter-spacing:.6px;
+  }
+  .brand .sub{
+    font-family:var(--mono);
+    color:var(--muted);
+    font-size:12px;
+    margin-top:2px;
+  }
+
+  .tabs{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .tab{
+    padding:9px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.20);
+    color:var(--text);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .tab:hover{ transform: translateY(-1px); border-color: rgba(56,255,179,.35) }
+  .tab.active{
+    border-color: rgba(56,255,179,.55);
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    background: linear-gradient(180deg, rgba(56,255,179,.18), rgba(0,0,0,.20));
+  }
+
+  /* Sidebar */
+  aside{
+    border-right:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    padding: 14px;
+  }
+
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .sideTop{
+    padding: 12px;
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .grow{ flex:1 }
+
+  .input{
+    width:100%;
+    padding:10px 11px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.26);
+    color:var(--text);
+    outline:none;
+  }
+  .input::placeholder{ color: rgba(152,167,188,.75) }
+
+  .pill{
+    font-family:var(--mono);
+    font-size:12px;
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.22);
+    color: var(--muted);
+  }
+  .pill.good{ border-color: rgba(56,255,179,.30); color: rgba(56,255,179,.95) }
+  .pill.bad{ border-color: rgba(255,77,109,.35); color: rgba(255,77,109,.95) }
+
+  .pidList{
+    margin-top:12px;
+    max-height: calc(100vh - 64px - 14px - 230px);
+    overflow:auto;
+    padding: 10px;
+  }
+  .pidItem{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding: 10px 10px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.08);
+    background: rgba(0,0,0,.18);
+    margin-bottom:8px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .pidItem:hover{ border-color: rgba(56,255,179,.25) }
+  .pidName{ font-weight:700; font-size:13px }
+  .pidMeta{
+    font-family:var(--mono);
+    color:var(--muted);
+    font-size:11px;
+    opacity:.95;
+  }
+  .toggle{
+    width:44px; height:26px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    position:relative;
+    flex:0 0 auto;
+  }
+  .toggle i{
+    position:absolute; top:3px; left:3px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), rgba(255,255,255,.12));
+    box-shadow: 0 10px 18px rgba(0,0,0,.35);
+    transition: left .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  .pidItem.on .toggle{
+    border-color: rgba(56,255,179,.50);
+    box-shadow: 0 0 0 3px rgba(56,255,179,.10) inset;
+  }
+  .pidItem.on .toggle i{
+    left:21px;
+    background: radial-gradient(circle at 30% 30%, rgba(56,255,179,.9), rgba(56,255,179,.25));
+    box-shadow: 0 12px 22px rgba(56,255,179,.18);
+  }
+
+  .sideBottom{
+    padding: 12px;
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+
+  .btn{
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.22));
+    color:var(--text);
+    font-weight:800;
+    cursor:pointer;
+    transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+    user-select:none;
+  }
+  .btn:hover{ transform: translateY(-1px); border-color: rgba(56,255,179,.45); box-shadow: 0 16px 30px rgba(0,0,0,.35) }
+  .btn:active{ transform: translateY(0px) scale(.99) }
+
+  .btn.good{
+    border-color: rgba(56,255,179,.35);
+    background: linear-gradient(180deg, rgba(56,255,179,.18), rgba(0,0,0,.25));
+  }
+  .btn.bad{
+    border-color: rgba(255,77,109,.35);
+    background: linear-gradient(180deg, rgba(255,77,109,.16), rgba(0,0,0,.25));
+  }
+  .btn.small{ padding:8px 10px; font-size:12px; font-weight:800 }
+
+  /* Main */
+  main{
+    padding: 14px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card{
+    padding: 14px;
+  }
+
+  .cardTitle{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .cardTitle h2{
+    margin:0;
+    font-size:14px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+  }
+  .hint{
+    font-family:var(--mono);
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  /* Gauges */
+  .gauges{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 1150px){
+    .gauges{ grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+  }
+  @media (max-width: 720px){
+    .app{ grid-template-columns: 1fr; grid-template-rows: 64px auto 1fr; }
+    aside{ grid-column:1; border-right:none; border-bottom:1px solid var(--border) }
+    .gauges{ grid-template-columns: 1fr; }
+    .pidList{ max-height: 260px; }
+  }
+
+  .gauge{
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(120px 90px at 35% 25%, rgba(255,255,255,.10), transparent 60%),
+      radial-gradient(160px 120px at 60% 75%, rgba(56,255,179,.08), transparent 65%),
+      linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+    box-shadow: 0 18px 40px rgba(0,0,0,.40);
+    padding: 12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .gauge:before{
+    /* glass highlight sweep */
+    content:"";
+    position:absolute; inset:-50% -60%;
+    background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,.12) 45%, transparent 55%);
+    transform: rotate(10deg);
+    animation: sheen 6.5s linear infinite;
+    pointer-events:none;
+  }
+
+  .gTop{
+    display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  }
+  .gName{
+    font-weight:900; letter-spacing:.4px; font-size:13px;
+  }
+  .gUnit{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+  }
+  .gValue{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:900;
+    margin-top:6px;
+  }
+  .gBar{
+    height:10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.25);
+    overflow:hidden;
+    margin-top:10px;
+    position:relative;
+  }
+  .gFill{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background: linear-gradient(90deg, rgba(56,255,179,.25), rgba(56,255,179,.85));
+    box-shadow: 0 0 18px rgba(56,255,179,.20);
+    transition: width .08s linear;
+  }
+  .gTicks{
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    font-family:var(--mono);
+    font-size:10px;
+    color: rgba(152,167,188,.95);
+    opacity:.92;
+  }
+
+  /* Live table */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    overflow:hidden;
+    border-radius: 14px;
+  }
+  th, td{
+    padding:10px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    font-size:13px;
+  }
+  th{
+    text-align:left;
+    color: rgba(152,167,188,.95);
+    font-family:var(--mono);
+    font-weight:800;
+    font-size:12px;
+    letter-spacing:.4px;
+  }
+  tr:hover td{ background: rgba(56,255,179,.03) }
+  td:nth-child(2){ font-family:var(--mono); font-weight:800 }
+  td:nth-child(3){ color: var(--muted); font-family:var(--mono); font-size:12px }
+
+  /* Charts */
+  .chartWrap{
+    position:relative;
+    height: 420px;
+    border-radius: 16px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.18);
+    overflow:hidden;
+  }
+  canvas{ display:block; width:100%; height:100% }
+  .chartHud{
+    position:absolute;
+    top:10px; left:10px; right:10px;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    pointer-events:none;
+  }
+  .hudBox{
+    pointer-events:auto;
+    padding:8px 10px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.35);
+    font-family:var(--mono);
+    color: rgba(152,167,188,.95);
+    font-size:12px;
+  }
+  .hudBox strong{ color: var(--text) }
+
+  /* Footer hints */
+  .tiny{
+    font-family:var(--mono);
+    color: rgba(152,167,188,.85);
+    font-size:11px;
+    line-height:1.35;
+  }
+
+  /* Hide/show pages */
+  .page{ display:none }
+  .page.active{ display:block }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logoMark" aria-hidden="true"></div>
+      <div>
+        <h1>HOT FLASH — Tuning Console</h1>
+        <div class="sub" id="statusLine">SIM MODE • 20 Hz • not connected</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-page="live">Live Data</button>
+      <button class="tab" data-page="charts">Charts</button>
+      <button class="tab" data-page="logs">Logs</button>
+      <button class="tab" data-page="dtc">DTC</button>
+      <button class="tab" data-page="settings">Settings</button>
+    </div>
+  </header>
+
+  <aside>
+    <div class="panel sideTop">
+      <div class="row">
+        <input id="pidSearch" class="input grow" placeholder="Search PIDs (rpm, boost, afr…)" />
+        <span class="pill" id="hzPill">20 Hz</span>
+      </div>
+
+      <div style="margin-top:10px" class="row">
+        <span class="pill good" id="connPill">SIM</span>
+        <span class="pill" id="samplesPill">Samples: 0</span>
+        <span class="pill" id="logPill">Log: OFF</span>
+      </div>
+
+      <div class="pidList" id="pidList"></div>
+    </div>
+
+    <div class="panel sideBottom">
+      <div class="row">
+        <button class="btn good grow" id="btnLogToggle">Start Log</button>
+        <button class="btn small" id="btnZero">Zero Trims</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn small grow" id="btnExport">Export CSV</button>
+        <label class="btn small grow" style="text-align:center">
+          Import CSV
+          <input id="fileImport" type="file" accept=".csv" style="display:none"/>
+        </label>
+      </div>
+      <div class="tiny" style="margin-top:10px">
+        <div><strong>WebSocket format:</strong></div>
+        <div>{"ts": 1730000000000, "pid": {"rpm": 2500, "boost": 12.3, ...}}</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="grid">
+
+      <!-- LIVE -->
+      <section class="panel card page active" id="page-live">
+        <div class="cardTitle">
+          <h2>Live Data</h2>
+          <div class="hint">Click PIDs in the left panel to show/hide</div>
+        </div>
+
+        <div class="gauges" id="gauges"></div>
+
+        <div style="height:12px"></div>
+
+        <div class="cardTitle">
+          <h2>PID Table</h2>
+          <div class="hint" id="lastUpdate">—</div>
+        </div>
+
+        <div style="overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.08)">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:220px">Parameter</th>
+                <th style="min-width:120px">Value</th>
+                <th style="min-width:120px">Unit</th>
+              </tr>
+            </thead>
+            <tbody id="pidTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CHARTS -->
+      <section class="panel card page" id="page-charts">
+        <div class="cardTitle">
+          <h2>Charts</h2>
+          <div class="hint">Scroll wheel = zoom • drag = pan • click legend = toggle</div>
+        </div>
+
+        <div class="chartWrap">
+          <canvas id="chart"></canvas>
+          <div class="chartHud">
+            <div class="hudBox" id="chartInfo"><strong>0</strong> pts • window <strong>10s</strong></div>
+            <div class="hudBox" id="cursorInfo">cursor: —</div>
+          </div>
+        </div>
+
+        <div class="tiny" style="margin-top:10px">
+          Tip: turn on only the PIDs you care about, then chart them here.
+        </div>
+      </section>
+
+      <!-- LOGS -->
+      <section class="panel card page" id="page-logs">
+        <div class="cardTitle">
+          <h2>Logs</h2>
+          <div class="hint">Record, export, import, replay</div>
+        </div>
+
+        <div class="row" style="flex-wrap:wrap">
+          <button class="btn good" id="btnLogToggle2">Start Log</button>
+          <button class="btn" id="btnMark">Add Marker</button>
+          <button class="btn" id="btnClearLog">Clear Log</button>
+          <span class="pill" id="logStats">Rows: 0</span>
+          <span class="pill" id="logFileName">—</span>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="panel" style="padding:12px;border-radius:16px">
+          <div class="row" style="gap:12px; flex-wrap:wrap">
+            <div class="pill">Playback</div>
+            <input id="playSlider" type="range" min="0" max="0" value="0" style="width:min(520px, 100%)"/>
+            <button class="btn small" id="btnPlay">Play</button>
+            <button class="btn small" id="btnPause">Pause</button>
+            <span class="pill" id="playTime">t=0.00s</span>
+          </div>
+          <div class="tiny" style="margin-top:10px">
+            Playback uses imported/exported log rows. While playing, Live Data uses the log stream.
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div style="overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.08); max-height: 380px;">
+          <table>
+            <thead><tr id="logHead"></tr></thead>
+            <tbody id="logBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DTC -->
+      <section class="panel card page" id="page-dtc">
+        <div class="cardTitle">
+          <h2>DTC</h2>
+          <div class="hint">Read/Clear codes (wired for real later)</div>
+        </div>
+
+        <div class="row" style="flex-wrap:wrap">
+          <button class="btn" id="btnReadDTC">Read Codes</button>
+          <button class="btn bad" id="btnClearDTC">Clear Codes</button>
+          <span class="pill" id="dtcStatus">—</span>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="panel" style="padding:12px;border-radius:16px">
+          <div class="tiny">Example codes below (SIM). Hook your data source to replace them.</div>
+          <div style="height:10px"></div>
+          <div id="dtcList" style="display:grid;gap:10px"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="panel card page" id="page-settings">
+        <div class="cardTitle">
+          <h2>Settings</h2>
+          <div class="hint">Connection + sampling + units</div>
+        </div>
+
+        <div class="panel" style="padding:12px;border-radius:16px">
+          <div class="row" style="flex-wrap:wrap">
+            <div style="flex:1; min-width: 260px;">
+              <div class="tiny">Data Source</div>
+              <select id="sourceMode" class="input" style="margin-top:6px">
+                <option value="sim">SIM (built-in)</option>
+                <option value="ws">WebSocket</option>
+                <option value="playback">Playback (from log)</option>
+              </select>
+            </div>
+
+            <div style="flex:2; min-width: 320px;">
+              <div class="tiny">WebSocket URL (for ws mode)</div>
+              <input id="wsUrl" class="input" style="margin-top:6px" placeholder="ws://localhost:8787" value="ws://localhost:8787"/>
+            </div>
+
+            <div style="min-width: 220px;">
+              <div class="tiny">Sample Rate (Hz)</div>
+              <input id="hz" class="input" style="margin-top:6px" type="number" min="1" max="60" value="20"/>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="row" style="flex-wrap:wrap">
+            <button class="btn good" id="btnApply">Apply</button>
+            <button class="btn" id="btnConnect">Connect WS</button>
+            <button class="btn bad" id="btnDisconnect">Disconnect</button>
+            <span class="pill" id="settingsHint">Tip: use WS when you have a bridge streaming JSON</span>
+          </div>
+
+          <div style="height:12px"></div>
+          <div class="tiny">
+            <div><strong>Expected WS JSON</strong> (per message):</div>
+            <div>{"ts": 1730000000000, "pid": {"rpm": 2500, "boost": 12.3, "afr": 11.2, "coolant": 192, ...}}</div>
+            <div style="margin-top:8px"><strong>Supported keys (default set):</strong> rpm, boost, afr, coolant, iat, tps, knock, stft, ltft, batt, speed, map, timing, wgdc</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ==========================================================
+   HOT FLASH — EvoScan-like Tuning UI (single file)
+   - SIM mode for now
+   - WebSocket mode: stream JSON packets
+   - Logging: CSV export/import + playback
+   ========================================================== */
+
+const $ = (q, el=document)=> el.querySelector(q);
+const $$ = (q, el=document)=> [...el.querySelectorAll(q)];
+const clamp = (v, a, b)=> Math.max(a, Math.min(b, v));
+
+/* ---------------- PID Definitions ---------------- */
+const PIDS = [
+  {key:"rpm", name:"Engine Speed", unit:"RPM", min:0, max:8000, fmt:v=>Math.round(v), defaultOn:true},
+  {key:"boost", name:"Boost / Manifold", unit:"psi", min:-5, max:35, fmt:v=>v.toFixed(1), defaultOn:true},
+  {key:"afr", name:"Air/Fuel Ratio", unit:"AFR", min:9, max:20, fmt:v=>v.toFixed(2), defaultOn:true},
+  {key:"coolant", name:"Coolant Temp", unit:"°F", min:80, max:240, fmt:v=>Math.round(v), defaultOn:true},
+  {key:"iat", name:"Intake Air Temp", unit:"°F", min:40, max:200, fmt:v=>Math.round(v), defaultOn:true},
+  {key:"tps", name:"Throttle Position", unit:"%", min:0, max:100, fmt:v=>Math.round(v), defaultOn:true},
+  {key:"knock", name:"Knock Sum", unit:"ct", min:0, max:40, fmt:v=>v.toFixed(1), defaultOn:false},
+  {key:"stft", name:"Short Term Fuel Trim", unit:"%", min:-25, max:25, fmt:v=>v.toFixed(1), defaultOn:false},
+  {key:"ltft", name:"Long Term Fuel Trim", unit:"%", min:-25, max:25, fmt:v=>v.toFixed(1), defaultOn:false},
+  {key:"batt", name:"Battery Voltage", unit:"V", min:10, max:15.5, fmt:v=>v.toFixed(2), defaultOn:false},
+  {key:"speed", name:"Vehicle Speed", unit:"mph", min:0, max:160, fmt:v=>Math.round(v), defaultOn:false},
+  {key:"timing", name:"Ignition Timing", unit:"°", min:-10, max:45, fmt:v=>v.toFixed(1), defaultOn:false},
+  {key:"wgdc", name:"Wastegate Duty", unit:"%", min:0, max:100, fmt:v=>Math.round(v), defaultOn:false},
+];
+
+const state = {
+  mode: "sim",         // sim | ws | playback
+  hz: 20,
+  wsUrl: "ws://localhost:8787",
+  connected: false,
+  logging: false,
+  sampleCount: 0,
+
+  enabled: new Set(PIDS.filter(p=>p.defaultOn).map(p=>p.key)),
+  latest: {},
+
+  // Rolling chart buffer (seconds window)
+  chartWindowSec: 10,
+  series: {}, // key -> [{t, v},...]
+  t0: performance.now(),
+
+  // Logger
+  logRows: [],
+  logHeaders: [],
+
+  // Playback
+  playback: {
+    active:false,
+    i:0,
+    timer:null,
+    sourceName:"—",
+    startTs:0,
+    endTs:0
+  },
+
+  // WS
+  ws: null,
+};
+
+/* ---------------- UI wiring ---------------- */
+const statusLine = $("#statusLine");
+const connPill = $("#connPill");
+const samplesPill = $("#samplesPill");
+const logPill = $("#logPill");
+const hzPill = $("#hzPill");
+const lastUpdate = $("#lastUpdate");
+const pidList = $("#pidList");
+const pidTable = $("#pidTable");
+const gaugesEl = $("#gauges");
+const pidSearch = $("#pidSearch");
+
+function setConnPill(){
+  if(state.mode==="sim") {
+    connPill.textContent="SIM";
+    connPill.className="pill good";
+  } else if(state.mode==="playback") {
+    connPill.textContent="PLAY";
+    connPill.className="pill good";
+  } else {
+    connPill.textContent = state.connected ? "WS" : "WS (OFF)";
+    connPill.className = state.connected ? "pill good" : "pill bad";
+  }
+}
+function setStatusLine(){
+  const conn = state.mode==="ws" ? (state.connected ? "connected" : "not connected") :
+               state.mode==="playback" ? "playback" : "simulated";
+  statusLine.textContent = `${state.mode.toUpperCase()} • ${state.hz} Hz • ${conn}`;
+}
+
+/* Tabs */
+$$(".tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    $$(".tab").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const page = btn.dataset.page;
+    $$(".page").forEach(p=>p.classList.remove("active"));
+    $("#page-"+page).classList.add("active");
+    if(page==="charts") requestAnimationFrame(drawChart);
+    if(page==="logs") refreshLogTable();
+  });
+});
+
+/* PID sidebar list */
+function buildPidList(){
+  pidList.innerHTML = "";
+  const q = (pidSearch.value||"").trim().toLowerCase();
+  const filtered = PIDS.filter(p=>{
+    if(!q) return true;
+    return (p.key+" "+p.name+" "+p.unit).toLowerCase().includes(q);
+  });
+
+  filtered.forEach(p=>{
+    const on = state.enabled.has(p.key);
+    const item = document.createElement("div");
+    item.className = "pidItem" + (on ? " on" : "");
+    item.innerHTML = `
+      <div>
+        <div class="pidName">${p.key.toUpperCase()} • ${p.name}</div>
+        <div class="pidMeta">${p.min} → ${p.max} ${p.unit}</div>
+      </div>
+      <div class="toggle" aria-hidden="true"><i></i></div>
+    `;
+    item.addEventListener("click", ()=>{
+      if(state.enabled.has(p.key)) state.enabled.delete(p.key);
+      else state.enabled.add(p.key);
+      buildPidList();
+      buildGauges();
+      rebuildPidTable(); // keep table in sync
+      rebuildChartSeries();
+    });
+    pidList.appendChild(item);
+  });
+}
+pidSearch.addEventListener("input", buildPidList);
+
+/* Gauges */
+function buildGauges(){
+  gaugesEl.innerHTML = "";
+  const enabledPids = PIDS.filter(p=>state.enabled.has(p.key));
+  enabledPids.forEach(p=>{
+    const g = document.createElement("div");
+    g.className = "gauge";
+    g.dataset.key = p.key;
+    g.innerHTML = `
+      <div class="gTop">
+        <div>
+          <div class="gName">${p.key.toUpperCase()} • ${p.name}</div>
+          <div class="gUnit">${p.unit}</div>
+        </div>
+        <div class="gValue" id="val-${p.key}">—</div>
+      </div>
+      <div class="gBar"><div class="gFill" id="fill-${p.key}"></div></div>
+      <div class="gTicks"><span>${p.min}</span><span>${p.max}</span></div>
+    `;
+    gaugesEl.appendChild(g);
+  });
+}
+
+/* PID Table */
+function rebuildPidTable(){
+  pidTable.innerHTML = "";
+  const enabledPids = PIDS.filter(p=>state.enabled.has(p.key));
+  enabledPids.forEach(p=>{
+    const tr = document.createElement("tr");
+    tr.dataset.key = p.key;
+    tr.innerHTML = `
+      <td><strong>${p.name}</strong> <span class="hint">(${p.key.toUpperCase()})</span></td>
+      <td id="tbl-${p.key}">—</td>
+      <td>${p.unit}</td>
+    `;
+    pidTable.appendChild(tr);
+  });
+}
+
+/* Update displayed values */
+function updateUI(tsMillis){
+  const enabledPids = PIDS.filter(p=>state.enabled.has(p.key));
+  enabledPids.forEach(p=>{
+    const v = state.latest[p.key];
+    const val = (v===undefined || v===null) ? "—" : p.fmt(v);
+    const valEl = $("#val-"+p.key);
+    const tblEl = $("#tbl-"+p.key);
+    if(valEl) valEl.textContent = val;
+    if(tblEl) tblEl.textContent = val;
+
+    // fill percent
+    const fillEl = $("#fill-"+p.key);
+    if(fillEl && v!==undefined && v!==null){
+      const pct = clamp((v - p.min) / (p.max - p.min), 0, 1);
+      fillEl.style.width = (pct*100).toFixed(1) + "%";
+
+      // glow intensity reacts to RPM if present
+      if(p.key==="rpm"){
+        const glow = clamp(pct, 0, 1);
+        document.documentElement.style.setProperty("--border2", `rgba(56,255,179,${0.10 + glow*0.35})`);
+      }
+    }
+  });
+
+  const dt = new Date(tsMillis || Date.now());
+  lastUpdate.textContent = `Updated ${dt.toLocaleTimeString()}`;
+  samplesPill.textContent = `Samples: ${state.sampleCount}`;
+}
+
+/* ---------------- Data sources ---------------- */
+function nowT(){
+  return (performance.now() - state.t0) / 1000;
+}
+
+/* SIM generator (fun but stable) */
+const sim = {
+  rpm: 900,
+  boost: -1,
+  afr: 14.7,
+  coolant: 182,
+  iat: 82,
+  tps: 2,
+  knock: 0,
+  stft: 0,
+  ltft: 0,
+  batt: 14.1,
+  speed: 0,
+  timing: 12,
+  wgdc: 20,
+  limiter:false,
+  phase:0,
+};
+
+function simStep(dt){
+  // A "driver" that rolls into throttle, then does a pull, then cools
+  sim.phase += dt;
+  const cycle = (Math.sin(sim.phase*0.18)+1)/2; // 0..1 slow cycle
+  const pull = cycle > 0.55 ? (cycle-0.55)/0.45 : 0; // 0..1
+  const throttleTarget = pull*100 * (0.65 + 0.35*Math.sin(sim.phase*0.6));
+  sim.tps += (throttleTarget - sim.tps) * clamp(dt*2.4, 0, 1);
+
+  // RPM follows throttle with inertia
+  const rpmTarget = 900 + sim.tps*60 + pull*2500;
+  sim.rpm += (rpmTarget - sim.rpm) * clamp(dt*3.2, 0, 1);
+
+  // Limiter bounce
+  sim.limiter = sim.rpm > 7200;
+  if(sim.limiter){
+    sim.rpm -= 950 + Math.random()*250; // cut
+  }
+
+  // Boost (psi), tied to throttle and RPM
+  const boostTarget = -1 + (sim.tps/100) * (8 + (sim.rpm/8000)*20);
+  sim.boost += (boostTarget - sim.boost) * clamp(dt*4.0, 0, 1);
+  sim.boost += (Math.random()-.5) * 0.22;
+
+  // AFR drops under boost
+  const afrTarget = (sim.tps < 10) ? 14.7 : (sim.boost > 2 ? 11.2 : 13.2);
+  sim.afr += (afrTarget - sim.afr) * clamp(dt*2.6, 0, 1);
+  sim.afr += (Math.random()-.5) * 0.06;
+
+  // Temps
+  const coolantTarget = 178 + pull*25;
+  sim.coolant += (coolantTarget - sim.coolant) * clamp(dt*0.35, 0, 1);
+
+  const iatTarget = 78 + pull*55;
+  sim.iat += (iatTarget - sim.iat) * clamp(dt*0.55, 0, 1);
+
+  // Knock more likely at high load
+  const knockTarget = Math.max(0, (sim.boost-12)) * 0.9 + (Math.random() < 0.03 ? Math.random()*8 : 0);
+  sim.knock += (knockTarget - sim.knock) * clamp(dt*4.5, 0, 1);
+
+  // Fuel trims drift slightly
+  sim.stft += (Math.random()-.5) * 0.3;
+  sim.stft = clamp(sim.stft, -8, 8);
+  sim.ltft += (Math.random()-.5) * 0.05;
+  sim.ltft = clamp(sim.ltft, -6, 6);
+
+  // Battery
+  sim.batt += ((14.1 + (Math.random()-.5)*0.06) - sim.batt) * clamp(dt*1.2, 0, 1);
+
+  // Speed and timing
+  const speedTarget = clamp((sim.rpm-900)/60, 0, 140);
+  sim.speed += (speedTarget - sim.speed) * clamp(dt*0.8, 0, 1);
+  const timingTarget = 14 + (sim.rpm/8000)*10 - (sim.boost>0 ? sim.boost*0.35 : 0) - sim.knock*0.25;
+  sim.timing += (timingTarget - sim.timing) * clamp(dt*2.0, 0, 1);
+
+  // WGDC
+  const wgdcTarget = clamp(18 + sim.boost*2.6 + pull*12, 0, 100);
+  sim.wgdc += (wgdcTarget - sim.wgdc) * clamp(dt*2.0, 0, 1);
+
+  return {
+    ts: Date.now(),
+    pid: {
+      rpm: sim.rpm,
+      boost: sim.boost,
+      afr: sim.afr,
+      coolant: sim.coolant,
+      iat: sim.iat,
+      tps: sim.tps,
+      knock: sim.knock,
+      stft: sim.stft,
+      ltft: sim.ltft,
+      batt: sim.batt,
+      speed: sim.speed,
+      timing: sim.timing,
+      wgdc: sim.wgdc,
+    }
+  };
+}
+
+/* WebSocket data handler */
+function handlePacket(pkt){
+  if(!pkt) return;
+  const ts = pkt.ts || Date.now();
+  const pid = pkt.pid || pkt;
+  state.latest = {...state.latest, ...pid};
+  state.sampleCount++;
+  appendChart(ts, pid);
+  if(state.logging) appendLog(ts, pid);
+  updateUI(ts);
+}
+
+/* ---------------- Chart buffer ---------------- */
+function rebuildChartSeries(){
+  // Ensure series exists for enabled PIDs
+  const keys = PIDS.filter(p=>state.enabled.has(p.key)).map(p=>p.key);
+  for(const k of keys){
+    if(!state.series[k]) state.series[k] = [];
+  }
+  // Remove disabled keys
+  for(const k of Object.keys(state.series)){
+    if(!state.enabled.has(k)) delete state.series[k];
+  }
+}
+
+function appendChart(ts, pid){
+  const t = (ts - (state.playback.startTs || ts)) / 1000; // relative seconds in playback; otherwise 0-based-ish
+  const window = state.chartWindowSec;
+
+  for(const p of PIDS){
+    if(!state.enabled.has(p.key)) continue;
+    const v = pid[p.key];
+    if(v===undefined) continue;
+    if(!state.series[p.key]) state.series[p.key] = [];
+    state.series[p.key].push({t, v});
+    // trim old
+    const arr = state.series[p.key];
+    while(arr.length && (arr[arr.length-1].t - arr[0].t) > window){
+      arr.shift();
+    }
+  }
+
+  if($("#page-charts").classList.contains("active")){
+    requestAnimationFrame(drawChart);
+  }
+}
+
+/* Simple canvas chart */
+const chart = $("#chart");
+const ctx = chart.getContext("2d");
+let chartScale = 1.0;
+let chartPan = 0; // seconds shift
+let dragging = false;
+let dragX0 = 0;
+let pan0 = 0;
+let cursor = {x: null, t:null};
+
+function resizeCanvas(){
+  const r = chart.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  chart.width = Math.floor(r.width * dpr);
+  chart.height = Math.floor(r.height * dpr);
+}
+window.addEventListener("resize", ()=>{ resizeCanvas(); drawChart(); });
+
+chart.addEventListener("wheel", (e)=>{
+  e.preventDefault();
+  const delta = Math.sign(e.deltaY);
+  chartScale = clamp(chartScale * (delta>0 ? 1.12 : 0.89), 0.5, 6);
+  drawChart();
+},{passive:false});
+
+chart.addEventListener("pointerdown", (e)=>{
+  dragging = true;
+  dragX0 = e.clientX;
+  pan0 = chartPan;
+  chart.setPointerCapture(e.pointerId);
+});
+chart.addEventListener("pointermove", (e)=>{
+  const rect = chart.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  cursor.x = x;
+  cursor.t = xToT(x);
+  $("#cursorInfo").textContent = `cursor: ${cursor.t.toFixed(2)}s`;
+  if(dragging){
+    const dx = e.clientX - dragX0;
+    const secondsPerPx = (state.chartWindowSec / chartScale) / rect.width;
+    chartPan = pan0 - dx * secondsPerPx;
+    drawChart();
+  }
+});
+chart.addEventListener("pointerup", ()=> dragging=false);
+chart.addEventListener("pointerleave", ()=> { cursor.x=null; cursor.t=null; $("#cursorInfo").textContent="cursor: —"; });
+
+function xToT(x){
+  const rect = chart.getBoundingClientRect();
+  const w = rect.width;
+  const span = state.chartWindowSec / chartScale;
+  const tMin = -chartPan;
+  return tMin + (x / w) * span;
+}
+
+/* Legend toggles */
+let chartHidden = new Set();
+
+function drawChart(){
+  if(!ctx) return;
+  resizeCanvas();
+
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const W = chart.width;
+  const H = chart.height;
+
+  // background
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = "rgba(0,0,0,0)";
+  ctx.fillRect(0,0,W,H);
+
+  // grid
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  const w = W/dpr, h = H/dpr;
+
+  // subtle grid lines
+  ctx.strokeStyle = "rgba(255,255,255,.06)";
+  ctx.lineWidth = 1;
+  const gridX = 10, gridY = 6;
+  for(let i=1;i<gridX;i++){
+    const x = (w/gridX)*i;
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+  }
+  for(let j=1;j<gridY;j++){
+    const y = (h/gridY)*j;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+  }
+
+  // timespan mapping
+  const span = state.chartWindowSec / chartScale;
+  const tMin = -chartPan;
+  const tMax = tMin + span;
+
+  // figure visible keys
+  const keys = Object.keys(state.series).filter(k=>state.enabled.has(k) && !chartHidden.has(k));
+  const pts = keys.reduce((acc,k)=> acc + state.series[k].length, 0);
+  $("#chartInfo").innerHTML = `<strong>${pts}</strong> pts • window <strong>${span.toFixed(1)}s</strong>`;
+
+  // auto compute per-series y scaling using PID min/max
+  keys.forEach((k, idx)=>{
+    const def = PIDS.find(p=>p.key===k);
+    const arr = state.series[k] || [];
+    if(arr.length<2) return;
+
+    const yMin = def?.min ?? 0;
+    const yMax = def?.max ?? 100;
+
+    // color choices (no CSS variables in canvas easily)
+    const hue = 155 + idx*22; // green-ish family
+    const stroke = `hsla(${hue}, 90%, 62%, .92)`;
+
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    let started = false;
+    for(const p of arr){
+      if(p.t < tMin || p.t > tMax) continue;
+      const x = ( (p.t - tMin) / span ) * w;
+      const y = h - ((p.v - yMin) / (yMax - yMin)) * h;
+      if(!started){ ctx.moveTo(x,y); started = true; }
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  });
+
+  // legend
+  const pad = 12;
+  let lx = pad, ly = h - pad - 18;
+  ctx.font = "12px ui-monospace, Menlo, Consolas, monospace";
+  keys.forEach((k, idx)=>{
+    const hue = 155 + idx*22;
+    ctx.fillStyle = `hsla(${hue}, 90%, 62%, .92)`;
+    ctx.fillRect(lx, ly-10, 10, 10);
+    ctx.fillStyle = "rgba(234,242,255,.92)";
+    ctx.fillText(k.toUpperCase(), lx+14, ly);
+    lx += 90;
+    if(lx > w-90){ lx = pad; ly -= 20; }
+  });
+
+  ctx.restore();
+}
+
+/* Click legend toggle (simple heuristic based on text positions) */
+chart.addEventListener("click", (e)=>{
+  const rect = chart.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  // Legend occupies bottom area; brute-ish mapping by 90px slots
+  if(y < rect.height - 80) return;
+  const keys = Object.keys(state.series).filter(k=>state.enabled.has(k));
+  const col = Math.floor((x - 12)/90);
+  const row = Math.floor((rect.height - 12 - y)/20);
+  const idx = row* Math.floor((rect.width-12)/90) + col;
+  const k = keys[idx];
+  if(!k) return;
+  if(chartHidden.has(k)) chartHidden.delete(k);
+  else chartHidden.add(k);
+  drawChart();
+});
+
+/* ---------------- Logging ---------------- */
+function appendLog(ts, pid){
+  // Determine headers from enabled PIDs (stable)
+  if(state.logHeaders.length===0){
+    state.logHeaders = ["ts", ...PIDS.filter(p=>state.enabled.has(p.key)).map(p=>p.key)];
+  }
+  const row = { ts };
+  for(const k of state.logHeaders){
+    if(k==="ts") continue;
+    row[k] = pid[k] ?? state.latest[k] ?? "";
+  }
+  state.logRows.push(row);
+  $("#logStats").textContent = `Rows: ${state.logRows.length}`;
+  $("#logPill").textContent = `Log: ON`;
+}
+
+function exportCSV(){
+  if(state.logRows.length===0){
+    alert("No log data yet. Start Log first.");
+    return;
+  }
+  const headers = state.logHeaders.length ? state.logHeaders : Object.keys(state.logRows[0]);
+  const lines = [];
+  lines.push(headers.join(","));
+  for(const r of state.logRows){
+    lines.push(headers.map(h=>{
+      const v = (r[h] ?? "");
+      const s = String(v).replaceAll('"','""');
+      return /[,"\n]/.test(s) ? `"${s}"` : s;
+    }).join(","));
+  }
+  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().replaceAll(":","-").slice(0,19);
+  a.href = URL.createObjectURL(blob);
+  a.download = `hotflash_log_${stamp}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clearLog(){
+  state.logRows = [];
+  state.logHeaders = [];
+  $("#logStats").textContent = "Rows: 0";
+  $("#logPill").textContent = "Log: OFF";
+  $("#logFileName").textContent = "—";
+  $("#playSlider").max = 0;
+  $("#playSlider").value = 0;
+  refreshLogTable();
+}
+
+function refreshLogTable(){
+  const head = $("#logHead");
+  const body = $("#logBody");
+  head.innerHTML = "";
+  body.innerHTML = "";
+
+  const headers = state.logHeaders.length ? state.logHeaders :
+                  (state.logRows[0] ? Object.keys(state.logRows[0]) : ["ts"]);
+  headers.forEach(h=>{
+    const th = document.createElement("th");
+    th.textContent = h.toUpperCase();
+    head.appendChild(th);
+  });
+
+  const show = state.logRows.slice(-250); // last 250 rows
+  for(const r of show){
+    const tr = document.createElement("tr");
+    headers.forEach(h=>{
+      const td = document.createElement("td");
+      td.textContent = r[h] ?? "";
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  }
+}
+
+/* CSV Import */
+async function importCSVFile(file){
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  if(lines.length<2) return;
+  const headers = lines[0].split(",").map(s=>s.trim());
+  const rows = [];
+  for(let i=1;i<lines.length;i++){
+    const line = lines[i];
+    // simple CSV parse (handles quotes)
+    const vals = parseCSVLine(line);
+    const r = {};
+    headers.forEach((h,idx)=> r[h] = vals[idx] ?? "");
+    // coerce numbers where possible
+    for(const k of headers){
+      if(k==="ts") r[k] = Number(r[k]) || r[k];
+      else {
+        const n = Number(r[k]);
+        r[k] = Number.isFinite(n) ? n : r[k];
+      }
+    }
+    rows.push(r);
+  }
+
+  state.logHeaders = headers;
+  state.logRows = rows;
+  $("#logStats").textContent = `Rows: ${state.logRows.length}`;
+  $("#logFileName").textContent = file.name;
+  $("#playSlider").max = Math.max(0, rows.length-1);
+  $("#playSlider").value = 0;
+
+  // Setup playback times
+  const ts0 = Number(rows[0]?.ts) || Date.now();
+  const ts1 = Number(rows[rows.length-1]?.ts) || ts0;
+  state.playback.startTs = ts0;
+  state.playback.endTs = ts1;
+
+  refreshLogTable();
+  alert(`Imported ${rows.length} rows from ${file.name}`);
+}
+
+function parseCSVLine(line){
+  const out = [];
+  let cur = "";
+  let inQ = false;
+  for(let i=0;i<line.length;i++){
+    const ch = line[i];
+    if(inQ){
+      if(ch === '"'){
+        if(line[i+1] === '"'){ cur += '"'; i++; }
+        else inQ = false;
+      } else cur += ch;
+    } else {
+      if(ch === '"') inQ = true;
+      else if(ch === ','){ out.push(cur); cur=""; }
+      else cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+/* Playback */
+function setMode(mode){
+  state.mode = mode;
+  setConnPill();
+  setStatusLine();
+}
+
+function playbackTick(){
+  const rows = state.logRows;
+  if(!rows.length) return;
+  const i = state.playback.i;
+  const r = rows[i];
+  // Build pid object from row
+  const pid = {};
+  for(const k of Object.keys(r)){
+    if(k==="ts") continue;
+    pid[k] = r[k];
+  }
+  handlePacket({ts: Number(r.ts) || Date.now(), pid});
+
+  $("#playSlider").value = i;
+  const t = ((Number(r.ts) - state.playback.startTs)/1000) || 0;
+  $("#playTime").textContent = `t=${t.toFixed(2)}s`;
+
+  state.playback.i++;
+  if(state.playback.i >= rows.length){
+    pausePlayback();
+  }
+}
+
+function playPlayback(){
+  if(!state.logRows.length){
+    alert("Import a CSV log first (or record one).");
+    return;
+  }
+  setMode("playback");
+  state.playback.active = true;
+  state.playback.i = Number($("#playSlider").value) || 0;
+  clearInterval(state.playback.timer);
+  const interval = Math.max(10, Math.round(1000/state.hz));
+  state.playback.timer = setInterval(playbackTick, interval);
+  $("#settingsHint").textContent = "Playback running (Live Data comes from log)";
+}
+
+function pausePlayback(){
+  state.playback.active = false;
+  clearInterval(state.playback.timer);
+  state.playback.timer = null;
+  $("#settingsHint").textContent = "Playback paused";
+}
+
+/* Slider scrub */
+$("#playSlider").addEventListener("input", ()=>{
+  const i = Number($("#playSlider").value) || 0;
+  state.playback.i = i;
+  const r = state.logRows[i];
+  if(r){
+    const t = ((Number(r.ts) - state.playback.startTs)/1000) || 0;
+    $("#playTime").textContent = `t=${t.toFixed(2)}s`;
+  }
+});
+
+/* ---------------- WebSocket connect ---------------- */
+function wsConnect(){
+  try{
+    if(state.ws) state.ws.close();
+    const ws = new WebSocket(state.wsUrl);
+    state.ws = ws;
+
+    ws.addEventListener("open", ()=>{
+      state.connected = true;
+      setConnPill();
+      setStatusLine();
+      $("#settingsHint").textContent = "WS connected — streaming";
+    });
+
+    ws.addEventListener("message", (ev)=>{
+      try{
+        const pkt = JSON.parse(ev.data);
+        handlePacket(pkt);
+      } catch(e){
+        // ignore bad packets
+      }
+    });
+
+    ws.addEventListener("close", ()=>{
+      state.connected = false;
+      setConnPill();
+      setStatusLine();
+      $("#settingsHint").textContent = "WS disconnected";
+    });
+
+    ws.addEventListener("error", ()=>{
+      state.connected = false;
+      setConnPill();
+      setStatusLine();
+      $("#settingsHint").textContent = "WS error (check URL / server)";
+    });
+
+  } catch(err){
+    $("#settingsHint").textContent = "WS failed to start";
+  }
+}
+
+function wsDisconnect(){
+  if(state.ws) state.ws.close();
+  state.ws = null;
+  state.connected = false;
+  setConnPill();
+  setStatusLine();
+}
+
+/* ---------------- Controls ---------------- */
+function toggleLogging(){
+  state.logging = !state.logging;
+  $("#btnLogToggle").textContent = state.logging ? "Stop Log" : "Start Log";
+  $("#btnLogToggle2").textContent = state.logging ? "Stop Log" : "Start Log";
+  logPill.textContent = `Log: ${state.logging ? "ON" : "OFF"}`;
+}
+
+$("#btnLogToggle").addEventListener("click", toggleLogging);
+$("#btnLogToggle2").addEventListener("click", toggleLogging);
+
+$("#btnExport").addEventListener("click", exportCSV);
+$("#btnClearLog").addEventListener("click", clearLog);
+$("#fileImport").addEventListener("change", (e)=>{
+  const f = e.target.files?.[0];
+  if(f) importCSVFile(f);
+  e.target.value = "";
+});
+
+$("#btnPlay").addEventListener("click", playPlayback);
+$("#btnPause").addEventListener("click", pausePlayback);
+
+$("#btnMark").addEventListener("click", ()=>{
+  // marker row: add a "marker" column if not present
+  if(state.logHeaders.length && !state.logHeaders.includes("marker")){
+    state.logHeaders.push("marker");
+  }
+  if(state.logging){
+    const row = {ts: Date.now(), marker:"MARK"};
+    state.logRows.push(row);
+    $("#logStats").textContent = `Rows: ${state.logRows.length}`;
+    refreshLogTable();
+  } else {
+    alert("Markers are added into the log when logging is ON.");
+  }
+});
+
+$("#btnZero").addEventListener("click", ()=>{
+  // UI-side only (real implementation would send a command to ECU / logger)
+  state.latest.stft = 0;
+  state.latest.ltft = 0;
+  updateUI(Date.now());
+});
+
+$("#btnReadDTC").addEventListener("click", ()=>{
+  // mock results
+  $("#dtcStatus").textContent = "SIM: 2 codes";
+  renderDTC([
+    {code:"P0300", desc:"Random/Multiple Cylinder Misfire Detected", sev:"warn"},
+    {code:"P0420", desc:"Catalyst System Efficiency Below Threshold", sev:"warn"},
+  ]);
+});
+
+$("#btnClearDTC").addEventListener("click", ()=>{
+  $("#dtcStatus").textContent = "Cleared (SIM)";
+  renderDTC([]);
+});
+
+/* Settings */
+$("#btnApply").addEventListener("click", ()=>{
+  const hz = clamp(Number($("#hz").value)||20, 1, 60);
+  state.hz = hz;
+  state.wsUrl = $("#wsUrl").value.trim() || state.wsUrl;
+  state.mode = $("#sourceMode").value;
+  hzPill.textContent = `${state.hz} Hz`;
+  $("#hzPill").textContent = `${state.hz} Hz`;
+  $("#samplesPill").textContent = `Samples: ${state.sampleCount}`;
+  setConnPill();
+  setStatusLine();
+});
+
+$("#btnConnect").addEventListener("click", ()=>{
+  setMode("ws");
+  wsConnect();
+});
+$("#btnDisconnect").addEventListener("click", ()=>{
+  wsDisconnect();
+});
+
+/* Logs page also uses same import */
+$("#btnExport").addEventListener("click", exportCSV);
+
+/* ---------------- DTC render ---------------- */
+function renderDTC(list){
+  const el = $("#dtcList");
+  el.innerHTML = "";
+  if(!list.length){
+    const div = document.createElement("div");
+    div.className = "pill good";
+    div.textContent = "No codes";
+    el.appendChild(div);
+    return;
+  }
+  list.forEach(d=>{
+    const div = document.createElement("div");
+    div.className = "panel";
+    div.style.padding = "12px";
+    div.style.borderRadius = "14px";
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-weight:900;letter-spacing:.4px">${d.code}</div>
+        <div class="pill ${d.sev==='bad'?'bad':'good'}">${d.sev.toUpperCase()}</div>
+      </div>
+      <div class="tiny" style="margin-top:6px">${d.desc}</div>
+    `;
+    el.appendChild(div);
+  });
+}
+renderDTC([]);
+
+/* ---------------- Main loop ---------------- */
+let timer = null;
+function startLoop(){
+  if(timer) clearInterval(timer);
+  const interval = Math.max(10, Math.round(1000/state.hz));
+  let last = performance.now();
+
+  timer = setInterval(()=>{
+    const now = performance.now();
+    const dt = (now - last)/1000;
+    last = now;
+
+    if(state.mode==="sim"){
+      const pkt = simStep(dt);
+      // for chart relative time in sim, set playback.startTs if absent
+      if(!state.playback.startTs) state.playback.startTs = pkt.ts;
+      handlePacket(pkt);
+    } else if(state.mode==="playback"){
+      // playback has its own timer, do nothing here
+    } else if(state.mode==="ws"){
+      // data arrives via WS messages
+    }
+
+    state.sampleCount++;
+    $("#samplesPill").textContent = `Samples: ${state.sampleCount}`;
+
+  }, interval);
+}
+
+/* Init */
+function init(){
+  $("#hz").value = state.hz;
+  hzPill.textContent = `${state.hz} Hz`;
+  $("#wsUrl").value = state.wsUrl;
+  $("#sourceMode").value = state.mode;
+
+  buildPidList();
+  buildGauges();
+  rebuildPidTable();
+  rebuildChartSeries();
+  setConnPill();
+  setStatusLine();
+  startLoop();
+  resizeCanvas();
+}
+init();
+</script>
+</body>
+</html>
