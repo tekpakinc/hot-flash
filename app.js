@@ -12,7 +12,7 @@ const forms = [
 ];
 
 forms.forEach(({ form, note, success }) => {
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!form.checkValidity()) {
@@ -22,15 +22,38 @@ forms.forEach(({ form, note, success }) => {
 
     const button = form.querySelector("button");
     const originalText = button.textContent;
-    button.textContent = "Submitted";
+    button.textContent = "Submitting...";
     button.disabled = true;
-    note.textContent = success;
-    note.classList.add("success");
+    note.textContent = "Sending your request...";
+    note.classList.remove("error");
+    note.classList.remove("success");
 
-    setTimeout(() => {
-      button.textContent = originalText;
-      button.disabled = false;
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Form submission failed");
+      }
+
+      button.textContent = "Submitted";
+      note.textContent = success;
+      note.classList.add("success");
       form.reset();
-    }, 1800);
+    } catch (error) {
+      button.textContent = originalText;
+      note.textContent = "Something went wrong. Please try again in a moment.";
+      note.classList.add("error");
+    } finally {
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.disabled = false;
+      }, 1800);
+    }
   });
 });
