@@ -482,6 +482,11 @@ button:hover {
   font-weight: 800;
 }
 
+.error {
+  color: #ff6b62 !important;
+  font-weight: 800;
+}
+
 footer {
   display: flex;
   justify-content: space-between;
