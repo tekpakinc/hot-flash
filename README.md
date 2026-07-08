@@ -21,3 +21,4 @@ Static GitHub Pages-compatible landing page for Hot Flash.
 6. Save.
 
 The page uses only static files and relative paths, so it is compatible with GitHub Pages.
+
