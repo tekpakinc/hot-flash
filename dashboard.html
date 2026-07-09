@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Hot Flash Alpha</title>
+    <meta name="description" content="Hot Flash Alpha dashboard for managing your profile and garage." />
+    <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+  <body class="app-page" data-page="dashboard">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Hot Flash home">
+        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
+        <span>Hot Flash</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="garage.html">Garage Demo</a>
+        <a href="vehicle.html">Vehicle Demo</a>
+        <button type="button" data-logout>Logout</button>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="app-panel">
+        <p class="eyebrow">Founder dashboard</p>
+        <h1>Hot Flash Alpha</h1>
+        <p data-profile-summary class="vehicle-meta">Loading your garage...</p>
+        <p class="small-muted" data-auth-status>Connected to Supabase.</p>
+      </section>
+
+      <section class="content-grid">
+        <aside class="stack">
+          <form class="app-card form-grid" data-profile-form>
+            <p class="eyebrow">Driver profile</p>
+            <label>
+              <span>Display name</span>
+              <input type="text" name="display_name" placeholder="Danny" required />
+            </label>
+            <label>
+              <span>Username</span>
+              <input type="text" name="username" placeholder="greasedaddy" required />
+            </label>
+            <label>
+              <span>Bio</span>
+              <textarea name="bio" placeholder="Builder, tuner-network goblin, garage menace..."></textarea>
+            </label>
+            <button type="submit">Save profile</button>
+          </form>
+
+          <form class="app-card form-grid two" data-vehicle-form>
+            <p class="eyebrow full-span">Add vehicle</p>
+            <label>
+              <span>Nickname</span>
+              <input type="text" name="nickname" placeholder="Dusty" required />
+            </label>
+            <label>
+              <span>Year</span>
+              <input type="number" name="year" placeholder="1976" />
+            </label>
+            <label>
+              <span>Make</span>
+              <input type="text" name="make" placeholder="Dodge" />
+            </label>
+            <label>
+              <span>Model</span>
+              <input type="text" name="model" placeholder="Dart Sport" />
+            </label>
+            <label>
+              <span>Trim</span>
+              <input type="text" name="trim" placeholder="Swinger, GT, etc." />
+            </label>
+            <label>
+              <span>Horsepower</span>
+              <input type="number" name="horsepower" placeholder="325" />
+            </label>
+            <label class="full-span">
+              <span>Engine</span>
+              <input type="text" name="engine" placeholder="318 V8, long-tube headers, carb, ignition" />
+            </label>
+            <button class="full-span" type="submit">Add to garage</button>
+          </form>
+        </aside>
+
+        <section class="stack">
+          <article class="app-card">
+            <p class="eyebrow">Your garage</p>
+            <h2>Vehicle profiles</h2>
+            <p class="small-muted">These are real database records once Supabase is configured.</p>
+          </article>
+          <div class="garage-grid" data-garage-list></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>
