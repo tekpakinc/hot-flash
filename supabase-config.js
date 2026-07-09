@@ -5,3 +5,4 @@ const hotflashSupabase = window.supabase.createClient(
   HOTFLASH_SUPABASE_URL,
   HOTFLASH_SUPABASE_ANON_KEY,
 );
+
