@@ -23,6 +23,32 @@ function slugify(value) {
     .slice(0, 64);
 }
 
+function installPasswordToggles() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "password-field";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "password-toggle";
+    button.setAttribute("aria-label", "Show password");
+    button.textContent = "Show";
+
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+    wrapper.appendChild(button);
+
+    button.addEventListener("click", () => {
+      const isHidden = input.type === "password";
+      input.type = isHidden ? "text" : "password";
+      button.textContent = isHidden ? "Hide" : "Show";
+      button.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+    });
+  });
+}
+
+installPasswordToggles();
+
 async function getSession() {
   const { data, error } = await hotflashSupabase.auth.getSession();
   if (error) throw error;
