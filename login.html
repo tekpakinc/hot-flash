@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Hot Flash Alpha</title>
+    <meta name="description" content="Log in to Hot Flash Alpha and manage your social garage." />
+    <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+  <body class="app-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Hot Flash home">
+        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
+        <span>Hot Flash</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="signup.html">Sign Up</a>
+        <a href="garage.html">Garage Demo</a>
+        <a href="features.html">Features</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="app-hero">
+        <div class="app-panel">
+          <p class="eyebrow">Hot Flash Alpha</p>
+          <h1>Open the garage.</h1>
+          <p>Log in to manage your profile, add vehicles, and start building the first real Hot Flash garage.</p>
+          <div class="inline-actions">
+            <a class="secondary-button" href="signup.html">Need an account?</a>
+          </div>
+        </div>
+
+        <form class="app-card form-grid" data-login-form>
+          <p class="eyebrow">Login</p>
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" placeholder="you@example.com" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input type="password" name="password" placeholder="Your password" required />
+          </label>
+          <button type="submit">Login</button>
+          <p class="small-muted" data-auth-status>Ready when you are.</p>
+        </form>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>
