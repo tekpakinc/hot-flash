@@ -3,16 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hot Flash | Tune It. Show It. Prove It.</title>
+    <title>Hot Flash | Vehicle-First Social Tuning Platform</title>
     <meta
       name="description"
-      content="Hot Flash is the vehicle-first social tuning platform for build profiles, tune services, online car shows, and verified performance communities."
+      content="Hot Flash is the vehicle-first social tuning platform for build profiles, tune services, online car shows, sponsorships, and verified performance communities."
     />
+    <link rel="canonical" href="https://hotflash.app/" />
+    <meta property="og:title" content="Hot Flash | Vehicle-First Social Tuning Platform" />
+    <meta property="og:description" content="Give every ride its own profile, followers, build log, tune history, trophies, and proof of performance." />
+    <meta property="og:url" content="https://hotflash.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://hotflash.app/assets/hot-flash-logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Hot Flash",
+        "url": "https://hotflash.app/",
+        "logo": "https://hotflash.app/assets/hot-flash-logo.png",
+        "email": "info@hotflash.app",
+        "description": "Hot Flash is a vehicle-first social tuning platform where every build can have its own profile, followers, build log, media, tune history, and trophies.",
+        "sameAs": []
+      }
+    </script>
   </head>
   <body>
     <header class="site-header">
@@ -21,10 +40,11 @@
         <span>Hot Flash</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="#garage">Garage</a>
-        <a href="#tuners">Tuners</a>
-        <a href="#events">Events</a>
-        <a href="#waitlist">Early access</a>
+        <a href="garage.html">Garage Demo</a>
+        <a href="features.html">Features</a>
+        <a href="about.html">About</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="signup.html">Sign Up</a>
       </nav>
     </header>
 
@@ -41,6 +61,10 @@
             The vehicle-first social tuning platform where builds become profiles, tuners become trusted providers,
             and online car culture gets organized around real cars.
           </p>
+          <div class="inline-actions hero-actions">
+            <a class="button-link" href="signup.html">Create a profile</a>
+            <a class="secondary-button" href="garage.html">View garage demo</a>
+          </div>
           <form class="signup-form" id="heroForm" action="https://formspree.io/f/mbdveyyn" method="POST">
             <input type="hidden" name="_subject" value="Hot Flash early access signup" />
             <input type="hidden" name="source" value="Hero form" />
@@ -79,6 +103,7 @@
             Hot Flash gives every build a living profile: photos, videos, mods, maintenance, tune history,
             awards, and verified performance results in one place.
           </p>
+          <a class="text-link" href="vehicle.html">See a vehicle profile demo</a>
         </div>
         <div class="feature-grid">
           <article>
@@ -107,7 +132,7 @@
             Verified tuners can list remote tune packages, datalog reviews, diagnostics, dyno appointments,
             and build consultations with compatibility notes built in.
           </p>
-          <a class="text-link" href="#waitlist">Apply for verified access</a>
+          <a class="text-link" href="features.html">Explore platform features</a>
         </div>
         <div class="workflow">
           <div><strong>1</strong><span>Customer selects vehicle</span></div>
@@ -125,6 +150,7 @@
             Launch events, collect entries, run public voting, add judge scores, and award digital trophies
             directly to winning vehicle pages.
           </p>
+          <a class="text-link" href="roadmap.html">View the build roadmap</a>
         </div>
         <div class="event-cards">
           <article><strong>Best Street Build</strong><span>Profile-based entries</span></article>
@@ -142,6 +168,7 @@
             We are looking for serious builders, verified tuners, shops, clubs, and early event partners.
             Join the list and tell us where you fit.
           </p>
+          <p>Contact: <a class="text-link" href="mailto:info@hotflash.app">info@hotflash.app</a></p>
         </div>
         <form class="waitlist-card" id="waitlistForm" action="https://formspree.io/f/mbdveyyn" method="POST">
           <input type="hidden" name="_subject" value="Hot Flash alpha invite request" />
@@ -177,7 +204,7 @@
 
     <footer>
       <span>Hot Flash</span>
-      <span>Tune. Connect. Dominate.</span>
+      <span><a href="mailto:info@hotflash.app">info@hotflash.app</a></span>
     </footer>
 
     <script src="app.js"></script>
