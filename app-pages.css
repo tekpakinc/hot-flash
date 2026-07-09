@@ -60,6 +60,27 @@ body.app-page {
   grid-column: 1 / -1;
 }
 
+.password-field {
+  position: relative;
+  display: grid;
+}
+
+.password-field input {
+  padding-right: 86px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 7px;
+  transform: translateY(-50%);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
 textarea {
   width: 100%;
   min-height: 130px;
