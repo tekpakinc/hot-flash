@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Garage | Hot Flash</title>
+    <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+  <body class="app-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Hot Flash home">
+        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
+        <span>Hot Flash</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="signup.html">Sign Up</a>
+        <a href="profile.html">User Profile</a>
+        <a href="vehicle.html">Vehicle Profile</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="app-panel">
+        <p class="eyebrow">User garage</p>
+        <h1>Danny's Garage</h1>
+        <p>
+          One user account. Multiple vehicle profiles. Each ride can collect followers, posts, mods,
+          build logs, awards, and proof of performance.
+        </p>
+        <div class="inline-actions">
+          <a class="secondary-button" href="add-vehicle.html">Add vehicle</a>
+          <a class="secondary-button" href="profile.html">View user profile</a>
+        </div>
+      </section>
+
+      <section class="stat-row" aria-label="Garage stats">
+        <div class="stat-card"><strong>3</strong><span>Vehicles</span></div>
+        <div class="stat-card"><strong>1.8k</strong><span>Total followers</span></div>
+        <div class="stat-card"><strong>42</strong><span>Build posts</span></div>
+        <div class="stat-card"><strong>7</strong><span>Trophies</span></div>
+      </section>
+
+      <section class="garage-grid" aria-label="Vehicle profiles">
+        <article class="vehicle-card">
+          <a href="vehicle.html" aria-label="Open Dusty vehicle profile"><div class="vehicle-art"></div></a>
+          <div class="vehicle-body">
+            <p class="eyebrow">Featured build</p>
+            <h2>Dusty</h2>
+            <p class="vehicle-meta">1976 Dodge Dart Sport · 318 V8 · Street/strip</p>
+            <div class="inline-actions"><a class="secondary-button" href="vehicle.html">View profile</a></div>
+          </div>
+        </article>
+        <article class="vehicle-card">
+          <div class="vehicle-art"></div>
+          <div class="vehicle-body">
+            <p class="eyebrow">Off-road project</p>
+            <h2>Mr. Bronx</h2>
+            <p class="vehicle-meta">1987 Ford Bronco · Trail rig · Build planning</p>
+            <div class="inline-actions"><a class="secondary-button" href="vehicle.html">View profile</a></div>
+          </div>
+        </article>
+        <article class="vehicle-card">
+          <div class="vehicle-art"></div>
+          <div class="vehicle-body">
+            <p class="eyebrow">Mini monster</p>
+            <h2>Drag Minibike</h2>
+            <p class="vehicle-meta">196cc GX-style · Garage-built chaos machine</p>
+            <div class="inline-actions"><a class="secondary-button" href="vehicle.html">View profile</a></div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
