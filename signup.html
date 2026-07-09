@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up | Hot Flash</title>
+    <title>Sign Up | Hot Flash Alpha</title>
     <meta name="description" content="Create your Hot Flash account and start your first vehicle profile." />
     <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,9 +19,9 @@
         <span>Hot Flash</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="garage.html">Garage</a>
-        <a href="profile.html">User Profile</a>
-        <a href="vehicle.html">Vehicle Profile</a>
+        <a href="login.html">Login</a>
+        <a href="garage.html">Garage Demo</a>
+        <a href="vehicle.html">Vehicle Demo</a>
       </nav>
     </header>
 
@@ -35,16 +35,15 @@
             On Hot Flash, the vehicle gets a page worth following.
           </p>
           <div class="inline-actions">
-            <a class="secondary-button" href="garage.html">Preview the garage</a>
-            <a class="secondary-button" href="vehicle.html">See a vehicle page</a>
+            <a class="secondary-button" href="login.html">Already have an account?</a>
           </div>
         </div>
 
-        <form class="app-card form-grid" action="#" method="POST">
+        <form class="app-card form-grid" data-signup-form>
           <p class="eyebrow">Create account</p>
           <label>
             <span>Display name</span>
-            <input type="text" name="displayName" placeholder="Danny" required />
+            <input type="text" name="display_name" placeholder="Danny" required />
           </label>
           <label>
             <span>Username</span>
@@ -58,21 +57,14 @@
             <span>Password</span>
             <input type="password" name="password" placeholder="Create a password" required />
           </label>
-          <label>
-            <span>What are you here for?</span>
-            <select name="accountType" required>
-              <option value="">Choose one</option>
-              <option>Build profiles</option>
-              <option>Peer-to-peer tuning</option>
-              <option>Online car shows</option>
-              <option>Shop/vendor networking</option>
-              <option>Sponsorship opportunities</option>
-            </select>
-          </label>
           <button type="submit">Create account</button>
-          <p class="small-muted">Static mockup for now. Next step: wire this into auth and a database.</p>
+          <p class="small-muted" data-auth-status>After signup, log in and build your first garage.</p>
         </form>
       </section>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
   </body>
 </html>
