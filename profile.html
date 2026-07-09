@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Danny | Hot Flash</title>
+    <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+  <body class="app-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Hot Flash home">
+        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
+        <span>Hot Flash</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="garage.html">Garage</a>
+        <a href="add-vehicle.html">Add Vehicle</a>
+        <a href="vehicle.html">Vehicle Profile</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="profile-header">
+        <div>
+          <div class="profile-avatar" aria-hidden="true"></div>
+          <p class="eyebrow">Driver profile</p>
+          <h1>Danny</h1>
+          <p class="vehicle-meta">Builder · tuner-network goblin · owner of 3 vehicle profiles</p>
+          <div class="inline-actions">
+            <a class="secondary-button" href="garage.html">View garage</a>
+            <button type="button">Follow driver</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="stat-row" aria-label="User stats">
+        <div class="stat-card"><strong>3</strong><span>Vehicles</span></div>
+        <div class="stat-card"><strong>812</strong><span>Driver followers</span></div>
+        <div class="stat-card"><strong>1.8k</strong><span>Vehicle followers</span></div>
+        <div class="stat-card"><strong>42</strong><span>Build posts</span></div>
+      </section>
+
+      <section class="content-grid">
+        <aside class="stack">
+          <article class="app-card">
+            <p class="eyebrow">About</p>
+            <p class="small-muted">Garage-first profile. The person is the owner; the rides are the stars.</p>
+          </article>
+          <article class="app-card">
+            <p class="eyebrow">Interests</p>
+            <p class="small-muted">Street/strip builds · peer tuning · online car shows · swap meets · sponsorship scouting</p>
+          </article>
+        </aside>
+
+        <section class="stack" aria-label="Garage preview">
+          <article class="vehicle-card">
+            <div class="vehicle-art"></div>
+            <div class="vehicle-body">
+              <p class="eyebrow">Most followed vehicle</p>
+              <h2>Dusty</h2>
+              <p class="vehicle-meta">1976 Dodge Dart Sport · 1.2k followers · 78% build complete</p>
+              <div class="inline-actions"><a class="secondary-button" href="vehicle.html">Open vehicle profile</a></div>
+            </div>
+          </article>
+          <article class="post-card">
+            <strong>Latest garage update</strong>
+            <p class="small-muted">Added long-tube header notes and updated the build progress for Dusty.</p>
+          </article>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

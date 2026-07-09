@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dusty | Hot Flash</title>
+    <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+  <body class="app-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Hot Flash home">
+        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
+        <span>Hot Flash</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="garage.html">Garage</a>
+        <a href="profile.html">Owner</a>
+        <a href="add-vehicle.html">Add Vehicle</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="vehicle-header">
+        <p class="eyebrow">Vehicle profile</p>
+        <h1>Dusty</h1>
+        <p class="tagline">1976 Dodge Dart Sport</p>
+        <p class="vehicle-meta">Owner: Danny · 318 V8 · Street/strip · Burlington, NC</p>
+        <div class="inline-actions">
+          <button type="button">Follow Dusty</button>
+          <a class="secondary-button" href="garage.html">Back to garage</a>
+        </div>
+      </section>
+
+      <section class="stat-row" aria-label="Vehicle stats">
+        <div class="stat-card"><strong>325</strong><span>Est. HP</span></div>
+        <div class="stat-card"><strong>78%</strong><span>Build complete</span></div>
+        <div class="stat-card"><strong>1.2k</strong><span>Followers</span></div>
+        <div class="stat-card"><strong>4</strong><span>Trophies</span></div>
+      </section>
+
+      <section class="content-grid">
+        <aside class="stack">
+          <article class="app-card">
+            <p class="eyebrow">Build progress</p>
+            <div class="build-progress"><span></span></div>
+            <p class="small-muted">Next up: interior cleanup, dyno sheet upload, and suspension notes.</p>
+          </article>
+          <article class="app-card">
+            <p class="eyebrow">Specs</p>
+            <p class="small-muted">Engine: 318 V8<br />Transmission: Auto<br />Induction: Carbureted<br />Exhaust: Long-tube headers</p>
+          </article>
+          <article class="app-card">
+            <p class="eyebrow">Proof locker</p>
+            <p class="small-muted">Dyno sheets, track slips, datalogs, and shop verification will live here.</p>
+          </article>
+        </aside>
+
+        <section class="stack" aria-label="Build timeline">
+          <article class="post-card">
+            <strong>Build log update</strong>
+            <p class="small-muted">Added engine combo notes: cam, intake, carb, ignition, headers, and closed-chamber heads.</p>
+          </article>
+          <article class="mod-card">
+            <strong>Current mods</strong>
+            <p class="small-muted">Cam · intake · carb · ignition · long-tube headers · big rear tire setup · skinny fronts</p>
+          </article>
+          <article class="post-card">
+            <strong>Follower activity</strong>
+            <p class="small-muted">24 new followers this week. Dusty is apparently everyone’s favorite bad decision. Respect.</p>
+          </article>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

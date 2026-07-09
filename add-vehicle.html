@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Vehicle | Hot Flash</title>
+    <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="app-pages.css" />
+  </head>
+  <body class="app-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Hot Flash home">
+        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
+        <span>Hot Flash</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="garage.html">Garage</a>
+        <a href="profile.html">User Profile</a>
+        <a href="vehicle.html">Vehicle Profile</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="app-hero">
+        <div class="app-panel">
+          <p class="eyebrow">Vehicle onboarding</p>
+          <h1>What's in your garage?</h1>
+          <p>
+            This is the first big Hot Flash moment: every vehicle gets its own page, followers, timeline,
+            mod list, gallery, and performance proof.
+          </p>
+        </div>
+
+        <form class="app-card form-grid two" action="#" method="POST">
+          <p class="eyebrow full-span">Create vehicle profile</p>
+          <label>
+            <span>Nickname</span>
+            <input type="text" name="nickname" placeholder="Dusty" required />
+          </label>
+          <label>
+            <span>Year</span>
+            <input type="number" name="year" placeholder="1976" required />
+          </label>
+          <label>
+            <span>Make</span>
+            <input type="text" name="make" placeholder="Dodge" required />
+          </label>
+          <label>
+            <span>Model</span>
+            <input type="text" name="model" placeholder="Dart Sport" required />
+          </label>
+          <label>
+            <span>Engine</span>
+            <input type="text" name="engine" placeholder="318 V8" />
+          </label>
+          <label>
+            <span>Horsepower</span>
+            <input type="number" name="horsepower" placeholder="325" />
+          </label>
+          <label>
+            <span>Build style</span>
+            <select name="buildStyle">
+              <option>Street/strip</option>
+              <option>Daily driver</option>
+              <option>Show car</option>
+              <option>Drag build</option>
+              <option>Drift build</option>
+              <option>Off-road</option>
+            </select>
+          </label>
+          <label>
+            <span>Visibility</span>
+            <select name="visibility">
+              <option>Public</option>
+              <option>Followers only</option>
+              <option>Private</option>
+            </select>
+          </label>
+          <label class="full-span">
+            <span>Build description</span>
+            <textarea name="description" placeholder="Tell the world what makes this ride worth following."></textarea>
+          </label>
+          <button class="full-span" type="submit">Create vehicle profile</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
