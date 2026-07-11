@@ -11,25 +11,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
-    <link rel="stylesheet" href="mobile-upload.css?v=2" />
+    <link rel="stylesheet" href="mobile-upload.css?v=3" />
   </head>
   <body class="app-page" data-page="dashboard">
     <header class="site-header">
-      <a class="brand" href="index.html" aria-label="Hot Flash home">
-        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
-        <span>Hot Flash</span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="feed.html">Discover</a>
-        <a href="dashboard.html">My Garage</a>
-        <button type="button" data-logout>Logout</button>
-      </nav>
+      <a class="brand" href="index.html" aria-label="Hot Flash home"><img class="brand-logo" src="assets/hot-flash-logo.png" alt="" /><span>Hot Flash</span></a>
+      <nav aria-label="Primary navigation"><a href="feed.html">Discover</a><a href="dashboard.html">My Garage</a><button type="button" data-logout>Logout</button></nav>
     </header>
 
     <main class="app-shell">
       <section class="app-panel">
-        <p class="eyebrow">Founder dashboard</p>
-        <h1>Hot Flash Alpha</h1>
+        <p class="eyebrow">Founder dashboard</p><h1>Hot Flash Alpha</h1>
         <p data-profile-summary class="vehicle-meta">Loading your garage...</p>
         <p class="small-muted" data-auth-status>Connected to Supabase.</p>
         <div class="inline-actions"><a class="secondary-button" href="feed.html">Discover builds</a></div>
@@ -45,31 +37,60 @@
             <button type="submit">Save profile</button>
           </form>
 
-          <form class="app-card form-grid two" data-vehicle-form>
-            <p class="eyebrow full-span">Add vehicle</p>
+          <form class="app-card form-grid two build-details-form" data-expanded-vehicle-form>
+            <div class="full-span">
+              <p class="eyebrow">Add vehicle</p>
+              <h2>Tell us about the ride</h2>
+              <p class="small-muted">Use the quick summary, the detailed categories, or both. Nothing below the nickname is required.</p>
+            </div>
             <label><span>Nickname</span><input type="text" name="nickname" placeholder="Dusty" required /></label>
             <label><span>Year</span><input type="number" name="year" placeholder="1976" /></label>
             <label><span>Make</span><input type="text" name="make" placeholder="Dodge" /></label>
             <label><span>Model</span><input type="text" name="model" placeholder="Dart Sport" /></label>
             <label><span>Trim</span><input type="text" name="trim" placeholder="Swinger, GT, etc." /></label>
             <label><span>Horsepower</span><input type="number" name="horsepower" placeholder="325" /></label>
-            <label class="full-span"><span>Engine</span><input type="text" name="engine" placeholder="318 V8, long-tube headers, carb, ignition" /></label>
-            <label class="full-span file-picker">
-              <span>Cover photo</span>
-              <input type="file" name="cover_photo" accept="image/*" data-cover-photo-input />
-              <small>Mobile-first: choose from your camera or photo library.</small>
+
+            <label class="full-span build-summary-field">
+              <span>What's done to it?</span>
+              <textarea name="build_summary" placeholder="Give the quick version someone would ask for at a car meet..."></textarea>
             </label>
-            <div class="cover-preview full-span" data-cover-preview><span>No cover photo selected yet.</span></div>
+
+            <details class="full-span build-category" open>
+              <summary>Powertrain</summary>
+              <label><span>Engine, transmission, induction, exhaust, tune...</span><textarea name="powertrain" placeholder="318 V8, cam, intake, carb, ignition, long-tube headers, 904 automatic..."></textarea></label>
+            </details>
+            <details class="full-span build-category">
+              <summary>Suspension & brakes</summary>
+              <label><span>Springs, shocks, control arms, brakes, steering...</span><textarea name="suspension_brakes" placeholder="QA1 front end, lowering springs, Wilwood brakes..."></textarea></label>
+            </details>
+            <details class="full-span build-category">
+              <summary>Wheels & tires</summary>
+              <label><span>Wheel sizes, tire sizes, fitment...</span><textarea name="wheels_tires" placeholder="15x10 rear wheels, drag radials, skinny fronts..."></textarea></label>
+            </details>
+            <details class="full-span build-category">
+              <summary>Exterior</summary>
+              <label><span>Paint, bodywork, aero, lighting...</span><textarea name="exterior" placeholder="Duster front clip, custom paint, hood scoop..."></textarea></label>
+            </details>
+            <details class="full-span build-category">
+              <summary>Interior</summary>
+              <label><span>Seats, gauges, cage, upholstery...</span><textarea name="interior" placeholder="Gutted interior, racing seats, custom gauges..."></textarea></label>
+            </details>
+            <details class="full-span build-category">
+              <summary>Electronics & audio</summary>
+              <label><span>ECU, gauges, lighting, sound system...</span><textarea name="electronics_audio" placeholder="Digital dash, upgraded audio, custom lighting..."></textarea></label>
+            </details>
+
+            <label class="full-span file-picker">
+              <span>Cover photo</span><input type="file" name="cover_photo" accept="image/*" data-expanded-cover-input />
+              <small>Choose from your camera or photo library.</small>
+            </label>
+            <div class="cover-preview full-span" data-expanded-cover-preview><span>No cover photo selected yet.</span></div>
             <button class="full-span" type="submit">Add to garage</button>
           </form>
         </aside>
 
         <section class="stack">
-          <article class="app-card">
-            <p class="eyebrow">Your garage</p>
-            <h2>Vehicle profiles</h2>
-            <p class="small-muted">Open a vehicle to explore it, or use Delete to remove a duplicate or test entry.</p>
-          </article>
+          <article class="app-card"><p class="eyebrow">Your garage</p><h2>Vehicle profiles</h2><p class="small-muted">Open a vehicle to explore it, or use Delete to remove a duplicate or test entry.</p></article>
           <div class="garage-grid" data-garage-list></div>
         </section>
       </section>
@@ -78,6 +99,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js?v=5"></script>
     <script src="auth.js?v=4"></script>
+    <script src="build-details.js?v=1"></script>
     <script src="garage-navigation.js?v=2"></script>
     <script src="vehicle-controls.js?v=1"></script>
   </body>
