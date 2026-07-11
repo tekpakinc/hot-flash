@@ -15,8 +15,13 @@ function wireGarageCards() {
       window.location.href = `vehicle.html?hf=${encodeURIComponent(hotflashId)}`;
     };
 
-    card.addEventListener("click", openProfile);
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("a, button, input, select, textarea")) return;
+      openProfile();
+    });
+
     card.addEventListener("keydown", (event) => {
+      if (event.target.closest("a, button, input, select, textarea")) return;
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         openProfile();
