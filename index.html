@@ -3,14 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hot Flash | Vehicle-First Social Tuning Platform</title>
-    <meta
-      name="description"
-      content="Hot Flash is the vehicle-first social tuning platform for build profiles, tune services, online car shows, sponsorships, and verified performance communities."
-    />
+    <title>Hot Flash | Every Vehicle Has a Story</title>
+    <meta name="description" content="Hot Flash gives every vehicle its own profile, build history, photo gallery, followers, shop connections, and scannable FlashTag." />
     <link rel="canonical" href="https://hotflash.app/" />
-    <meta property="og:title" content="Hot Flash | Vehicle-First Social Tuning Platform" />
-    <meta property="og:description" content="Give every ride its own profile, followers, build log, tune history, trophies, and proof of performance." />
+    <meta property="og:title" content="Hot Flash | Every Vehicle Has a Story" />
+    <meta property="og:description" content="Create a digital identity for your ride, preserve its build history, and connect it to the people and shops behind it." />
     <meta property="og:url" content="https://hotflash.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://hotflash.app/assets/hot-flash-logo.png" />
@@ -20,6 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="landing.css" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -28,185 +26,148 @@
         "url": "https://hotflash.app/",
         "logo": "https://hotflash.app/assets/hot-flash-logo.png",
         "email": "info@hotflash.app",
-        "description": "Hot Flash is a vehicle-first social tuning platform where every build can have its own profile, followers, build log, media, tune history, and trophies.",
-        "sameAs": []
+        "description": "Hot Flash is a vehicle-first social platform for build profiles, galleries, vehicle history, shops, tuning, events, and FlashTags."
       }
     </script>
   </head>
-  <body>
-    <header class="site-header">
+  <body class="landing-page">
+    <header class="site-header landing-header">
       <a class="brand" href="#top" aria-label="Hot Flash home">
         <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
         <span>Hot Flash</span>
       </a>
-      <nav aria-label="Primary navigation">
-        <a href="garage.html">Garage Demo</a>
-        <a href="features.html">Features</a>
-        <a href="about.html">About</a>
-        <a href="roadmap.html">Roadmap</a>
-        <a href="signup.html">Sign Up</a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="feed.html">Discover</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#shops">For shops</a>
+        <a href="login.html">Login</a>
+        <a class="nav-cta" href="signup.html">Join Hot Flash</a>
       </nav>
+      <button class="mobile-menu-button" type="button" aria-label="Open navigation" aria-expanded="false" data-mobile-menu>☰</button>
     </header>
 
+    <nav class="mobile-menu" aria-label="Mobile navigation" data-mobile-nav hidden>
+      <a href="feed.html">Discover builds</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#shops">For shops</a>
+      <a href="login.html">Login</a>
+      <a class="button-link" href="signup.html">Create account</a>
+    </nav>
+
     <main id="top">
-      <section class="hero">
+      <section class="hero landing-hero">
         <img src="assets/hero.png" alt="Modified performance car in a modern tuning garage" />
         <div class="hero-shade"></div>
-        <div class="hero-content">
-          <img class="hero-logo" src="assets/hot-flash-logo.png" alt="Hot Flash logo" />
-          <p class="eyebrow">Private alpha opening soon</p>
-          <h1>Hot Flash</h1>
-          <p class="tagline">Tune. Connect. Dominate.</p>
-          <p class="hero-copy">
-            The vehicle-first social tuning platform where builds become profiles, tuners become trusted providers,
-            and online car culture gets organized around real cars.
-          </p>
-          <div class="inline-actions hero-actions">
-            <a class="button-link" href="signup.html">Create a profile</a>
-            <a class="secondary-button" href="garage.html">View garage demo</a>
+        <div class="hero-content landing-hero-content">
+          <div class="hero-brand-lockup">
+            <img class="hero-logo" src="assets/hot-flash-logo.png" alt="Hot Flash logo" />
+            <span class="alpha-pill">Live Alpha</span>
           </div>
-          <form class="signup-form" id="heroForm" action="https://formspree.io/f/mbdveyyn" method="POST">
-            <input type="hidden" name="_subject" value="Hot Flash early access signup" />
-            <input type="hidden" name="source" value="Hero form" />
-            <label>
-              <span>Email address</span>
-              <input type="email" name="email" placeholder="you@example.com" required />
-            </label>
-            <label>
-              <span>I am a</span>
-              <select name="role" required>
-                <option value="">Choose one</option>
-                <option>DIY enthusiast</option>
-                <option>Professional tuner</option>
-                <option>Performance shop</option>
-                <option>Parts vendor</option>
-                <option>Event organizer</option>
-              </select>
-            </label>
-            <button type="submit">Join the waitlist</button>
-          </form>
-          <p class="form-note" id="formNote">Early members get first access to garage profiles, private events, and verified tuner listings.</p>
+          <p class="eyebrow">The social platform built around the vehicle</p>
+          <h1>Every ride has a story.</h1>
+          <p class="tagline">Give yours a place to live.</p>
+          <p class="hero-copy">Create a profile for every vehicle you own, document the build, upload photos, connect the shops behind it, and share the whole story with one scan.</p>
+          <div class="inline-actions hero-actions">
+            <a class="button-link" href="signup.html">Create your garage</a>
+            <a class="secondary-button" href="feed.html">Explore builds</a>
+          </div>
+          <div class="hero-proof">
+            <span><strong>Vehicle-first</strong> profiles</span>
+            <span><strong>Mobile-ready</strong> galleries</span>
+            <span><strong>FlashTag</strong> QR identity</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-feed-section" aria-labelledby="live-builds-title">
+        <div class="home-feed-heading">
+          <div>
+            <p class="eyebrow">Live from the community</p>
+            <h2 id="live-builds-title">Fresh builds on Hot Flash</h2>
+            <p>Real vehicles from the discovery feed. Tap one and start exploring.</p>
+          </div>
+          <a class="secondary-button" href="feed.html">See the full feed</a>
+        </div>
+        <div class="home-feed-grid" data-home-feed>
+          <article class="home-feed-empty"><strong>Warming up the garage...</strong></article>
         </div>
       </section>
 
       <section class="signal-strip" aria-label="Product highlights">
-        <div><strong>Vehicle profiles</strong><span>Build timelines, mods, media, dyno results</span></div>
-        <div><strong>Tune services</strong><span>Verified tuners, remote requests, file vault</span></div>
-        <div><strong>Online events</strong><span>Car shows, build battles, digital trophies</span></div>
+        <div><strong>Vehicle profiles</strong><span>Photos, build history, mods, specs, and ownership chapters.</span></div>
+        <div><strong>Connected shops</strong><span>Link builders, tuners, photographers, and sponsors to the cars they touched.</span></div>
+        <div><strong>FlashTags</strong><span>One scan opens the full story of the vehicle in front of you.</span></div>
       </section>
 
-      <section class="section garage-section" id="garage">
+      <section class="section garage-section" id="how-it-works">
         <div class="section-copy">
-          <p class="eyebrow">The social garage</p>
-          <h2>Your vehicle deserves more than another feed post.</h2>
-          <p>
-            Hot Flash gives every build a living profile: photos, videos, mods, maintenance, tune history,
-            awards, and verified performance results in one place.
-          </p>
-          <a class="text-link" href="vehicle.html">See a vehicle profile demo</a>
+          <p class="eyebrow">Your digital garage</p>
+          <h2>More useful than a mod list taped to the windshield.</h2>
+          <p>Hot Flash gives every build a permanent identity. Keep its photos, specs, timeline, contributors, awards, and future ownership history together instead of scattering everything across old posts.</p>
+          <a class="text-link" href="signup.html">Build your first vehicle profile</a>
         </div>
         <div class="feature-grid">
-          <article>
-            <span>01</span>
-            <h3>Build profile</h3>
-            <p>Show the full story behind each vehicle, from first mod to latest tune revision.</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>Mod timeline</h3>
-            <p>Track installs, maintenance, dyno pulls, track days, and car show wins.</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>Proof layer</h3>
-            <p>Attach dyno sheets, logs, videos, and shop verification to performance claims.</p>
-          </article>
+          <article><span>01</span><h3>Add your ride</h3><p>Create separate profiles for every car, truck, bike, kart, or project in your garage.</p></article>
+          <article><span>02</span><h3>Tell the build story</h3><p>Upload photos, document modifications, and preserve each chapter of the vehicle.</p></article>
+          <article><span>03</span><h3>Share one badge</h3><p>Let people scan the FlashTag and check out the build without making you recite the entire parts catalog.</p></article>
         </div>
       </section>
 
-      <section class="section split-section" id="tuners">
+      <section class="section split-section" id="shops">
         <div class="tuner-panel">
-          <p class="eyebrow">For tuners and shops</p>
-          <h2>Turn trust into a storefront.</h2>
-          <p>
-            Verified tuners can list remote tune packages, datalog reviews, diagnostics, dyno appointments,
-            and build consultations with compatibility notes built in.
-          </p>
-          <a class="text-link" href="features.html">Explore platform features</a>
+          <p class="eyebrow">For shops and builders</p>
+          <h2>Let the work become your portfolio.</h2>
+          <p>Shops can connect customer vehicles to their own business garage, show exactly what they contributed, and build a portfolio made from real completed work—not just advertisements.</p>
+          <a class="text-link" href="features.html">Explore the business vision</a>
         </div>
         <div class="workflow">
-          <div><strong>1</strong><span>Customer selects vehicle</span></div>
-          <div><strong>2</strong><span>Uploads tune files and logs</span></div>
-          <div><strong>3</strong><span>Tuner reviews and revises</span></div>
-          <div><strong>4</strong><span>Results stay with the build</span></div>
+          <div><strong>1</strong><span>Owner invites a shop to the build</span></div>
+          <div><strong>2</strong><span>Shop confirms its contribution</span></div>
+          <div><strong>3</strong><span>The work appears on both profiles</span></div>
+          <div><strong>4</strong><span>Future owners keep the history</span></div>
         </div>
       </section>
 
-      <section class="section events-section" id="events">
+      <section class="section events-section">
         <div>
-          <p class="eyebrow">Community loop</p>
-          <h2>Online car shows that make profiles matter.</h2>
-          <p>
-            Launch events, collect entries, run public voting, add judge scores, and award digital trophies
-            directly to winning vehicle pages.
-          </p>
-          <a class="text-link" href="roadmap.html">View the build roadmap</a>
+          <p class="eyebrow">Founder Series</p>
+          <h2>The first 100 are part of the story forever.</h2>
+          <p>The first 100 founding members receive permanent founder status, lifetime premium access, and eligibility for an individually serialized Founder FlashTag.</p>
+          <a class="text-link" href="signup.html">Claim your place early</a>
         </div>
         <div class="event-cards">
-          <article><strong>Best Street Build</strong><span>Profile-based entries</span></article>
-          <article><strong>Highest Verified WHP</strong><span>Proof required</span></article>
-          <article><strong>People's Choice</strong><span>Public voting</span></article>
+          <article><strong>Founder #000001–#000100</strong><span>Permanent founding identity</span></article>
+          <article><strong>Lifetime premium</strong><span>Founder services included</span></article>
+          <article><strong>Special Edition FlashTag</strong><span>Serialized physical badge</span></article>
         </div>
       </section>
 
-      <section class="section waitlist-section" id="waitlist">
-        <div>
-          <img class="section-logo" src="assets/hot-flash-logo.png" alt="Hot Flash logo" />
-          <p class="eyebrow">Get in early</p>
-          <h2>Help shape the private alpha.</h2>
-          <p>
-            We are looking for serious builders, verified tuners, shops, clubs, and early event partners.
-            Join the list and tell us where you fit.
-          </p>
-          <p>Contact: <a class="text-link" href="mailto:info@hotflash.app">info@hotflash.app</a></p>
+      <section class="home-final-cta">
+        <img class="section-logo" src="assets/hot-flash-logo.png" alt="Hot Flash logo" />
+        <p class="eyebrow">The garage door is open</p>
+        <h2>Put your ride on Hot Flash.</h2>
+        <p>Create your account, upload your first vehicle, and start preserving the story behind the machine.</p>
+        <div class="inline-actions">
+          <a class="button-link" href="signup.html">Join Hot Flash</a>
+          <a class="secondary-button" href="feed.html">Browse the community</a>
         </div>
-        <form class="waitlist-card" id="waitlistForm" action="https://formspree.io/f/mbdveyyn" method="POST">
-          <input type="hidden" name="_subject" value="Hot Flash alpha invite request" />
-          <input type="hidden" name="source" value="Alpha invite form" />
-          <label>
-            <span>Name</span>
-            <input type="text" name="name" placeholder="Your name" required />
-          </label>
-          <label>
-            <span>Email</span>
-            <input type="email" name="email" placeholder="you@example.com" required />
-          </label>
-          <label>
-            <span>Vehicle or business</span>
-            <input type="text" name="vehicle" placeholder="2017 Mustang GT, Apex Tuning, etc." />
-          </label>
-          <label>
-            <span>Interest</span>
-            <select name="interest" required>
-              <option value="">Choose one</option>
-              <option>Build profile beta</option>
-              <option>Verified tuner marketplace</option>
-              <option>Shop/vendor profile</option>
-              <option>Online car show events</option>
-              <option>Investment or partnership</option>
-            </select>
-          </label>
-          <button type="submit">Request alpha invite</button>
-          <p id="waitlistNote">No spam. Just launch updates and alpha invitations.</p>
-        </form>
       </section>
     </main>
+
+    <nav class="mobile-tab-bar landing-tab-bar" aria-label="Mobile quick navigation">
+      <a class="active" href="index.html"><span>🔥</span><small>Home</small></a>
+      <a href="feed.html"><span>🔎</span><small>Discover</small></a>
+      <a href="dashboard.html"><span>🚗</span><small>Garage</small></a>
+      <a href="signup.html"><span>➕</span><small>Join</small></a>
+    </nav>
 
     <footer>
       <span>Hot Flash</span>
       <span><a href="mailto:info@hotflash.app">info@hotflash.app</a></span>
     </footer>
 
-    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js?v=6"></script>
+    <script src="landing.js?v=1"></script>
   </body>
 </html>
