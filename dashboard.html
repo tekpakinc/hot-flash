@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
+    <link rel="stylesheet" href="mobile-upload.css" />
   </head>
   <body class="app-page" data-page="dashboard">
     <header class="site-header">
@@ -82,6 +83,14 @@
               <span>Engine</span>
               <input type="text" name="engine" placeholder="318 V8, long-tube headers, carb, ignition" />
             </label>
+            <label class="full-span file-picker">
+              <span>Cover photo</span>
+              <input type="file" name="cover_photo" accept="image/*" data-cover-photo-input />
+              <small>Mobile-first: choose from your camera or photo library.</small>
+            </label>
+            <div class="cover-preview full-span" data-cover-preview>
+              <span>No cover photo selected yet.</span>
+            </div>
             <button class="full-span" type="submit">Add to garage</button>
           </form>
         </aside>
@@ -90,7 +99,7 @@
           <article class="app-card">
             <p class="eyebrow">Your garage</p>
             <h2>Vehicle profiles</h2>
-            <p class="small-muted">These are real database records once Supabase is configured.</p>
+            <p class="small-muted">Your vehicles will appear here with cover photos, Hot Flash IDs, and quick profile access.</p>
           </article>
           <div class="garage-grid" data-garage-list></div>
         </section>
@@ -98,7 +107,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="auth.js"></script>
+    <script src="supabase-config.js?v=3"></script>
+    <script src="auth.js?v=3"></script>
   </body>
 </html>

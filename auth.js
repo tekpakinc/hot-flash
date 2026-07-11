@@ -6,6 +6,10 @@ const profileForm = document.querySelector("[data-profile-form]");
 const vehicleForm = document.querySelector("[data-vehicle-form]");
 const garageList = document.querySelector("[data-garage-list]");
 const profileSummary = document.querySelector("[data-profile-summary]");
+const coverPhotoInput = document.querySelector("[data-cover-photo-input]");
+const coverPreview = document.querySelector("[data-cover-preview]");
+
+const VEHICLE_IMAGE_BUCKET = "vehicle-images";
 
 function setStatus(message, type = "") {
   if (!authStatus) return;
@@ -21,6 +25,11 @@ function slugify(value) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 64);
+}
+
+function getFileExtension(file) {
+  const fallback = file.type?.split("/")[1] || "jpg";
+  return file.name?.split(".").pop()?.toLowerCase() || fallback;
 }
 
 function installPasswordToggles() {
@@ -49,6 +58,19 @@ function installPasswordToggles() {
 
 installPasswordToggles();
 
+coverPhotoInput?.addEventListener("change", () => {
+  const file = coverPhotoInput.files?.[0];
+  if (!coverPreview) return;
+
+  if (!file) {
+    coverPreview.innerHTML = "<span>No cover photo selected yet.</span>";
+    return;
+  }
+
+  const previewUrl = URL.createObjectURL(file);
+  coverPreview.innerHTML = `<img src="${previewUrl}" alt="Selected vehicle cover preview" /><span>Cover photo ready.</span>`;
+});
+
 async function getSession() {
   const { data, error } = await hotflashSupabase.auth.getSession();
   if (error) throw error;
@@ -62,6 +84,33 @@ async function requireSession() {
     return null;
   }
   return session;
+}
+
+async function uploadVehicleCover(file, userId, vehicleSlug) {
+  if (!file) return null;
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Please choose an image file for the vehicle cover photo.");
+  }
+
+  const extension = getFileExtension(file);
+  const safeSlug = vehicleSlug || "vehicle";
+  const filePath = `${userId}/${safeSlug}/cover-${Date.now()}.${extension}`;
+
+  const { error: uploadError } = await hotflashSupabase.storage
+    .from(VEHICLE_IMAGE_BUCKET)
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true,
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = hotflashSupabase.storage
+    .from(VEHICLE_IMAGE_BUCKET)
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
 }
 
 async function loadDashboard() {
@@ -113,8 +162,8 @@ async function loadGarage(userId) {
   garageList.innerHTML = data
     .map(
       (vehicle) => `
-        <article class="vehicle-card">
-          <div class="vehicle-art"></div>
+        <article class="vehicle-card vehicle-card-live">
+          <div class="vehicle-art ${vehicle.cover_photo ? "has-cover" : ""}" ${vehicle.cover_photo ? `style="background-image: linear-gradient(0deg, rgba(5, 6, 7, 0.58), rgba(5, 6, 7, 0.08)), url('${vehicle.cover_photo}')"` : ""}></div>
           <div class="vehicle-body">
             <p class="eyebrow">${vehicle.hotflash_id || "Hot Flash build"}</p>
             <h2>${vehicle.nickname}</h2>
@@ -228,27 +277,37 @@ vehicleForm?.addEventListener("submit", async (event) => {
   setStatus("Adding vehicle...", "");
   const form = new FormData(vehicleForm);
   const nickname = form.get("nickname");
+  const vehicleSlug = slugify(nickname);
+  const coverFile = form.get("cover_photo");
 
-  const { error } = await hotflashSupabase.from("vehicles").insert({
-    owner_id: session.user.id,
-    nickname,
-    slug: slugify(nickname),
-    year: Number(form.get("year")) || null,
-    make: form.get("make"),
-    model: form.get("model"),
-    trim: form.get("trim"),
-    engine: form.get("engine"),
-    horsepower: Number(form.get("horsepower")) || null,
-  });
+  try {
+    const coverPhotoUrl = coverFile && coverFile.size > 0
+      ? await uploadVehicleCover(coverFile, session.user.id, vehicleSlug)
+      : null;
 
-  if (error) {
+    // Premium roadmap: verified/founder accounts can auto-watermark uploads with their profile avatar.
+    const { error } = await hotflashSupabase.from("vehicles").insert({
+      owner_id: session.user.id,
+      nickname,
+      slug: vehicleSlug,
+      year: Number(form.get("year")) || null,
+      make: form.get("make"),
+      model: form.get("model"),
+      trim: form.get("trim"),
+      engine: form.get("engine"),
+      horsepower: Number(form.get("horsepower")) || null,
+      cover_photo: coverPhotoUrl,
+    });
+
+    if (error) throw error;
+
+    vehicleForm.reset();
+    if (coverPreview) coverPreview.innerHTML = "<span>No cover photo selected yet.</span>";
+    setStatus("Vehicle added. Garage updated.", "success");
+    await loadDashboard();
+  } catch (error) {
     setStatus(error.message, "error");
-    return;
   }
-
-  vehicleForm.reset();
-  setStatus("Vehicle added. Garage updated.", "success");
-  await loadDashboard();
 });
 
 if (document.body.dataset.page === "dashboard") {
