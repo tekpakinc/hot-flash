@@ -17,7 +17,7 @@ function vehicleUrl(vehicle) {
 }
 
 function ownerName(vehicle) {
-  return vehicle.profiles?.display_name || vehicle.profiles?.username || 'Hot Flash member';
+  return vehicle.owner?.display_name || vehicle.owner?.username || 'Hot Flash member';
 }
 
 function card(vehicle, featured = false) {
@@ -31,7 +31,7 @@ function card(vehicle, featured = false) {
       </a>
       <div class="feed-card-body">
         <div>
-          <p class="feed-owner">@${escapeHtml(vehicle.profiles?.username || 'member')}</p>
+          <p class="feed-owner">@${escapeHtml(vehicle.owner?.username || 'member')}</p>
           <h3>${title}</h3>
           <p>${escapeHtml(meta || vehicle.engine || 'Build details coming soon')}</p>
         </div>
@@ -48,7 +48,7 @@ function filteredVehicles() {
   if (activeFilter === 'modern') result = result.filter(v => Number(v.year) >= 1990);
   if (activeFilter === 'shops') result = [];
   if (query) {
-    result = result.filter(v => [v.nickname,v.make,v.model,v.engine,v.hotflash_id,v.profiles?.username,v.profiles?.display_name]
+    result = result.filter(v => [v.nickname,v.make,v.model,v.engine,v.hotflash_id,v.owner?.username,v.owner?.display_name]
       .filter(Boolean).join(' ').toLowerCase().includes(query));
   }
   return result;
@@ -77,7 +77,7 @@ searchInput?.addEventListener('input', render);
 async function loadFeed() {
   const { data, error } = await hotflashSupabase
     .from('vehicles')
-    .select('*, profiles(username, display_name, avatar_url)')
+    .select('*, owner:profiles!vehicles_owner_id_fkey(username, display_name, avatar_url)')
     .order('created_at', { ascending: false })
     .limit(100);
   if (error) {
