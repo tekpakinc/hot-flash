@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
+    <link rel="stylesheet" href="oauth.css?v=1" />
   </head>
   <body class="app-page">
     <header class="site-header">
@@ -20,8 +21,8 @@
       </a>
       <nav aria-label="Primary navigation">
         <a href="login.html">Login</a>
-        <a href="garage.html">Garage Demo</a>
-        <a href="vehicle.html">Vehicle Demo</a>
+        <a href="feed.html">Discover</a>
+        <a href="features.html">Features</a>
       </nav>
     </header>
 
@@ -30,10 +31,7 @@
         <div class="app-panel">
           <p class="eyebrow">Start your garage</p>
           <h1>Claim your lane.</h1>
-          <p>
-            Create your account, build your driver profile, then add the rides that deserve their own spotlight.
-            On Hot Flash, the vehicle gets a page worth following.
-          </p>
+          <p>Create your account, build your driver profile, then add the rides that deserve their own spotlight.</p>
           <div class="inline-actions">
             <a class="secondary-button" href="login.html">Already have an account?</a>
           </div>
@@ -41,6 +39,11 @@
 
         <form class="app-card form-grid" action="javascript:void(0)" data-signup-form>
           <p class="eyebrow">Create account</p>
+          <button class="google-auth-button" type="button" data-google-auth>
+            <span class="google-auth-mark">G</span>
+            Continue with Google
+          </button>
+          <div class="oauth-divider"><span>or use email</span></div>
           <label>
             <span>Display name</span>
             <input type="text" name="display_name" placeholder="Danny" required />
@@ -58,13 +61,14 @@
             <input type="password" name="password" placeholder="Create a password" required />
           </label>
           <button type="submit">Create account</button>
-          <p class="small-muted" data-auth-status>After signup, log in and build your first garage.</p>
+          <p class="small-muted" data-auth-status>Google members can choose their Hot Flash username after their first login.</p>
         </form>
       </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=2"></script>
-    <script src="auth.js?v=2"></script>
+    <script src="supabase-config.js?v=6"></script>
+    <script src="auth.js?v=7"></script>
+    <script src="google-auth.js?v=1"></script>
   </body>
 </html>
