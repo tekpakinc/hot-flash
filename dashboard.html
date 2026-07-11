@@ -20,8 +20,8 @@
         <span>Hot Flash</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="garage.html">Garage Demo</a>
-        <a href="vehicle.html">Vehicle Demo</a>
+        <a href="feed.html">Discover</a>
+        <a href="dashboard.html">My Garage</a>
         <button type="button" data-logout>Logout</button>
       </nav>
     </header>
@@ -32,6 +32,7 @@
         <h1>Hot Flash Alpha</h1>
         <p data-profile-summary class="vehicle-meta">Loading your garage...</p>
         <p class="small-muted" data-auth-status>Connected to Supabase.</p>
+        <div class="inline-actions"><a class="secondary-button" href="feed.html">Discover builds</a></div>
       </section>
 
       <section class="content-grid">
@@ -75,7 +76,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=4"></script>
+    <script src="supabase-config.js?v=5"></script>
     <script src="auth.js?v=4"></script>
     <script src="garage-navigation.js?v=1"></script>
   </body>
