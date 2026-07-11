@@ -1,0 +1,181 @@
+.vehicle-profile-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.vehicle-gallery {
+  display: grid;
+  gap: 10px;
+}
+
+.vehicle-hero-frame {
+  position: relative;
+  overflow: hidden;
+  min-height: min(70vh, 680px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #08090a;
+}
+
+.vehicle-hero-frame > img {
+  width: 100%;
+  height: min(70vh, 680px);
+  object-fit: cover;
+  display: block;
+}
+
+.vehicle-hero-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(5, 6, 7, 0.92), rgba(5, 6, 7, 0.04) 62%);
+  pointer-events: none;
+}
+
+.vehicle-hero-copy {
+  position: absolute;
+  z-index: 2;
+  left: clamp(18px, 5vw, 48px);
+  right: clamp(18px, 5vw, 48px);
+  bottom: clamp(18px, 5vw, 42px);
+}
+
+.vehicle-hero-copy h1 {
+  margin: 6px 0;
+  font-size: clamp(3rem, 10vw, 7rem);
+}
+
+.gallery-arrow {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  padding: 0;
+  font-size: 2rem;
+  background: rgba(5, 6, 7, 0.68);
+  backdrop-filter: blur(8px);
+}
+
+.gallery-arrow.previous { left: 12px; }
+.gallery-arrow.next { right: 12px; }
+
+.gallery-thumbnails {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scroll-snap-type: x mandatory;
+}
+
+.gallery-thumbnails button {
+  flex: 0 0 96px;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  scroll-snap-align: start;
+}
+
+.gallery-thumbnails button.active {
+  border-color: var(--flame);
+}
+
+.gallery-thumbnails img {
+  width: 96px;
+  height: 72px;
+  display: block;
+  object-fit: cover;
+}
+
+.owner-gallery-tools {
+  display: grid;
+  gap: 12px;
+}
+
+.owner-gallery-tools input[type="file"] {
+  width: 100%;
+}
+
+.vehicle-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.vehicle-tabs button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  background: rgba(255,255,255,.06);
+}
+
+.vehicle-tabs button.active {
+  background: linear-gradient(90deg, var(--red), var(--flame));
+}
+
+.vehicle-tab-panel {
+  display: none;
+}
+
+.vehicle-tab-panel.active {
+  display: block;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.specs-grid div,
+.contributor-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+}
+
+.specs-grid span,
+.contributor-card strong,
+.contributor-card span {
+  display: block;
+}
+
+.specs-grid span,
+.contributor-card span {
+  color: var(--muted);
+}
+
+.contributor-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (max-width: 700px) {
+  .vehicle-profile-shell {
+    width: min(100% - 18px, 1180px);
+  }
+
+  .vehicle-hero-frame,
+  .vehicle-hero-frame > img {
+    min-height: 58vh;
+    height: 58vh;
+  }
+
+  .gallery-arrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .specs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
