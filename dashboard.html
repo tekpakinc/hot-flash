@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
-    <link rel="stylesheet" href="mobile-upload.css" />
+    <link rel="stylesheet" href="mobile-upload.css?v=2" />
   </head>
   <body class="app-page" data-page="dashboard">
     <header class="site-header">
@@ -68,7 +68,7 @@
           <article class="app-card">
             <p class="eyebrow">Your garage</p>
             <h2>Vehicle profiles</h2>
-            <p class="small-muted">Tap any vehicle card to open its interactive public profile.</p>
+            <p class="small-muted">Open a vehicle to explore it, or use Delete to remove a duplicate or test entry.</p>
           </article>
           <div class="garage-grid" data-garage-list></div>
         </section>
@@ -78,6 +78,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js?v=5"></script>
     <script src="auth.js?v=4"></script>
-    <script src="garage-navigation.js?v=1"></script>
+    <script src="garage-navigation.js?v=2"></script>
+    <script src="vehicle-controls.js?v=1"></script>
   </body>
 </html>
