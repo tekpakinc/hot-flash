@@ -3,78 +3,94 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dusty | Hot Flash</title>
+    <title>Vehicle | Hot Flash</title>
+    <meta name="description" content="Explore a Hot Flash vehicle profile, photos, specs, build history, and contributors." />
     <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
+    <link rel="stylesheet" href="vehicle-page.css" />
   </head>
-  <body class="app-page">
+  <body class="app-page" data-page="vehicle">
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="Hot Flash home">
         <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
         <span>Hot Flash</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="garage.html">Garage</a>
-        <a href="profile.html">Owner</a>
-        <a href="add-vehicle.html">Add Vehicle</a>
+        <a href="dashboard.html">My Garage</a>
+        <a href="features.html">Features</a>
       </nav>
     </header>
 
-    <main class="app-shell">
-      <section class="vehicle-header">
-        <p class="eyebrow">Vehicle profile</p>
-        <h1>Dusty</h1>
-        <p class="tagline">1976 Dodge Dart Sport</p>
-        <p class="vehicle-meta">Owner: Danny · 318 V8 · Street/strip · Burlington, NC</p>
-        <div class="inline-actions">
-          <button type="button">Follow Dusty</button>
-          <a class="secondary-button" href="garage.html">Back to garage</a>
+    <main class="app-shell vehicle-profile-shell">
+      <p class="small-muted" data-vehicle-status>Loading vehicle profile...</p>
+
+      <section class="vehicle-gallery" data-gallery hidden>
+        <div class="vehicle-hero-frame">
+          <img data-hero-image alt="Vehicle cover" />
+          <button class="gallery-arrow previous" type="button" data-gallery-prev aria-label="Previous photo">‹</button>
+          <button class="gallery-arrow next" type="button" data-gallery-next aria-label="Next photo">›</button>
+          <div class="vehicle-hero-copy">
+            <p class="eyebrow" data-hotflash-id></p>
+            <h1 data-vehicle-name></h1>
+            <p class="tagline" data-vehicle-summary></p>
+            <p class="vehicle-meta" data-owner-summary></p>
+          </div>
         </div>
+        <div class="gallery-thumbnails" data-gallery-thumbnails aria-label="Vehicle photos"></div>
+      </section>
+
+      <section class="app-card owner-gallery-tools" data-owner-gallery-tools hidden>
+        <p class="eyebrow">Add to this vehicle's story</p>
+        <h2>Upload gallery photos</h2>
+        <p class="small-muted">Choose several images from your phone. They’ll be added to this vehicle profile.</p>
+        <input type="file" accept="image/*" multiple data-gallery-upload />
+        <button type="button" data-gallery-upload-button>Upload selected photos</button>
+        <p class="small-muted" data-gallery-upload-status></p>
       </section>
 
       <section class="stat-row" aria-label="Vehicle stats">
-        <div class="stat-card"><strong>325</strong><span>Est. HP</span></div>
-        <div class="stat-card"><strong>78%</strong><span>Build complete</span></div>
-        <div class="stat-card"><strong>1.2k</strong><span>Followers</span></div>
-        <div class="stat-card"><strong>4</strong><span>Trophies</span></div>
+        <div class="stat-card"><strong data-stat-hp>—</strong><span>Horsepower</span></div>
+        <div class="stat-card"><strong data-stat-photos>0</strong><span>Photos</span></div>
+        <div class="stat-card"><strong data-stat-followers>0</strong><span>Followers</span></div>
+        <div class="stat-card"><strong data-stat-status>Active</strong><span>Status</span></div>
       </section>
 
-      <section class="content-grid">
-        <aside class="stack">
-          <article class="app-card">
-            <p class="eyebrow">Build progress</p>
-            <div class="build-progress"><span></span></div>
-            <p class="small-muted">Next up: interior cleanup, dyno sheet upload, and suspension notes.</p>
-          </article>
-          <article class="app-card">
-            <p class="eyebrow">Specs</p>
-            <p class="small-muted">Engine: 318 V8<br />Transmission: Auto<br />Induction: Carbureted<br />Exhaust: Long-tube headers</p>
-          </article>
-          <article class="app-card">
-            <p class="eyebrow">Proof locker</p>
-            <p class="small-muted">Dyno sheets, track slips, datalogs, and shop verification will live here.</p>
-          </article>
-        </aside>
+      <nav class="vehicle-tabs" aria-label="Vehicle profile sections">
+        <button type="button" class="active" data-tab-button="story">Story</button>
+        <button type="button" data-tab-button="specs">Specs</button>
+        <button type="button" data-tab-button="contributors">Team</button>
+      </nav>
 
-        <section class="stack" aria-label="Build timeline">
-          <article class="post-card">
-            <strong>Build log update</strong>
-            <p class="small-muted">Added engine combo notes: cam, intake, carb, ignition, headers, and closed-chamber heads.</p>
-          </article>
-          <article class="mod-card">
-            <strong>Current mods</strong>
-            <p class="small-muted">Cam · intake · carb · ignition · long-tube headers · big rear tire setup · skinny fronts</p>
-          </article>
-          <article class="post-card">
-            <strong>Follower activity</strong>
-            <p class="small-muted">24 new followers this week. Dusty is apparently everyone’s favorite bad decision. Respect.</p>
-          </article>
-        </section>
+      <section class="vehicle-tab-panel active" data-tab-panel="story">
+        <article class="app-card">
+          <p class="eyebrow">Build story</p>
+          <h2 data-story-title>This vehicle is just getting started.</h2>
+          <p class="small-muted" data-story-copy>Photos, build updates, trophies, and major milestones will live here.</p>
+        </article>
+      </section>
+
+      <section class="vehicle-tab-panel" data-tab-panel="specs">
+        <article class="app-card specs-grid" data-specs-grid></article>
+      </section>
+
+      <section class="vehicle-tab-panel" data-tab-panel="contributors">
+        <article class="app-card">
+          <p class="eyebrow">Build contributors</p>
+          <h2>The team behind the machine</h2>
+          <div class="contributor-list" data-contributor-list>
+            <div class="contributor-card"><strong>Owner</strong><span data-owner-name>Loading...</span></div>
+            <div class="contributor-card muted"><strong>Shops & tuners</strong><span>Contributor linking is coming next.</span></div>
+          </div>
+        </article>
       </section>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js?v=4"></script>
+    <script src="vehicle-page.js?v=1"></script>
   </body>
 </html>
