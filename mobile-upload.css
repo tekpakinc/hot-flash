@@ -1,0 +1,86 @@
+.file-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.file-picker input[type="file"] {
+  min-height: 52px;
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.file-picker small {
+  color: var(--muted);
+}
+
+.cover-preview {
+  overflow: hidden;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+}
+
+.cover-preview img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.cover-preview span {
+  padding: 12px;
+  text-align: center;
+}
+
+.vehicle-art.has-cover {
+  min-height: 220px;
+  background-size: cover;
+  background-position: center;
+}
+
+.vehicle-card-live {
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.vehicle-card-live:active {
+  transform: scale(0.99);
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    width: min(100% - 20px, 1180px);
+  }
+
+  .app-panel {
+    padding: 22px 18px;
+  }
+
+  .app-panel h1 {
+    font-size: clamp(2.6rem, 14vw, 4.5rem);
+  }
+
+  .app-card {
+    padding: 18px;
+  }
+
+  .garage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle-art,
+  .vehicle-art.has-cover {
+    min-height: 230px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px;
+  }
+}
