@@ -12,11 +12,12 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
     <link rel="stylesheet" href="mobile-upload.css?v=4" />
+    <link rel="stylesheet" href="hotflash-ui-v2.css?v=1" />
   </head>
   <body class="app-page" data-page="dashboard">
     <header class="site-header">
       <a class="brand" href="index.html" aria-label="Hot Flash home"><img class="brand-logo" src="assets/hot-flash-logo.png" alt="" /><span>Hot Flash</span></a>
-      <nav aria-label="Primary navigation"><a href="feed.html">Discover</a><a href="dashboard.html">My Garage</a><button type="button" data-logout>Logout</button></nav>
+      <nav aria-label="Primary navigation"><a href="feed.html">Discover</a><a class="active" href="dashboard.html">My Garage</a><button type="button" data-logout>Logout</button></nav>
     </header>
 
     <main class="app-shell">
@@ -44,39 +45,18 @@
               <p class="small-muted">Choose the basics quickly, then use Other whenever your ride refuses to fit neatly in a dropdown.</p>
             </div>
             <label><span>Nickname</span><input type="text" name="nickname" placeholder="Your ride's nickname" required /></label>
-            <label>
-              <span>Year</span>
-              <select name="year_select" data-year-select><option value="">Choose year</option></select>
-              <input type="number" name="year_other" data-year-other placeholder="Type year" min="1885" max="2100" hidden />
-            </label>
-            <label>
-              <span>Make</span>
-              <select name="make_select" data-make-select><option value="">Choose make</option></select>
-              <input type="text" name="make_other" data-make-other placeholder="Type vehicle make" hidden />
-            </label>
-            <label>
-              <span>Model</span>
-              <select name="model_select" data-model-select disabled><option value="">Choose make first</option></select>
-              <input type="text" name="model_other" data-model-other placeholder="Type vehicle model" hidden />
-            </label>
+            <label><span>Year</span><select name="year_select" data-year-select><option value="">Choose year</option></select><input type="number" name="year_other" data-year-other placeholder="Type year" min="1885" max="2100" hidden /></label>
+            <label><span>Make</span><select name="make_select" data-make-select><option value="">Choose make</option></select><input type="text" name="make_other" data-make-other placeholder="Type vehicle make" hidden /></label>
+            <label><span>Model</span><select name="model_select" data-model-select disabled><option value="">Choose make first</option></select><input type="text" name="model_other" data-model-other placeholder="Type vehicle model" hidden /></label>
             <label><span>Trim</span><input type="text" name="trim" placeholder="Trim or edition" /></label>
             <label><span>Horsepower</span><input type="number" name="horsepower" placeholder="Estimated horsepower" /></label>
-
-            <label class="full-span build-summary-field">
-              <span>What's done to it?</span>
-              <textarea name="build_summary" placeholder="Give the quick version someone would ask for at a car meet..."></textarea>
-            </label>
-
-            <details class="full-span build-category" open>
-              <summary>Powertrain</summary>
-              <label><span>Engine, transmission, induction, exhaust, tune...</span><textarea name="powertrain" placeholder="Engine, transmission, intake, exhaust, tune, boost, swaps..."></textarea></label>
-            </details>
+            <label class="full-span build-summary-field"><span>What's done to it?</span><textarea name="build_summary" placeholder="Give the quick version someone would ask for at a car meet..."></textarea></label>
+            <details class="full-span build-category" open><summary>Powertrain</summary><label><span>Engine, transmission, induction, exhaust, tune...</span><textarea name="powertrain" placeholder="Engine, transmission, intake, exhaust, tune, boost, swaps..."></textarea></label></details>
             <details class="full-span build-category"><summary>Suspension & brakes</summary><label><span>Springs, shocks, control arms, brakes, steering...</span><textarea name="suspension_brakes" placeholder="Suspension setup, steering upgrades, brake package..."></textarea></label></details>
             <details class="full-span build-category"><summary>Wheels & tires</summary><label><span>Wheel sizes, tire sizes, fitment...</span><textarea name="wheels_tires" placeholder="Wheel and tire sizes, offsets, fitment, track setup..."></textarea></label></details>
             <details class="full-span build-category"><summary>Exterior</summary><label><span>Paint, bodywork, aero, lighting...</span><textarea name="exterior" placeholder="Paint, bodywork, aero, lighting, wrap, restoration details..."></textarea></label></details>
             <details class="full-span build-category"><summary>Interior</summary><label><span>Seats, gauges, cage, upholstery...</span><textarea name="interior" placeholder="Seats, gauges, cage, upholstery, controls..."></textarea></label></details>
             <details class="full-span build-category"><summary>Electronics & audio</summary><label><span>ECU, gauges, lighting, sound system...</span><textarea name="electronics_audio" placeholder="ECU, gauges, lighting, audio, security, accessories..."></textarea></label></details>
-
             <label class="full-span file-picker"><span>Cover photo</span><input type="file" name="cover_photo" accept="image/*" data-expanded-cover-input /><small>Choose from your camera or photo library.</small></label>
             <div class="cover-preview full-span" data-expanded-cover-preview><span>No cover photo selected yet.</span></div>
             <button class="full-span" type="submit">Add to garage</button>
