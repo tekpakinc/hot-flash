@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
-    <link rel="stylesheet" href="mobile-upload.css?v=3" />
+    <link rel="stylesheet" href="mobile-upload.css?v=4" />
   </head>
   <body class="app-page" data-page="dashboard">
     <header class="site-header">
@@ -41,13 +41,25 @@
             <div class="full-span">
               <p class="eyebrow">Add vehicle</p>
               <h2>Tell us about the ride</h2>
-              <p class="small-muted">Use the quick summary, the detailed categories, or both. Nothing below the nickname is required.</p>
+              <p class="small-muted">Choose the basics quickly, then use Other whenever your ride refuses to fit neatly in a dropdown.</p>
             </div>
             <label><span>Nickname</span><input type="text" name="nickname" placeholder="Dusty" required /></label>
-            <label><span>Year</span><input type="number" name="year" placeholder="1976" /></label>
-            <label><span>Make</span><input type="text" name="make" placeholder="Dodge" /></label>
-            <label><span>Model</span><input type="text" name="model" placeholder="Dart Sport" /></label>
-            <label><span>Trim</span><input type="text" name="trim" placeholder="Swinger, GT, etc." /></label>
+            <label>
+              <span>Year</span>
+              <select name="year_select" data-year-select><option value="">Choose year</option></select>
+              <input type="number" name="year_other" data-year-other placeholder="Type year" min="1885" max="2100" hidden />
+            </label>
+            <label>
+              <span>Make</span>
+              <select name="make_select" data-make-select><option value="">Choose make</option></select>
+              <input type="text" name="make_other" data-make-other placeholder="Type vehicle make" hidden />
+            </label>
+            <label>
+              <span>Model</span>
+              <select name="model_select" data-model-select disabled><option value="">Choose make first</option></select>
+              <input type="text" name="model_other" data-model-other placeholder="Type vehicle model" hidden />
+            </label>
+            <label><span>Trim</span><input type="text" name="trim" placeholder="Swinger, GT, Z71, Sport..." /></label>
             <label><span>Horsepower</span><input type="number" name="horsepower" placeholder="325" /></label>
 
             <label class="full-span build-summary-field">
@@ -59,31 +71,13 @@
               <summary>Powertrain</summary>
               <label><span>Engine, transmission, induction, exhaust, tune...</span><textarea name="powertrain" placeholder="318 V8, cam, intake, carb, ignition, long-tube headers, 904 automatic..."></textarea></label>
             </details>
-            <details class="full-span build-category">
-              <summary>Suspension & brakes</summary>
-              <label><span>Springs, shocks, control arms, brakes, steering...</span><textarea name="suspension_brakes" placeholder="QA1 front end, lowering springs, Wilwood brakes..."></textarea></label>
-            </details>
-            <details class="full-span build-category">
-              <summary>Wheels & tires</summary>
-              <label><span>Wheel sizes, tire sizes, fitment...</span><textarea name="wheels_tires" placeholder="15x10 rear wheels, drag radials, skinny fronts..."></textarea></label>
-            </details>
-            <details class="full-span build-category">
-              <summary>Exterior</summary>
-              <label><span>Paint, bodywork, aero, lighting...</span><textarea name="exterior" placeholder="Duster front clip, custom paint, hood scoop..."></textarea></label>
-            </details>
-            <details class="full-span build-category">
-              <summary>Interior</summary>
-              <label><span>Seats, gauges, cage, upholstery...</span><textarea name="interior" placeholder="Gutted interior, racing seats, custom gauges..."></textarea></label>
-            </details>
-            <details class="full-span build-category">
-              <summary>Electronics & audio</summary>
-              <label><span>ECU, gauges, lighting, sound system...</span><textarea name="electronics_audio" placeholder="Digital dash, upgraded audio, custom lighting..."></textarea></label>
-            </details>
+            <details class="full-span build-category"><summary>Suspension & brakes</summary><label><span>Springs, shocks, control arms, brakes, steering...</span><textarea name="suspension_brakes" placeholder="QA1 front end, lowering springs, Wilwood brakes..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Wheels & tires</summary><label><span>Wheel sizes, tire sizes, fitment...</span><textarea name="wheels_tires" placeholder="15x10 rear wheels, drag radials, skinny fronts..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Exterior</summary><label><span>Paint, bodywork, aero, lighting...</span><textarea name="exterior" placeholder="Duster front clip, custom paint, hood scoop..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Interior</summary><label><span>Seats, gauges, cage, upholstery...</span><textarea name="interior" placeholder="Gutted interior, racing seats, custom gauges..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Electronics & audio</summary><label><span>ECU, gauges, lighting, sound system...</span><textarea name="electronics_audio" placeholder="Digital dash, upgraded audio, custom lighting..."></textarea></label></details>
 
-            <label class="full-span file-picker">
-              <span>Cover photo</span><input type="file" name="cover_photo" accept="image/*" data-expanded-cover-input />
-              <small>Choose from your camera or photo library.</small>
-            </label>
+            <label class="full-span file-picker"><span>Cover photo</span><input type="file" name="cover_photo" accept="image/*" data-expanded-cover-input /><small>Choose from your camera or photo library.</small></label>
             <div class="cover-preview full-span" data-expanded-cover-preview><span>No cover photo selected yet.</span></div>
             <button class="full-span" type="submit">Add to garage</button>
           </form>
@@ -99,7 +93,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js?v=5"></script>
     <script src="auth.js?v=4"></script>
-    <script src="build-details.js?v=1"></script>
+    <script src="vehicle-pickers.js?v=1"></script>
+    <script src="build-details.js?v=2"></script>
     <script src="garage-navigation.js?v=2"></script>
     <script src="vehicle-controls.js?v=1"></script>
   </body>
