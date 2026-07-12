@@ -11,18 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
-    <link rel="stylesheet" href="vehicle-page.css" />
+    <link rel="stylesheet" href="vehicle-page.css?v=2" />
   </head>
   <body class="app-page" data-page="vehicle">
     <header class="site-header">
-      <a class="brand" href="index.html" aria-label="Hot Flash home">
-        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
-        <span>Hot Flash</span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="dashboard.html">My Garage</a>
-        <a href="features.html">Features</a>
-      </nav>
+      <a class="brand" href="index.html" aria-label="Hot Flash home"><img class="brand-logo" src="assets/hot-flash-logo.png" alt="" /><span>Hot Flash</span></a>
+      <nav aria-label="Primary navigation"><a href="feed.html">Discover</a><a href="dashboard.html">My Garage</a></nav>
     </header>
 
     <main class="app-shell vehicle-profile-shell">
@@ -30,7 +24,10 @@
 
       <section class="vehicle-gallery" data-gallery hidden>
         <div class="vehicle-hero-frame">
-          <img data-hero-image alt="Vehicle cover" />
+          <button class="hero-image-button" type="button" data-open-lightbox aria-label="View current photo full screen">
+            <img data-hero-image alt="Vehicle cover" />
+            <span class="expand-photo-hint">⛶ View full screen</span>
+          </button>
           <button class="gallery-arrow previous" type="button" data-gallery-prev aria-label="Previous photo">‹</button>
           <button class="gallery-arrow next" type="button" data-gallery-next aria-label="Next photo">›</button>
           <div class="vehicle-hero-copy">
@@ -65,32 +62,24 @@
         <button type="button" data-tab-button="contributors">Team</button>
       </nav>
 
-      <section class="vehicle-tab-panel active" data-tab-panel="story">
-        <article class="app-card">
-          <p class="eyebrow">Build story</p>
-          <h2 data-story-title>This vehicle is just getting started.</h2>
-          <p class="small-muted" data-story-copy>Photos, build updates, trophies, and major milestones will live here.</p>
-        </article>
-      </section>
-
-      <section class="vehicle-tab-panel" data-tab-panel="specs">
-        <article class="app-card specs-grid" data-specs-grid></article>
-      </section>
-
-      <section class="vehicle-tab-panel" data-tab-panel="contributors">
-        <article class="app-card">
-          <p class="eyebrow">Build contributors</p>
-          <h2>The team behind the machine</h2>
-          <div class="contributor-list" data-contributor-list>
-            <div class="contributor-card"><strong>Owner</strong><span data-owner-name>Loading...</span></div>
-            <div class="contributor-card muted"><strong>Shops & tuners</strong><span>Contributor linking is coming next.</span></div>
-          </div>
-        </article>
-      </section>
+      <section class="vehicle-tab-panel active" data-tab-panel="story"><article class="app-card"><p class="eyebrow">Build story</p><h2 data-story-title>This vehicle is just getting started.</h2><p class="small-muted" data-story-copy>Photos, build updates, trophies, and major milestones will live here.</p></article></section>
+      <section class="vehicle-tab-panel" data-tab-panel="specs"><article class="app-card specs-grid" data-specs-grid></article></section>
+      <section class="vehicle-tab-panel" data-tab-panel="contributors"><article class="app-card"><p class="eyebrow">Build contributors</p><h2>The team behind the machine</h2><div class="contributor-list" data-contributor-list><div class="contributor-card"><strong>Owner</strong><span data-owner-name>Loading...</span></div><div class="contributor-card muted"><strong>Shops & tuners</strong><span>Contributor linking is coming next.</span></div></div></article></section>
     </main>
+
+    <div class="photo-lightbox" data-photo-lightbox hidden role="dialog" aria-modal="true" aria-label="Full screen vehicle photo viewer">
+      <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close full screen photo">×</button>
+      <button class="lightbox-arrow previous" type="button" data-lightbox-prev aria-label="Previous full screen photo">‹</button>
+      <figure>
+        <img data-lightbox-image alt="Full screen vehicle photo" />
+        <figcaption data-lightbox-caption></figcaption>
+      </figure>
+      <button class="lightbox-arrow next" type="button" data-lightbox-next aria-label="Next full screen photo">›</button>
+      <div class="lightbox-counter" data-lightbox-counter></div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js?v=4"></script>
-    <script src="vehicle-page.js?v=1"></script>
+    <script src="vehicle-page.js?v=2"></script>
   </body>
 </html>

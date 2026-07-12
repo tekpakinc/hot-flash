@@ -8,15 +8,29 @@ const ownerTools = document.querySelector("[data-owner-gallery-tools]");
 const uploadInput = document.querySelector("[data-gallery-upload]");
 const uploadButton = document.querySelector("[data-gallery-upload-button]");
 const uploadStatus = document.querySelector("[data-gallery-upload-status]");
+const lightbox = document.querySelector("[data-photo-lightbox]");
+const lightboxImage = document.querySelector("[data-lightbox-image]");
+const lightboxCaption = document.querySelector("[data-lightbox-caption]");
+const lightboxCounter = document.querySelector("[data-lightbox-counter]");
 
 let currentVehicle;
 let galleryImages = [];
 let activeIndex = 0;
+let touchStartX = 0;
 
 function setStatus(message, isError = false) {
   if (!statusEl) return;
   statusEl.textContent = message;
   statusEl.className = isError ? "small-muted error" : "small-muted";
+}
+
+function updateLightbox() {
+  if (!lightbox || lightbox.hidden || !galleryImages.length) return;
+  const image = galleryImages[activeIndex];
+  lightboxImage.src = image.image_url;
+  lightboxImage.alt = image.caption || currentVehicle.nickname;
+  lightboxCaption.textContent = image.caption || `${currentVehicle.nickname} photo ${activeIndex + 1}`;
+  lightboxCounter.textContent = `${activeIndex + 1} / ${galleryImages.length}`;
 }
 
 function showImage(index) {
@@ -27,6 +41,21 @@ function showImage(index) {
   [...thumbnailsEl.children].forEach((thumb, thumbIndex) => {
     thumb.classList.toggle("active", thumbIndex === activeIndex);
   });
+  updateLightbox();
+}
+
+function openLightbox() {
+  if (!lightbox || !galleryImages.length) return;
+  lightbox.hidden = false;
+  document.body.classList.add("lightbox-open");
+  updateLightbox();
+  document.querySelector("[data-lightbox-close]")?.focus();
+}
+
+function closeLightbox() {
+  if (!lightbox) return;
+  lightbox.hidden = true;
+  document.body.classList.remove("lightbox-open");
 }
 
 function renderGallery() {
@@ -39,7 +68,7 @@ function renderGallery() {
   }
 
   thumbnailsEl.innerHTML = galleryImages
-    .map((image, index) => `<button type="button" data-thumb-index="${index}"><img src="${image.image_url}" alt="${image.caption || `Vehicle photo ${index + 1}`}" /></button>`)
+    .map((image, index) => `<button type="button" data-thumb-index="${index}" aria-label="View photo ${index + 1}"><img src="${image.image_url}" alt="${image.caption || `Vehicle photo ${index + 1}`}" /></button>`)
     .join("");
 
   thumbnailsEl.addEventListener("click", (event) => {
@@ -50,6 +79,30 @@ function renderGallery() {
 
   document.querySelector("[data-gallery-prev]")?.addEventListener("click", () => showImage(activeIndex - 1));
   document.querySelector("[data-gallery-next]")?.addEventListener("click", () => showImage(activeIndex + 1));
+  document.querySelector("[data-open-lightbox]")?.addEventListener("click", openLightbox);
+  document.querySelector("[data-lightbox-close]")?.addEventListener("click", closeLightbox);
+  document.querySelector("[data-lightbox-prev]")?.addEventListener("click", () => showImage(activeIndex - 1));
+  document.querySelector("[data-lightbox-next]")?.addEventListener("click", () => showImage(activeIndex + 1));
+
+  lightbox?.addEventListener("click", (event) => {
+    if (event.target === lightbox) closeLightbox();
+  });
+  lightbox?.addEventListener("touchstart", (event) => {
+    touchStartX = event.changedTouches[0].clientX;
+  }, { passive: true });
+  lightbox?.addEventListener("touchend", (event) => {
+    const distance = event.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(distance) < 45) return;
+    showImage(distance < 0 ? activeIndex + 1 : activeIndex - 1);
+  }, { passive: true });
+
+  document.addEventListener("keydown", (event) => {
+    if (!lightbox || lightbox.hidden) return;
+    if (event.key === "Escape") closeLightbox();
+    if (event.key === "ArrowLeft") showImage(activeIndex - 1);
+    if (event.key === "ArrowRight") showImage(activeIndex + 1);
+  });
+
   showImage(0);
   galleryEl.hidden = false;
   document.querySelector("[data-stat-photos]").textContent = String(galleryImages.length);
@@ -64,12 +117,23 @@ function renderVehicle(profile) {
   document.querySelector("[data-owner-name]").textContent = profile?.display_name || profile?.username || "Hot Flash member";
   document.querySelector("[data-stat-hp]").textContent = currentVehicle.horsepower || "—";
 
+  const storyCopy = currentVehicle.build_summary || currentVehicle.engine;
+  if (storyCopy) {
+    document.querySelector("[data-story-title]").textContent = "What's done to it";
+    document.querySelector("[data-story-copy]").textContent = storyCopy;
+  }
+
   const specs = [
     ["Year", currentVehicle.year],
     ["Make", currentVehicle.make],
     ["Model", currentVehicle.model],
     ["Trim", currentVehicle.trim],
-    ["Engine", currentVehicle.engine],
+    ["Powertrain", currentVehicle.powertrain || currentVehicle.engine],
+    ["Suspension & brakes", currentVehicle.suspension_brakes],
+    ["Wheels & tires", currentVehicle.wheels_tires],
+    ["Exterior", currentVehicle.exterior],
+    ["Interior", currentVehicle.interior],
+    ["Electronics & audio", currentVehicle.electronics_audio],
     ["Hot Flash ID", currentVehicle.hotflash_id],
   ].filter(([, value]) => value);
 
@@ -98,10 +162,7 @@ async function loadVehicle() {
   renderVehicle(profile);
   renderGallery();
 
-  if (sessionData?.session?.user?.id === vehicle.owner_id) {
-    ownerTools.hidden = false;
-  }
-
+  if (sessionData?.session?.user?.id === vehicle.owner_id) ownerTools.hidden = false;
   setStatus("");
 }
 
