@@ -1,0 +1,1 @@
+Test vehicle comments as logged out, logged in, comment author, and vehicle owner. Test photo comments from thumbnail chat badges on mobile and desktop.
