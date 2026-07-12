@@ -44,22 +44,10 @@
             Continue with Google
           </button>
           <div class="oauth-divider"><span>or use email</span></div>
-          <label>
-            <span>Display name</span>
-            <input type="text" name="display_name" placeholder="Your name or garage name" required />
-          </label>
-          <label>
-            <span>Username</span>
-            <input type="text" name="username" placeholder="yourusername" required />
-          </label>
-          <label>
-            <span>Email</span>
-            <input type="email" name="email" placeholder="you@example.com" required />
-          </label>
-          <label>
-            <span>Password</span>
-            <input type="password" name="password" placeholder="Create a password" required />
-          </label>
+          <label><span>Display name</span><input type="text" name="display_name" placeholder="Your name or garage name" required /></label>
+          <label><span>Username</span><input type="text" name="username" placeholder="yourusername" required /></label>
+          <label><span>Email</span><input type="email" name="email" placeholder="you@example.com" required /></label>
+          <label><span>Password</span><input type="password" name="password" placeholder="Create a password" minlength="8" required /></label>
           <button type="submit">Create account</button>
           <p class="small-muted" data-auth-status>Google members can choose their Hot Flash username after their first login.</p>
         </form>
@@ -68,7 +56,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js?v=6"></script>
-    <script src="auth.js?v=7"></script>
+    <script src="auth-errors.js?v=1"></script>
+    <script src="auth.js?v=8"></script>
     <script src="google-auth.js?v=1"></script>
   </body>
 </html>
