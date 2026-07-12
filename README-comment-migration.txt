@@ -1,0 +1,1 @@
+Run supabase-vehicle-photo-comments.sql once in the Supabase SQL Editor to enable direct vehicle and photo comments.
