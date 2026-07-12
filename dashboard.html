@@ -21,7 +21,7 @@
 
     <main class="app-shell">
       <section class="app-panel">
-        <p class="eyebrow">Founder dashboard</p><h1>Hot Flash Alpha</h1>
+        <p class="eyebrow">Garage dashboard</p><h1>Hot Flash Alpha</h1>
         <p data-profile-summary class="vehicle-meta">Loading your garage...</p>
         <p class="small-muted" data-auth-status>Connected to Supabase.</p>
         <div class="inline-actions"><a class="secondary-button" href="feed.html">Discover builds</a></div>
@@ -31,9 +31,9 @@
         <aside class="stack">
           <form class="app-card form-grid" data-profile-form>
             <p class="eyebrow">Driver profile</p>
-            <label><span>Display name</span><input type="text" name="display_name" placeholder="Danny" required /></label>
-            <label><span>Username</span><input type="text" name="username" placeholder="greasedaddy" required /></label>
-            <label><span>Bio</span><textarea name="bio" placeholder="Builder, tuner-network goblin, garage menace..."></textarea></label>
+            <label><span>Display name</span><input type="text" name="display_name" placeholder="Your name or garage name" required /></label>
+            <label><span>Username</span><input type="text" name="username" placeholder="yourusername" required /></label>
+            <label><span>Bio</span><textarea name="bio" placeholder="Tell the community what you build, drive, shoot, tune, or just plain love."></textarea></label>
             <button type="submit">Save profile</button>
           </form>
 
@@ -43,7 +43,7 @@
               <h2>Tell us about the ride</h2>
               <p class="small-muted">Choose the basics quickly, then use Other whenever your ride refuses to fit neatly in a dropdown.</p>
             </div>
-            <label><span>Nickname</span><input type="text" name="nickname" placeholder="Dusty" required /></label>
+            <label><span>Nickname</span><input type="text" name="nickname" placeholder="Your ride's nickname" required /></label>
             <label>
               <span>Year</span>
               <select name="year_select" data-year-select><option value="">Choose year</option></select>
@@ -59,8 +59,8 @@
               <select name="model_select" data-model-select disabled><option value="">Choose make first</option></select>
               <input type="text" name="model_other" data-model-other placeholder="Type vehicle model" hidden />
             </label>
-            <label><span>Trim</span><input type="text" name="trim" placeholder="Swinger, GT, Z71, Sport..." /></label>
-            <label><span>Horsepower</span><input type="number" name="horsepower" placeholder="325" /></label>
+            <label><span>Trim</span><input type="text" name="trim" placeholder="Trim or edition" /></label>
+            <label><span>Horsepower</span><input type="number" name="horsepower" placeholder="Estimated horsepower" /></label>
 
             <label class="full-span build-summary-field">
               <span>What's done to it?</span>
@@ -69,13 +69,13 @@
 
             <details class="full-span build-category" open>
               <summary>Powertrain</summary>
-              <label><span>Engine, transmission, induction, exhaust, tune...</span><textarea name="powertrain" placeholder="318 V8, cam, intake, carb, ignition, long-tube headers, 904 automatic..."></textarea></label>
+              <label><span>Engine, transmission, induction, exhaust, tune...</span><textarea name="powertrain" placeholder="Engine, transmission, intake, exhaust, tune, boost, swaps..."></textarea></label>
             </details>
-            <details class="full-span build-category"><summary>Suspension & brakes</summary><label><span>Springs, shocks, control arms, brakes, steering...</span><textarea name="suspension_brakes" placeholder="QA1 front end, lowering springs, Wilwood brakes..."></textarea></label></details>
-            <details class="full-span build-category"><summary>Wheels & tires</summary><label><span>Wheel sizes, tire sizes, fitment...</span><textarea name="wheels_tires" placeholder="15x10 rear wheels, drag radials, skinny fronts..."></textarea></label></details>
-            <details class="full-span build-category"><summary>Exterior</summary><label><span>Paint, bodywork, aero, lighting...</span><textarea name="exterior" placeholder="Duster front clip, custom paint, hood scoop..."></textarea></label></details>
-            <details class="full-span build-category"><summary>Interior</summary><label><span>Seats, gauges, cage, upholstery...</span><textarea name="interior" placeholder="Gutted interior, racing seats, custom gauges..."></textarea></label></details>
-            <details class="full-span build-category"><summary>Electronics & audio</summary><label><span>ECU, gauges, lighting, sound system...</span><textarea name="electronics_audio" placeholder="Digital dash, upgraded audio, custom lighting..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Suspension & brakes</summary><label><span>Springs, shocks, control arms, brakes, steering...</span><textarea name="suspension_brakes" placeholder="Suspension setup, steering upgrades, brake package..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Wheels & tires</summary><label><span>Wheel sizes, tire sizes, fitment...</span><textarea name="wheels_tires" placeholder="Wheel and tire sizes, offsets, fitment, track setup..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Exterior</summary><label><span>Paint, bodywork, aero, lighting...</span><textarea name="exterior" placeholder="Paint, bodywork, aero, lighting, wrap, restoration details..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Interior</summary><label><span>Seats, gauges, cage, upholstery...</span><textarea name="interior" placeholder="Seats, gauges, cage, upholstery, controls..."></textarea></label></details>
+            <details class="full-span build-category"><summary>Electronics & audio</summary><label><span>ECU, gauges, lighting, sound system...</span><textarea name="electronics_audio" placeholder="ECU, gauges, lighting, audio, security, accessories..."></textarea></label></details>
 
             <label class="full-span file-picker"><span>Cover photo</span><input type="file" name="cover_photo" accept="image/*" data-expanded-cover-input /><small>Choose from your camera or photo library.</small></label>
             <div class="cover-preview full-span" data-expanded-cover-preview><span>No cover photo selected yet.</span></div>
