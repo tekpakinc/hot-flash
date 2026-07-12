@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="app-pages.css" />
-    <link rel="stylesheet" href="vehicle-page.css?v=2" />
+    <link rel="stylesheet" href="vehicle-page.css?v=3" />
   </head>
   <body class="app-page" data-page="vehicle">
     <header class="site-header">
@@ -40,9 +40,14 @@
         <div class="gallery-thumbnails" data-gallery-thumbnails aria-label="Vehicle photos"></div>
       </section>
 
+      <section class="vehicle-social-actions" aria-label="Vehicle actions">
+        <button type="button" class="follow-vehicle-button" data-follow-vehicle hidden>Follow vehicle</button>
+        <span class="small-muted" data-follow-message></span>
+      </section>
+
       <section class="app-card owner-gallery-tools" data-owner-gallery-tools hidden>
-        <p class="eyebrow">Add to this vehicle's story</p>
-        <h2>Upload gallery photos</h2>
+        <p class="eyebrow">Owner tools</p>
+        <h2>Add to this vehicle's story</h2>
         <p class="small-muted">Choose several images from your phone. They’ll be added to this vehicle profile.</p>
         <input type="file" accept="image/*" multiple data-gallery-upload />
         <button type="button" data-gallery-upload-button>Upload selected photos</button>
@@ -80,6 +85,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js?v=4"></script>
-    <script src="vehicle-page.js?v=2"></script>
+    <script src="vehicle-page.js?v=3"></script>
   </body>
 </html>
