@@ -1,0 +1,45 @@
+-- HOT FLASH VEHICLE + PHOTO COMMENTS
+create extension if not exists pgcrypto;
+
+create table if not exists vehicle_comments (
+  id uuid primary key default gen_random_uuid(),
+  vehicle_id uuid not null references vehicles(id) on delete cascade,
+  author_id uuid not null references profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 1200),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists vehicle_image_comments (
+  id uuid primary key default gen_random_uuid(),
+  image_id uuid not null references vehicle_images(id) on delete cascade,
+  vehicle_id uuid not null references vehicles(id) on delete cascade,
+  author_id uuid not null references profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 1200),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table vehicle_comments enable row level security;
+alter table vehicle_image_comments enable row level security;
+
+drop policy if exists "Vehicle comments public read" on vehicle_comments;
+drop policy if exists "Users create vehicle comments" on vehicle_comments;
+drop policy if exists "Authors delete vehicle comments" on vehicle_comments;
+drop policy if exists "Owners moderate vehicle comments" on vehicle_comments;
+create policy "Vehicle comments public read" on vehicle_comments for select using (true);
+create policy "Users create vehicle comments" on vehicle_comments for insert with check (auth.uid()=author_id);
+create policy "Authors delete vehicle comments" on vehicle_comments for delete using (auth.uid()=author_id);
+create policy "Owners moderate vehicle comments" on vehicle_comments for delete using (exists(select 1 from vehicles v where v.id=vehicle_id and v.owner_id=auth.uid()));
+
+drop policy if exists "Photo comments public read" on vehicle_image_comments;
+drop policy if exists "Users create photo comments" on vehicle_image_comments;
+drop policy if exists "Authors delete photo comments" on vehicle_image_comments;
+drop policy if exists "Owners moderate photo comments" on vehicle_image_comments;
+create policy "Photo comments public read" on vehicle_image_comments for select using (true);
+create policy "Users create photo comments" on vehicle_image_comments for insert with check (auth.uid()=author_id);
+create policy "Authors delete photo comments" on vehicle_image_comments for delete using (auth.uid()=author_id);
+create policy "Owners moderate photo comments" on vehicle_image_comments for delete using (exists(select 1 from vehicles v where v.id=vehicle_id and v.owner_id=auth.uid()));
+
+create index if not exists vehicle_comments_vehicle_idx on vehicle_comments(vehicle_id,created_at);
+create index if not exists vehicle_image_comments_image_idx on vehicle_image_comments(image_id,created_at);
