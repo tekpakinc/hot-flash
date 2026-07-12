@@ -8,15 +8,20 @@ const ownerTools = document.querySelector("[data-owner-gallery-tools]");
 const uploadInput = document.querySelector("[data-gallery-upload]");
 const uploadButton = document.querySelector("[data-gallery-upload-button]");
 const uploadStatus = document.querySelector("[data-gallery-upload-status]");
+const followButton = document.querySelector("[data-follow-vehicle]");
+const followMessage = document.querySelector("[data-follow-message]");
+const followerCount = document.querySelector("[data-stat-followers]");
 const lightbox = document.querySelector("[data-photo-lightbox]");
 const lightboxImage = document.querySelector("[data-lightbox-image]");
 const lightboxCaption = document.querySelector("[data-lightbox-caption]");
 const lightboxCounter = document.querySelector("[data-lightbox-counter]");
 
 let currentVehicle;
+let currentSession;
 let galleryImages = [];
 let activeIndex = 0;
 let touchStartX = 0;
+let isFollowing = false;
 
 function setStatus(message, isError = false) {
   if (!statusEl) return;
@@ -142,8 +147,90 @@ function renderVehicle(profile) {
     .join("");
 }
 
+function renderFollowButton() {
+  if (!followButton || !currentVehicle) return;
+
+  if (currentSession?.user?.id === currentVehicle.owner_id) {
+    followButton.hidden = true;
+    followMessage.textContent = "This is your vehicle.";
+    return;
+  }
+
+  followButton.hidden = false;
+  followButton.textContent = isFollowing ? "Following ✓" : "Follow vehicle";
+  followButton.classList.toggle("following", isFollowing);
+  followButton.setAttribute("aria-pressed", String(isFollowing));
+  followMessage.textContent = currentSession ? "" : "Log in to follow this build.";
+}
+
+async function loadFollowingState() {
+  const { count, error: countError } = await hotflashSupabase
+    .from("vehicle_followers")
+    .select("*", { count: "exact", head: true })
+    .eq("vehicle_id", currentVehicle.id);
+
+  if (!countError && followerCount) followerCount.textContent = String(count || 0);
+
+  if (!currentSession) {
+    isFollowing = false;
+    renderFollowButton();
+    return;
+  }
+
+  const { data, error } = await hotflashSupabase
+    .from("vehicle_followers")
+    .select("vehicle_id")
+    .eq("vehicle_id", currentVehicle.id)
+    .eq("user_id", currentSession.user.id)
+    .maybeSingle();
+
+  if (!error) isFollowing = Boolean(data);
+  renderFollowButton();
+}
+
+async function toggleFollow() {
+  if (!currentSession) {
+    const returnTo = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+    window.location.href = `login.html?returnTo=${returnTo}`;
+    return;
+  }
+
+  if (currentSession.user.id === currentVehicle.owner_id) return;
+
+  followButton.disabled = true;
+  followMessage.textContent = isFollowing ? "Unfollowing..." : "Following...";
+
+  try {
+    if (isFollowing) {
+      const { error } = await hotflashSupabase
+        .from("vehicle_followers")
+        .delete()
+        .eq("vehicle_id", currentVehicle.id)
+        .eq("user_id", currentSession.user.id);
+      if (error) throw error;
+      isFollowing = false;
+    } else {
+      const { error } = await hotflashSupabase
+        .from("vehicle_followers")
+        .insert({ vehicle_id: currentVehicle.id, user_id: currentSession.user.id });
+      if (error) throw error;
+      isFollowing = true;
+    }
+
+    await loadFollowingState();
+    followMessage.textContent = isFollowing ? "You’ll see future updates from this build." : "Vehicle unfollowed.";
+  } catch (error) {
+    followMessage.textContent = error.message;
+  } finally {
+    followButton.disabled = false;
+  }
+}
+
 async function loadVehicle() {
   if (!vehicleRef) throw new Error("No vehicle was selected.");
+
+  ownerTools.hidden = true;
+  followButton.hidden = true;
 
   let query = hotflashSupabase.from("vehicles").select("*");
   query = vehicleRef.startsWith("HF-") ? query.eq("hotflash_id", vehicleRef) : query.eq("id", vehicleRef);
@@ -158,13 +245,17 @@ async function loadVehicle() {
     hotflashSupabase.auth.getSession(),
   ]);
 
+  currentSession = sessionData?.session || null;
   galleryImages = images || [];
   renderVehicle(profile);
   renderGallery();
 
-  if (sessionData?.session?.user?.id === vehicle.owner_id) ownerTools.hidden = false;
+  ownerTools.hidden = !(currentSession?.user?.id === vehicle.owner_id);
+  await loadFollowingState();
   setStatus("");
 }
+
+followButton?.addEventListener("click", toggleFollow);
 
 uploadButton?.addEventListener("click", async () => {
   const files = [...(uploadInput.files || [])];
@@ -176,6 +267,7 @@ uploadButton?.addEventListener("click", async () => {
   try {
     const session = (await hotflashSupabase.auth.getSession()).data.session;
     if (!session) throw new Error("Please log in again before uploading.");
+    if (session.user.id !== currentVehicle.owner_id) throw new Error("Only the vehicle owner can upload photos.");
 
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index];
