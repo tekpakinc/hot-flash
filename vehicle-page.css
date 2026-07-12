@@ -111,7 +111,12 @@
 .gallery-thumbnails button.active { border-color: var(--flame); }
 .gallery-thumbnails img { width: 96px; height: 72px; display: block; object-fit: cover; }
 
-.photo-lightbox[hidden] { display: none; }
+.photo-lightbox[hidden],
+.owner-gallery-tools[hidden],
+.follow-vehicle-button[hidden],
+.vehicle-social-actions[hidden] {
+  display: none !important;
+}
 
 .photo-lightbox {
   position: fixed;
@@ -184,6 +189,25 @@
 
 body.lightbox-open { overflow: hidden; }
 
+.vehicle-social-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.follow-vehicle-button {
+  min-height: 48px;
+  padding-inline: 22px;
+  background: linear-gradient(90deg, var(--red), var(--flame));
+}
+
+.follow-vehicle-button.following {
+  color: var(--ink);
+  background: rgba(255,255,255,.1);
+  border: 1px solid var(--line);
+}
+
 .owner-gallery-tools { display: grid; gap: 12px; }
 .owner-gallery-tools input[type="file"] { width: 100%; }
 .vehicle-tabs { display: flex; gap: 8px; overflow-x: auto; }
@@ -202,6 +226,8 @@ body.lightbox-open { overflow: hidden; }
   .vehicle-hero-frame, .hero-image-button img { min-height: 58vh; height: 58vh; }
   .gallery-arrow { width: 40px; height: 40px; }
   .expand-photo-hint { top: 10px; right: 10px; font-size: .74rem; }
+  .vehicle-social-actions { align-items: stretch; }
+  .follow-vehicle-button { width: 100%; }
   .specs-grid { grid-template-columns: 1fr; }
   .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .photo-lightbox { grid-template-columns: 1fr; padding: 8px; }
