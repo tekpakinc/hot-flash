@@ -58,6 +58,10 @@ expandedVehicleForm?.addEventListener('submit', async (event) => {
   const form = new FormData(expandedVehicleForm);
   const nickname = form.get('nickname');
   const slug = expandedSlugify(nickname);
+  const picker = window.hotFlashVehiclePicker;
+  const year = picker?.getYear(form) || form.get('year');
+  const make = String(picker?.getMake(form) || form.get('make') || '').trim();
+  const model = String(picker?.getModel(form) || form.get('model') || '').trim();
   expandedStatus('Adding vehicle and build details...', '');
 
   try {
@@ -69,9 +73,9 @@ expandedVehicleForm?.addEventListener('submit', async (event) => {
       owner_id: session.user.id,
       nickname,
       slug,
-      year: Number(form.get('year')) || null,
-      make: form.get('make') || null,
-      model: form.get('model') || null,
+      year: Number(year) || null,
+      make: make || null,
+      model: model || null,
       trim: form.get('trim') || null,
       horsepower: Number(form.get('horsepower')) || null,
       engine: powertrain || buildSummary || null,
@@ -87,6 +91,7 @@ expandedVehicleForm?.addEventListener('submit', async (event) => {
     if (error) throw error;
 
     expandedVehicleForm.reset();
+    window.hotFlashVehiclePicker?.reset();
     if (expandedCoverPreview) expandedCoverPreview.innerHTML = '<span>No cover photo selected yet.</span>';
     expandedStatus('Vehicle added with full build details.', 'success');
     window.setTimeout(() => window.location.reload(), 500);
