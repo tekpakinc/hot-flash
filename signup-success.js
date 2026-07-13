@@ -1,6 +1,6 @@
 const emailEl = document.querySelector('[data-confirmation-email]');
 const resendButton = document.querySelector('[data-resend-confirmation]');
-const countdownEl = document.querySelector('[data-resend-countdown]');
+let countdownEl = document.querySelector('[data-resend-countdown]');
 const statusEl = document.querySelector('[data-confirmation-status]');
 const waitingPanel = document.querySelector('[data-waiting-panel]');
 const unlockedPanel = document.querySelector('[data-unlocked-panel]');
@@ -34,12 +34,14 @@ async function detectVerification() {
 let secondsLeft = 60;
 const sentAt = Number(sessionStorage.getItem('hotflash_confirmation_sent_at') || Date.now());
 secondsLeft = Math.max(0, 60 - Math.floor((Date.now() - sentAt) / 1000));
+let countdownTimer = null;
 
 function renderCountdown() {
-  if (!resendButton || !countdownEl) return;
+  if (!resendButton) return;
   if (secondsLeft <= 0) {
     resendButton.disabled = false;
     resendButton.textContent = 'Resend confirmation email';
+    countdownEl = null;
     return;
   }
   resendButton.disabled = true;
@@ -49,12 +51,20 @@ function renderCountdown() {
   countdownEl = resendButton.querySelector('[data-resend-countdown]');
 }
 
-renderCountdown();
-const timer = window.setInterval(() => {
-  secondsLeft -= 1;
+function startCountdown() {
+  if (countdownTimer) window.clearInterval(countdownTimer);
   renderCountdown();
-  if (secondsLeft <= 0) window.clearInterval(timer);
-}, 1000);
+  countdownTimer = window.setInterval(() => {
+    secondsLeft -= 1;
+    renderCountdown();
+    if (secondsLeft <= 0) {
+      window.clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }, 1000);
+}
+
+startCountdown();
 
 resendButton?.addEventListener('click', async () => {
   if (!pendingEmail) {
@@ -80,12 +90,7 @@ resendButton?.addEventListener('click', async () => {
   sessionStorage.setItem('hotflash_confirmation_sent_at', String(Date.now()));
   secondsLeft = 60;
   setConfirmationStatus('Confirmation email resent. Check Inbox, Spam, Junk, Promotions, and Updates.', 'success');
-  renderCountdown();
-  const newTimer = window.setInterval(() => {
-    secondsLeft -= 1;
-    renderCountdown();
-    if (secondsLeft <= 0) window.clearInterval(newTimer);
-  }, 1000);
+  startCountdown();
 });
 
 hotflashSupabase.auth.onAuthStateChange((_event, session) => {
