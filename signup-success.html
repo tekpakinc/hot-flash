@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Check Your Email | Hot Flash</title>
+  <meta name="description" content="Confirm your Hot Flash email and unlock your garage.">
+  <link rel="icon" type="image/png" href="assets/hot-flash-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="app-pages.css">
+  <link rel="stylesheet" href="signup-success.css?v=1">
+</head>
+<body class="app-page confirmation-page">
+  <header class="site-header">
+    <a class="brand" href="index.html"><img class="brand-logo" src="assets/hot-flash-logo.png" alt=""><span>Hot Flash</span></a>
+    <nav><a href="login.html">Login</a><a href="feed.html">Discover</a></nav>
+  </header>
+
+  <main class="app-shell confirmation-shell">
+    <section class="app-card confirmation-card" data-waiting-panel>
+      <div class="garage-lock" aria-hidden="true">🏁</div>
+      <p class="eyebrow">One last step</p>
+      <h1>Check your email to unlock your garage.</h1>
+      <p>A confirmation email has been sent to:</p>
+      <p class="confirmation-email" data-confirmation-email>Your email address</p>
+
+      <div class="confirmation-checklist">
+        <p><strong>1.</strong> Check your inbox.</p>
+        <p><strong>2.</strong> Check Spam, Junk, Promotions, or Updates—the first Hot Flash email may land there.</p>
+        <p><strong>3.</strong> Mark <strong>info@hotflash.app</strong> as safe so future notifications make it through.</p>
+      </div>
+
+      <p class="small-muted">Once confirmed, return here or sign in to start building your garage.</p>
+      <div class="inline-actions confirmation-actions">
+        <button type="button" data-resend-confirmation disabled>Resend available in <span data-resend-countdown>01:00</span></button>
+        <a class="secondary-button" href="login.html">Already confirmed? Log in</a>
+      </div>
+      <p class="small-muted" data-confirmation-status></p>
+      <a class="support-link" href="mailto:info@hotflash.app?subject=Hot%20Flash%20Email%20Confirmation%20Help">Still stuck? Contact Hot Flash support</a>
+    </section>
+
+    <section class="app-card confirmation-card unlocked-card" data-unlocked-panel hidden>
+      <div class="garage-lock" aria-hidden="true">🔓</div>
+      <p class="eyebrow">Email confirmed</p>
+      <h1>Garage Unlocked!</h1>
+      <p>Your email is verified and your Hot Flash account is ready to roll.</p>
+      <div class="inline-actions confirmation-actions">
+        <a class="secondary-button" href="dashboard.html">Enter My Garage</a>
+        <a class="secondary-button" href="feed.html">Explore Builds</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js?v=6"></script>
+  <script src="auth-errors.js?v=1"></script>
+  <script src="signup-success.js?v=1"></script>
+</body>
+</html>
