@@ -3,16 +3,21 @@ const HOTFLASH_SUPABASE_ANON_KEY = "sb_publishable_mWZZuoYhHOb4ivMpxZNuHA_DeUKW_
 const HOTFLASH_AUTH_STORAGE_KEY = "hotflash-auth-session";
 const HOTFLASH_LEGACY_AUTH_STORAGE_KEY = "sb-juwkzmlchffbovlrqhex-auth-token";
 
-// Keep every page on one origin. Browser storage is origin-specific, so
-// www.hotflash.app and hotflash.app would otherwise behave like two accounts.
+// Load the shared final theme on every Supabase-powered Hot Flash page.
+if (!document.querySelector('link[data-hotflash-final-theme]')) {
+  const theme = document.createElement('link');
+  theme.rel = 'stylesheet';
+  theme.href = 'final-theme.css?v=1';
+  theme.dataset.hotflashFinalTheme = 'true';
+  document.head.appendChild(theme);
+}
+
 if (window.location.hostname === "www.hotflash.app") {
   const canonical = new URL(window.location.href);
   canonical.hostname = "hotflash.app";
   window.location.replace(canonical.toString());
 }
 
-// Preserve existing member sessions when moving from Supabase's generated
-// storage key to Hot Flash's explicit shared key.
 try {
   if (!window.localStorage.getItem(HOTFLASH_AUTH_STORAGE_KEY)) {
     const legacySession = window.localStorage.getItem(HOTFLASH_LEGACY_AUTH_STORAGE_KEY);
@@ -37,25 +42,17 @@ const hotflashSupabase = window.supabase.createClient(
   },
 );
 
-// Multi-page sites can occasionally ask for a session during the same instant
-// that Supabase is restoring or refreshing it. This helper gives protected
-// pages one brief recovery attempt before treating the member as signed out.
 window.hotFlashGetStableSession = async function hotFlashGetStableSession() {
   const first = await hotflashSupabase.auth.getSession();
   if (first.error) console.warn("[Hot Flash session check]", first.error);
   if (first.data?.session) return first.data.session;
-
   await new Promise((resolve) => window.setTimeout(resolve, 250));
   const second = await hotflashSupabase.auth.getSession();
   if (second.error) console.warn("[Hot Flash session recovery]", second.error);
   return second.data?.session || null;
 };
 
-// Resume token refreshing after a phone or laptop tab has been asleep.
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    hotflashSupabase.auth.startAutoRefresh();
-  } else {
-    hotflashSupabase.auth.stopAutoRefresh();
-  }
+  if (document.visibilityState === "visible") hotflashSupabase.auth.startAutoRefresh();
+  else hotflashSupabase.auth.stopAutoRefresh();
 });
