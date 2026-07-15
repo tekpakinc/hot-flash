@@ -1,6 +1,7 @@
 const HOTFLASH_SUPABASE_URL = "https://juwkzmlchffbovlrqhex.supabase.co";
 const HOTFLASH_SUPABASE_ANON_KEY = "sb_publishable_mWZZuoYhHOb4ivMpxZNuHA_DeUKW_zB";
 const HOTFLASH_AUTH_STORAGE_KEY = "hotflash-auth-session";
+const HOTFLASH_LEGACY_AUTH_STORAGE_KEY = "sb-juwkzmlchffbovlrqhex-auth-token";
 
 // Keep every page on one origin. Browser storage is origin-specific, so
 // www.hotflash.app and hotflash.app would otherwise behave like two accounts.
@@ -8,6 +9,17 @@ if (window.location.hostname === "www.hotflash.app") {
   const canonical = new URL(window.location.href);
   canonical.hostname = "hotflash.app";
   window.location.replace(canonical.toString());
+}
+
+// Preserve existing member sessions when moving from Supabase's generated
+// storage key to Hot Flash's explicit shared key.
+try {
+  if (!window.localStorage.getItem(HOTFLASH_AUTH_STORAGE_KEY)) {
+    const legacySession = window.localStorage.getItem(HOTFLASH_LEGACY_AUTH_STORAGE_KEY);
+    if (legacySession) window.localStorage.setItem(HOTFLASH_AUTH_STORAGE_KEY, legacySession);
+  }
+} catch (error) {
+  console.warn("[Hot Flash auth storage unavailable]", error);
 }
 
 const hotflashSupabase = window.supabase.createClient(
