@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ff4b19">
+  <title>Offline | Hot Flash</title>
+  <link rel="icon" type="image/png" href="assets/hot-flash-logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body{min-height:100vh;display:grid;place-items:center;padding:24px;text-align:center}
+    .offline-card{width:min(560px,100%);padding:36px;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 24px 80px rgba(0,0,0,.38)}
+    .offline-card img{width:108px;height:108px;border-radius:18px;margin-bottom:20px}
+    .offline-card h1{font-size:clamp(2.4rem,10vw,5rem);line-height:.9;margin-bottom:18px}
+    .offline-card p{color:var(--muted);line-height:1.65}
+    .offline-card button{margin-top:14px}
+  </style>
+</head>
+<body>
+  <main class="offline-card">
+    <img src="assets/hot-flash-logo.png" alt="Hot Flash">
+    <p class="eyebrow">Connection took a pit stop</p>
+    <h1>You’re offline.</h1>
+    <p>Hot Flash saved enough of the app to get you here. Reconnect and retry to load current builds, messages, events, and garage updates.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>
