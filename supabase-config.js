@@ -12,6 +12,15 @@ if (!document.querySelector('link[data-hotflash-final-theme]')) {
   document.head.appendChild(theme);
 }
 
+// Load the manifest, service worker registration, install prompt, and update flow.
+if (!document.querySelector('script[data-hotflash-pwa]')) {
+  const pwa = document.createElement('script');
+  pwa.src = '/pwa.js?v=1';
+  pwa.defer = true;
+  pwa.dataset.hotflashPwa = 'true';
+  document.head.appendChild(pwa);
+}
+
 if (window.location.hostname === "www.hotflash.app") {
   const canonical = new URL(window.location.href);
   canonical.hostname = "hotflash.app";
