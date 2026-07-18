@@ -1,83 +1,14 @@
-const HOTFLASH_TIERS = {
-  free: { label: 'Hot Flash Free', price: 'Always free' },
-  verified: { label: 'Hot Flash Verified', price: '$1.99/month', includesDecals: true },
-  plus: { label: 'Hot Flash Plus', price: '$4.99/month', includesDecals: true },
-  shop: { label: 'Verified Shop', price: '$59.99 every 6 months', includesDecals: true },
-  brand: { label: 'Verified Brand', price: 'Custom', includesDecals: true },
-  admin: { label: 'Hot Flash Admin', price: '', includesDecals: true },
-};
+const HOTFLASH_TIERS={free:{label:'Hot Flash Free',price:'Always free'},verified:{label:'Hot Flash Verified',price:'$1.99/month'},plus:{label:'Hot Flash Plus',price:'$4.99/month'},shop:{label:'Verified Shop',price:'$59.99 every 6 months'},brand:{label:'Verified Brand',price:'Custom'},admin:{label:'Hot Flash Admin',price:''}};
 
-function hfActiveMembership(profile) {
-  if (!profile) return false;
-  if (!['active', 'trialing'].includes(profile.subscription_status)) return false;
-  if (!profile.subscription_ends_at) return true;
-  return new Date(profile.subscription_ends_at).getTime() > Date.now();
-}
+window.hotFlashMembership=(()=>{let cached=null;async function session(){return window.hotFlashGetStableSession?window.hotFlashGetStableSession():(await hotflashSupabase.auth.getSession()).data.session}async function getMembership(force=false){if(cached&&!force)return cached;const s=await session();if(!s)return{plan_code:'free',subscription_status:'inactive',access_ends_at:null,entitlements:new Set()};const[{data:m,error:me},{data:f,error:fe}]=await Promise.all([hotflashSupabase.rpc('effective_membership',{p_user_id:s.user.id}),hotflashSupabase.from('plan_entitlements').select('plan_code,feature_key,enabled,limit_value')]);if(me)console.error('[membership]',me);if(fe)console.error('[entitlements]',fe);const current=Array.isArray(m)?m[0]:m,plan=current?.plan_code||'free';cached={plan_code:plan,subscription_status:current?.subscription_status||'inactive',access_ends_at:current?.access_ends_at||null,entitlements:new Set((f||[]).filter(x=>x.enabled&&(x.plan_code==='free'||x.plan_code===plan)).map(x=>x.feature_key))};return cached}async function can(key){return(await getMembership()).entitlements.has(key)}async function requireFeature(key,options={}){if(await can(key))return true;const status=options.statusSelector?document.querySelector(options.statusSelector):null;if(status)status.textContent=options.message||'This feature requires an active Hot Flash membership.';if(options.redirect!==false)location.href=`pricing.html?feature=${encodeURIComponent(key)}&returnTo=${encodeURIComponent(location.pathname+location.search)}`;return false}return{getMembership,can,require:requireFeature,clearCache:()=>{cached=null}}})();
 
-function hfTierIncludesDecal(profile) {
-  const tier = HOTFLASH_TIERS[profile?.account_tier || 'free'];
-  return Boolean(tier?.includesDecals && (profile.account_tier === 'admin' || hfActiveMembership(profile)));
-}
+async function hfLoadMembership(){const s=window.hotFlashGetStableSession?await window.hotFlashGetStableSession():(await hotflashSupabase.auth.getSession()).data.session;if(!s)return null;const membership=await window.hotFlashMembership.getMembership();return{session:s,membership,profile:{account_tier:membership.plan_code,subscription_status:membership.subscription_status,subscription_ends_at:membership.access_ends_at}}}
+async function hfTierIncludesDecal(){return window.hotFlashMembership.can('included_decal')}
 
-async function hfLoadMembership() {
-  const session = window.hotFlashGetStableSession
-    ? await window.hotFlashGetStableSession()
-    : (await hotflashSupabase.auth.getSession()).data.session;
-  if (!session) return null;
-  const { data } = await hotflashSupabase
-    .from('profiles')
-    .select('account_tier,subscription_status,subscription_started_at,subscription_ends_at,verified_at')
-    .eq('id', session.user.id)
-    .maybeSingle();
-  return { session, profile: data || { account_tier: 'free', subscription_status: 'inactive' } };
-}
+async function hfInstallDecalOrderButton(){if(document.body.dataset.page!=='vehicle')return;const actions=document.querySelector('[data-flashtag-owner-actions]');if(!actions||actions.querySelector('[data-order-decal]'))return;const loaded=await hfLoadMembership();if(!loaded)return;const params=new URLSearchParams(location.search),ref=params.get('hf')||params.get('id');if(!ref)return;let query=hotflashSupabase.from('vehicles').select('id,owner_id,hotflash_id,nickname');query=ref.startsWith('HF-')?query.eq('hotflash_id',ref):query.eq('id',ref);const{data:vehicle}=await query.maybeSingle();if(!vehicle||vehicle.owner_id!==loaded.session.user.id)return;const included=await hfTierIncludesDecal(),button=document.createElement('a');button.dataset.orderDecal='true';button.className=included?'secondary-button decal-included-button':'secondary-button decal-order-button';button.href=`decal-order.html?vehicle=${encodeURIComponent(vehicle.id)}`;button.textContent=included?'Claim Included Printed Decal':'Order Printed Decal — $5.99';button.title=included?'One printed decal per eligible vehicle is included while membership access is active.':'Order a printed Hot Flash vehicle decal through PayPal.';actions.appendChild(button)}
 
-async function hfInstallDecalOrderButton() {
-  if (document.body.dataset.page !== 'vehicle') return;
-  const actions = document.querySelector('[data-flashtag-owner-actions]');
-  if (!actions || actions.querySelector('[data-order-decal]')) return;
-  const membership = await hfLoadMembership();
-  if (!membership) return;
+async function hfDecorateMembershipSettings(){const card=document.querySelector('[data-founder-number]')?.closest('.founder-status-card');if(!card)return;const loaded=await hfLoadMembership();if(!loaded)return;const tier=HOTFLASH_TIERS[loaded.membership.plan_code]||HOTFLASH_TIERS.free,line=document.createElement('p');line.className='membership-summary';line.innerHTML=`<strong>${tier.label}</strong><span>${loaded.membership.plan_code==='free'?tier.price:loaded.membership.subscription_status}</span>`;card.prepend(line);const pricing=document.createElement('a');pricing.className='secondary-button';pricing.href='pricing.html';pricing.textContent=loaded.membership.plan_code==='free'?'Explore paid features':'Manage membership';card.appendChild(pricing)}
 
-  const params = new URLSearchParams(location.search);
-  const ref = params.get('hf') || params.get('id');
-  if (!ref) return;
-  let query = hotflashSupabase.from('vehicles').select('id,owner_id,hotflash_id,nickname');
-  query = ref.startsWith('HF-') ? query.eq('hotflash_id', ref) : query.eq('id', ref);
-  const { data: vehicle } = await query.maybeSingle();
-  if (!vehicle || vehicle.owner_id !== membership.session.user.id) return;
+async function hfInitMembershipCenter(){const center=document.querySelector('[data-membership-center]');if(!center)return;const currentPlan=center.querySelector('[data-current-plan]'),status=center.querySelector('[data-membership-status]'),renewal=center.querySelector('[data-membership-renewal]'),loaded=await hfLoadMembership();if(!loaded){currentPlan.textContent='Hot Flash Free';status.textContent='Sign in to upgrade or manage a membership.'}else{const m=loaded.membership,tier=HOTFLASH_TIERS[m.plan_code]||HOTFLASH_TIERS.free;currentPlan.textContent=tier.label;status.textContent=m.plan_code==='free'?'Free forever — upgrade only when the extra tools make sense for you.':`Status: ${m.subscription_status.replaceAll('_',' ')}`;renewal.textContent=m.access_ends_at?`Current access through ${new Date(m.access_ends_at).toLocaleDateString()}`:''}document.querySelectorAll('[data-subscribe-plan]').forEach(button=>button.addEventListener('click',async()=>{const s=window.hotFlashGetStableSession?await window.hotFlashGetStableSession():(await hotflashSupabase.auth.getSession()).data.session;if(!s){location.href=`login.html?returnTo=${encodeURIComponent(location.pathname+location.search)}`;return}const original=button.textContent;button.disabled=true;button.textContent='Opening PayPal…';const{data,error}=await hotflashSupabase.functions.invoke('create-paypal-subscription',{body:{plan_code:button.dataset.subscribePlan}});if(error||!data?.approval_url){console.error(error||data);button.textContent='Checkout unavailable';setTimeout(()=>{button.disabled=false;button.textContent=original},2500);return}location.href=data.approval_url}))}
 
-  const included = hfTierIncludesDecal(membership.profile);
-  const button = document.createElement('a');
-  button.dataset.orderDecal = 'true';
-  button.className = included ? 'secondary-button decal-included-button' : 'secondary-button decal-order-button';
-  button.href = `decal-order.html?vehicle=${encodeURIComponent(vehicle.id)}`;
-  button.textContent = included ? 'Claim Included Printed Decal' : 'Order Printed Decal — $5.99';
-  button.title = included
-    ? 'One printed decal per eligible vehicle is included while your verified membership is active.'
-    : 'Order a printed Hot Flash vehicle decal through PayPal.';
-  actions.appendChild(button);
-}
-
-async function hfDecorateMembershipSettings() {
-  const card = document.querySelector('[data-founder-number]')?.closest('.founder-status-card');
-  if (!card) return;
-  const membership = await hfLoadMembership();
-  if (!membership) return;
-  const tier = HOTFLASH_TIERS[membership.profile.account_tier || 'free'] || HOTFLASH_TIERS.free;
-  const active = hfActiveMembership(membership.profile);
-  const line = document.createElement('p');
-  line.className = 'membership-summary';
-  line.innerHTML = `<strong>${tier.label}</strong><span>${active ? 'Active' : tier.price}</span>`;
-  card.prepend(line);
-  const pricing = document.createElement('a');
-  pricing.className = 'secondary-button';
-  pricing.href = 'pricing.html';
-  pricing.textContent = active ? 'Manage membership' : 'Explore paid features';
-  card.appendChild(pricing);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  hfInstallDecalOrderButton().catch(console.error);
-  hfDecorateMembershipSettings().catch(console.error);
-});
+document.addEventListener('DOMContentLoaded',()=>{hfInstallDecalOrderButton().catch(console.error);hfDecorateMembershipSettings().catch(console.error);hfInitMembershipCenter().catch(console.error)});
