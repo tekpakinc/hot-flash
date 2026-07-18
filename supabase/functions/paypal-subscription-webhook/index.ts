@@ -56,6 +56,14 @@ function addDays(date: Date, days: number) {
   return value.toISOString();
 }
 
+function relatedSubscriptionId(eventType: string, resource: Record<string, any>) {
+  if (eventType.startsWith("BILLING.SUBSCRIPTION.")) return resource.id || null;
+  return resource.billing_agreement_id ||
+    resource.supplementary_data?.related_ids?.subscription_id ||
+    resource.subscription_id ||
+    null;
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
@@ -85,8 +93,9 @@ Deno.serve(async (req) => {
     if (existing) return json({ received: true, duplicate: true });
 
     const resource = event.resource || {};
-    const subscriptionId = resource.id || resource.billing_agreement_id || resource.supplementary_data?.related_ids?.subscription_id;
-    let subscription: Record<string, unknown> | null = null;
+    const eventType = String(event.event_type);
+    const subscriptionId = relatedSubscriptionId(eventType, resource);
+    let subscription: Record<string, any> | null = null;
 
     if (subscriptionId) {
       const { data } = await admin
@@ -111,7 +120,6 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
     const nextBilling = resource.billing_info?.next_billing_time || null;
-    const eventType = String(event.event_type);
 
     if (subscription) {
       const updates: Record<string, unknown> = {
