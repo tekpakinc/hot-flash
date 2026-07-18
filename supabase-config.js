@@ -11,6 +11,22 @@ if (!document.querySelector('link[data-hotflash-final-theme]')) {
   document.head.appendChild(theme);
 }
 
+if (!document.querySelector('link[data-hotflash-app-navigation]')) {
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = 'app-navigation.css?v=1';
+  css.dataset.hotflashAppNavigation = 'true';
+  document.head.appendChild(css);
+}
+
+if (!document.querySelector('link[data-hotflash-dashboard-themes]')) {
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = 'dashboard-themes.css?v=1';
+  css.dataset.hotflashDashboardThemes = 'true';
+  document.head.appendChild(css);
+}
+
 if (!document.querySelector('script[data-hotflash-pwa]')) {
   const pwa = document.createElement('script');
   pwa.src = '/pwa.js?v=2';
@@ -25,6 +41,22 @@ if (!document.querySelector('script[data-hotflash-membership]')) {
   membership.defer = true;
   membership.dataset.hotflashMembership = 'true';
   document.head.appendChild(membership);
+}
+
+if (!document.querySelector('script[data-hotflash-app-navigation]')) {
+  const navigation = document.createElement('script');
+  navigation.src = 'app-navigation.js?v=1';
+  navigation.defer = true;
+  navigation.dataset.hotflashAppNavigation = 'true';
+  document.head.appendChild(navigation);
+}
+
+if (!document.querySelector('script[data-hotflash-dashboard-themes]')) {
+  const dashboardThemes = document.createElement('script');
+  dashboardThemes.src = 'dashboard-themes.js?v=1';
+  dashboardThemes.defer = true;
+  dashboardThemes.dataset.hotflashDashboardThemes = 'true';
+  document.head.appendChild(dashboardThemes);
 }
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
