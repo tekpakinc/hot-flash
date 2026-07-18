@@ -19,6 +19,14 @@ if (!document.querySelector('script[data-hotflash-pwa]')) {
   document.head.appendChild(pwa);
 }
 
+if (!document.querySelector('script[data-hotflash-membership]')) {
+  const membership = document.createElement('script');
+  membership.src = 'membership.js?v=1';
+  membership.defer = true;
+  membership.dataset.hotflashMembership = 'true';
+  document.head.appendChild(membership);
+}
+
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
   if (!document.querySelector('link[data-member-sections]')) {
     const css = document.createElement('link');
