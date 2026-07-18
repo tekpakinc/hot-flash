@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beta Feedback | Hot Flash</title>
+<link rel="stylesheet" href="beta-feedback.css?v=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body data-page="beta-feedback">
+<main class="bf-shell">
+<header class="bf-header"><a href="dashboard.html" aria-label="Back">‹</a><div><small>HOT FLASH PIT CREW</small><h1>Beta Feedback</h1></div><span id="accessStatus">Checking…</span></header>
+<section class="bf-panel bf-intro"><div class="bf-icon">⚠</div><div><h2>Spot something weird?</h2><p>Send the pit crew a bug, UI problem, or idea. Page and device details are captured automatically.</p></div></section>
+<section class="bf-panel" id="lockedPanel" hidden><h2>Beta access required</h2><p>This page is limited to approved testers and Hot Flash administrators.</p><a class="bf-primary" href="login.html">Sign in</a></section>
+<form class="bf-panel bf-form" id="feedbackForm" hidden>
+<div class="bf-segment"><button type="button" data-type="bug" class="active">Bug</button><button type="button" data-type="ui">UI</button><button type="button" data-type="idea">Idea</button><button type="button" data-type="feature">Feature</button></div>
+<input type="hidden" id="feedbackType" value="bug">
+<label>Title<input id="title" maxlength="120" required placeholder="What happened?"></label>
+<label>Severity<select id="severity"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label>
+<label>Details<textarea id="description" rows="6" required placeholder="What did you see, and what did you expect?"></textarea></label>
+<label>Steps to reproduce<textarea id="steps" rows="4" placeholder="1. Open Garage&#10;2. Tap vehicle&#10;3. …"></textarea></label>
+<label>Screenshot<input id="screenshot" type="file" accept="image/*"><small>Optional. Images are stored privately.</small></label>
+<div class="bf-captured"><strong>Captured automatically</strong><span id="capturedDetails"></span></div>
+<button class="bf-primary" id="submitButton" type="submit">Send to Pit Crew</button><p id="formMessage" aria-live="polite"></p>
+</form>
+<section class="bf-panel" id="historyPanel" hidden><div class="bf-section-title"><h2>Your reports</h2><button id="refreshHistory" type="button">Refresh</button></div><div id="historyList"></div></section>
+</main>
+<script src="supabase-config.js?v=3"></script><script src="beta-feedback.js?v=1"></script>
+</body>
+</html>
