@@ -1,4 +1,4 @@
-const PAYPAL_CHECKOUT_URL = ''; // Add a PayPal payment link or generated checkout URL when ready.
+const PAYPAL_CHECKOUT_URL = 'https://www.paypal.com/ncp/payment/B44AXTRYGFKD2';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const title = document.querySelector('[data-order-title]');
@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const active = ['active','trialing'].includes(profile?.subscription_status) && (!profile?.subscription_ends_at || new Date(profile.subscription_ends_at) > new Date());
   const included = active && ['verified','plus','shop','brand','admin'].includes(profile?.account_tier);
   price.textContent = included ? 'Included' : '$5.99';
-  benefit.textContent = included ? 'Your active membership includes one eligible printed vehicle decal.' : 'Printed FlashTag decal for free members. Shipping details are pulled from your private account settings.';
-  button.textContent = included ? 'Claim Included Decal' : 'Continue to PayPal — $5.99';
+  benefit.textContent = included ? 'Your active membership includes one eligible printed vehicle decal.' : 'Professional printed FlashTag decal for free members. Shipping is included and your private mailing address is used for fulfillment.';
+  button.textContent = included ? 'Claim Included Decal' : 'Order Official Decal — $5.99';
   button.disabled = false;
 
   button.addEventListener('click', async () => {
@@ -50,11 +50,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).select().single();
     if (error) { console.error(error); status.textContent = 'Could not create the decal order.'; button.disabled = false; return; }
     if (included) { status.textContent = 'Decal request received. You can track fulfillment from your account once shipping tools are live.'; button.textContent = 'Request received'; return; }
-    if (!PAYPAL_CHECKOUT_URL) {
-      status.textContent = `Order ${order.id.slice(0,8)} created. PayPal checkout needs the Hot Flash merchant link before payment can be collected.`;
-      button.textContent = 'PayPal setup pending';
-      return;
-    }
-    window.location.href = `${PAYPAL_CHECKOUT_URL}${PAYPAL_CHECKOUT_URL.includes('?') ? '&' : '?'}custom=${encodeURIComponent(order.id)}`;
+
+    try {
+      window.sessionStorage.setItem('hotflash-pending-decal-order', JSON.stringify({
+        orderId: order.id,
+        vehicleId: vehicle.id,
+        vehicleName: vehicle.nickname || vehicle.hotflash_id,
+        createdAt: new Date().toISOString(),
+      }));
+    } catch (_) {}
+
+    status.textContent = 'Opening secure PayPal checkout…';
+    window.location.assign(PAYPAL_CHECKOUT_URL);
   });
 });
