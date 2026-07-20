@@ -3,77 +3,38 @@ const HOTFLASH_SUPABASE_ANON_KEY = "sb_publishable_mWZZuoYhHOb4ivMpxZNuHA_DeUKW_
 const HOTFLASH_AUTH_STORAGE_KEY = "hotflash-auth-session";
 const HOTFLASH_LEGACY_AUTH_STORAGE_KEY = "sb-juwkzmlchffbovlrqhex-auth-token";
 
-if (!document.querySelector('link[data-hotflash-final-theme]')) {
-  const theme = document.createElement('link');
-  theme.rel = 'stylesheet';
-  theme.href = 'final-theme.css?v=1';
-  theme.dataset.hotflashFinalTheme = 'true';
-  document.head.appendChild(theme);
+function hotFlashLoadStyle(selector, href, dataKey) {
+  if (document.querySelector(selector)) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = href;
+  link.dataset[dataKey] = 'true';
+  document.head.appendChild(link);
 }
 
-if (!document.querySelector('link[data-hotflash-app-navigation]')) {
-  const css = document.createElement('link');
-  css.rel = 'stylesheet';
-  css.href = 'app-navigation.css?v=1';
-  css.dataset.hotflashAppNavigation = 'true';
-  document.head.appendChild(css);
+function hotFlashLoadScript(selector, src, dataKey) {
+  if (document.querySelector(selector)) return;
+  const script = document.createElement('script');
+  script.src = src;
+  script.defer = true;
+  script.dataset[dataKey] = 'true';
+  document.head.appendChild(script);
 }
 
-if (!document.querySelector('link[data-hotflash-dashboard-themes]')) {
-  const css = document.createElement('link');
-  css.rel = 'stylesheet';
-  css.href = 'dashboard-themes.css?v=1';
-  css.dataset.hotflashDashboardThemes = 'true';
-  document.head.appendChild(css);
-}
+hotFlashLoadStyle('link[data-hotflash-final-theme]', 'final-theme.css?v=1', 'hotflashFinalTheme');
+hotFlashLoadStyle('link[data-hotflash-app-navigation]', 'app-navigation.css?v=1', 'hotflashAppNavigation');
+hotFlashLoadStyle('link[data-hotflash-dashboard-themes]', 'dashboard-themes.css?v=2', 'hotflashDashboardThemes');
+hotFlashLoadStyle('link[data-hotflash-action-feedback]', 'action-feedback.css?v=1', 'hotflashActionFeedback');
 
-if (!document.querySelector('script[data-hotflash-pwa]')) {
-  const pwa = document.createElement('script');
-  pwa.src = '/pwa.js?v=2';
-  pwa.defer = true;
-  pwa.dataset.hotflashPwa = 'true';
-  document.head.appendChild(pwa);
-}
-
-if (!document.querySelector('script[data-hotflash-membership]')) {
-  const membership = document.createElement('script');
-  membership.src = 'membership.js?v=1';
-  membership.defer = true;
-  membership.dataset.hotflashMembership = 'true';
-  document.head.appendChild(membership);
-}
-
-if (!document.querySelector('script[data-hotflash-app-navigation]')) {
-  const navigation = document.createElement('script');
-  navigation.src = 'app-navigation.js?v=1';
-  navigation.defer = true;
-  navigation.dataset.hotflashAppNavigation = 'true';
-  document.head.appendChild(navigation);
-}
-
-if (!document.querySelector('script[data-hotflash-dashboard-themes]')) {
-  const dashboardThemes = document.createElement('script');
-  dashboardThemes.src = 'dashboard-themes.js?v=1';
-  dashboardThemes.defer = true;
-  dashboardThemes.dataset.hotflashDashboardThemes = 'true';
-  document.head.appendChild(dashboardThemes);
-}
+hotFlashLoadScript('script[data-hotflash-pwa]', '/pwa.js?v=2', 'hotflashPwa');
+hotFlashLoadScript('script[data-hotflash-membership]', 'membership.js?v=1', 'hotflashMembership');
+hotFlashLoadScript('script[data-hotflash-app-navigation]', 'app-navigation.js?v=1', 'hotflashAppNavigation');
+hotFlashLoadScript('script[data-hotflash-dashboard-themes]', 'dashboard-themes.js?v=2', 'hotflashDashboardThemes');
+hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?v=1', 'hotflashActionFeedback');
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
-  if (!document.querySelector('link[data-member-sections]')) {
-    const css = document.createElement('link');
-    css.rel = 'stylesheet';
-    css.href = 'member-sections.css?v=1';
-    css.dataset.memberSections = 'true';
-    document.head.appendChild(css);
-  }
-  if (!document.querySelector('script[data-member-sections]')) {
-    const script = document.createElement('script');
-    script.src = 'member-sections.js?v=1';
-    script.defer = true;
-    script.dataset.memberSections = 'true';
-    document.head.appendChild(script);
-  }
+  hotFlashLoadStyle('link[data-member-sections]', 'member-sections.css?v=1', 'memberSections');
+  hotFlashLoadScript('script[data-member-sections]', 'member-sections.js?v=1', 'memberSections');
 }
 
 if (window.location.hostname === "www.hotflash.app") {
