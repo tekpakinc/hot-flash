@@ -35,6 +35,8 @@ hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
   hotFlashLoadStyle('link[data-member-sections]', 'member-sections.css?v=1', 'memberSections');
   hotFlashLoadScript('script[data-member-sections]', 'member-sections.js?v=1', 'memberSections');
+  hotFlashLoadStyle('link[data-hotflash-game-garage]', 'game-garage.css?v=1', 'hotflashGameGarage');
+  hotFlashLoadScript('script[data-hotflash-game-garage]', 'game-garage.js?v=1', 'hotflashGameGarage');
 }
 
 if (window.location.hostname === "www.hotflash.app") {
