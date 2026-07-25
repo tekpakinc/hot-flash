@@ -1,0 +1,46 @@
+name: Import automotive events
+
+on:
+  schedule:
+    - cron: '15 12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  import-events:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Run Hot Flash event importer
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          EVENT_CRON_SECRET: ${{ secrets.EVENT_CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_ANON_KEY}" ] || [ -z "${EVENT_CRON_SECRET}" ]; then
+            echo "Required GitHub Actions secrets are missing."
+            exit 1
+          fi
+
+          response_file="$(mktemp)"
+          status="$(curl --silent --show-error \
+            --output "${response_file}" \
+            --write-out '%{http_code}' \
+            --request POST \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Content-Type: application/json" \
+            --header "x-hotflash-cron-secret: ${EVENT_CRON_SECRET}" \
+            --data '{"location":"Burlington, NC","radius":250}' \
+            'https://juwkzmlchffbovlrqhex.supabase.co/functions/v1/discover-events')"
+
+          cat "${response_file}"
+          echo
+
+          if [ "${status}" -lt 200 ] || [ "${status}" -ge 300 ]; then
+            echo "Event import failed with HTTP ${status}."
+            exit 1
+          fi
