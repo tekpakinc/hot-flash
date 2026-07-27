@@ -29,7 +29,7 @@ hotFlashLoadStyle('link[data-hotflash-action-feedback]', 'action-feedback.css?v=
 hotFlashLoadScript('script[data-hotflash-pwa]', '/pwa.js?v=2', 'hotflashPwa');
 hotFlashLoadScript('script[data-hotflash-membership]', 'membership.js?v=1', 'hotflashMembership');
 hotFlashLoadScript('script[data-hotflash-app-navigation]', 'app-navigation.js?v=1', 'hotflashAppNavigation');
-hotFlashLoadScript('script[data-hotflash-dashboard-themes]', 'dashboard-themes.js?v=2', 'hotflashDashboardThemes');
+hotFlashLoadScript('script[data-hotflash-dashboard-themes]', 'dashboard-themes.js?v=3', 'hotflashDashboardThemes');
 hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?v=1', 'hotflashActionFeedback');
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
