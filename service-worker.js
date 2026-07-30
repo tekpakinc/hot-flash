@@ -1,10 +1,13 @@
-const CACHE_VERSION = 'hotflash-pwa-v3';
+const CACHE_VERSION = 'hotflash-pwa-v4';
 const APP_SHELL = [
   '/',
   '/index.html',
   '/offline.html',
   '/styles.css',
   '/app-pages.css',
+  '/final-theme.css?v=1',
+  '/home-final.css?v=2',
+  '/home-final.js?v=2',
   '/site-nav.js?v=1',
   '/assets/hot-flash-logo.png'
 ];
