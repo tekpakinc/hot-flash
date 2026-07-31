@@ -12,10 +12,13 @@ create table if not exists public.vehicle_transfers (
     check (status in ('pending','accepted','declined','cancelled','expired')),
   message text,
   requested_at timestamptz not null default now(),
-  responded_at timestamptz,
-  unique (vehicle_id, status)
+  responded_at timestamptz
 );
 
+alter table public.vehicle_transfers
+  drop constraint if exists vehicle_transfers_vehicle_id_status_key;
+create unique index if not exists vehicle_transfers_one_pending_per_vehicle_idx
+  on public.vehicle_transfers (vehicle_id) where status = 'pending';
 create index if not exists vehicle_transfers_recipient_idx
   on public.vehicle_transfers (to_user_id, status, requested_at desc);
 create index if not exists vehicle_transfers_sender_idx
@@ -133,7 +136,7 @@ begin
   end if;
 
   update public.vehicles
-  set owner_id = v_transfer.to_user_id, updated_at = now()
+  set owner_id = v_transfer.to_user_id
   where id = v_transfer.vehicle_id;
 
   insert into public.vehicle_ownership_history(vehicle_id,owner_id,acquired_at,transfer_id,transfer_mode)
