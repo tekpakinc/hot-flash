@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | Hot Flash Alpha</title>
-    <meta name="description" content="Log in to Hot Flash Alpha and manage your social garage." />
+    <title>Login | Hot Flash</title>
+    <meta name="description" content="Log in to Hot Flash and manage your social garage." />
     <link rel="icon" type="image/png" href="assets/hot-flash-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,43 +15,22 @@
   </head>
   <body class="app-page">
     <header class="site-header">
-      <a class="brand" href="index.html" aria-label="Hot Flash home">
-        <img class="brand-logo" src="assets/hot-flash-logo.png" alt="" />
-        <span>Hot Flash</span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="signup.html">Sign Up</a>
-        <a href="feed.html">Discover</a>
-        <a href="features.html">Features</a>
-      </nav>
+      <a class="brand" href="index.html" aria-label="Hot Flash home"><img class="brand-logo" src="assets/hot-flash-logo.png" alt="" /><span>Hot Flash</span></a>
+      <nav aria-label="Primary navigation"><a href="signup.html">Sign Up</a><a href="feed.html">Discover</a><a href="features.html">Features</a></nav>
     </header>
-
     <main class="app-shell">
       <section class="app-hero">
-        <div class="app-panel">
-          <p class="eyebrow">Hot Flash Alpha</p>
-          <h1>Open the garage.</h1>
-          <p>Log in to manage your profile, add vehicles, and keep your build story moving.</p>
-          <div class="inline-actions"><a class="secondary-button" href="signup.html">Need an account?</a></div>
-        </div>
-
+        <div class="app-panel"><p class="eyebrow">Hot Flash</p><h1>Open the garage.</h1><p>Log in to manage your profile, add vehicles, and keep your build story moving.</p><div class="inline-actions"><a class="secondary-button" href="signup.html">Need an account?</a></div></div>
         <form class="app-card form-grid" action="javascript:void(0)" data-login-form>
-          <p class="eyebrow">Login</p>
-          <button class="google-auth-button" type="button" data-google-auth><span class="google-auth-mark">G</span>Continue with Google</button>
-          <div class="oauth-divider"><span>or use email</span></div>
+          <p class="eyebrow">Login</p><button class="google-auth-button" type="button" data-google-auth><span class="google-auth-mark">G</span>Continue with Google</button><div class="oauth-divider"><span>or use email</span></div>
           <label><span>Email</span><input type="email" name="email" autocomplete="email" placeholder="you@example.com" required /></label>
           <label><span>Password</span><input type="password" name="password" autocomplete="current-password" placeholder="Your password" required /></label>
-          <div class="inline-actions"><a class="small-muted" href="forgot-password.html">Forgot your password?</a></div>
-          <button type="submit">Login</button>
-          <p class="small-muted" data-auth-status>Ready when you are.</p>
+          <div class="inline-actions"><a class="small-muted" href="forgot-password.html">Forgot your password?</a></div><button type="submit">Login</button><p class="small-muted" data-auth-status>Ready when you are.</p>
+          <p class="small-muted">By continuing, you agree to the <a href="terms.html">Terms of Service</a> and acknowledge the <a href="privacy.html">Privacy Policy</a>.</p>
         </form>
       </section>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=6"></script>
-    <script src="auth-errors.js?v=1"></script>
-    <script src="auth.js?v=8"></script>
-    <script src="google-auth.js?v=1"></script>
+    <footer><span>© 2026 Hot Flash</span><span>Powered by TEK-PAK INC.</span><span><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a> · <a href="mailto:support@hotflash.app">Support</a></span></footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js?v=8"></script><script src="auth-errors.js?v=1"></script><script src="auth.js?v=8"></script><script src="google-auth.js?v=1"></script>
   </body>
 </html>
