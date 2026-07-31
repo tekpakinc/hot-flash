@@ -1,266 +1,33 @@
-const authStatus = document.querySelector("[data-auth-status]");
-const signupForm = document.querySelector("[data-signup-form]");
-const loginForm = document.querySelector("[data-login-form]");
-const logoutButton = document.querySelector("[data-logout]");
-const profileForm = document.querySelector("[data-profile-form]");
-const vehicleForm = document.querySelector("[data-vehicle-form]");
-const garageList = document.querySelector("[data-garage-list]");
-const profileSummary = document.querySelector("[data-profile-summary]");
-const coverPhotoInput = document.querySelector("[data-cover-photo-input]");
-const coverPreview = document.querySelector("[data-cover-preview]");
+const authStatus=document.querySelector('[data-auth-status]');
+const signupForm=document.querySelector('[data-signup-form]');
+const loginForm=document.querySelector('[data-login-form]');
+const logoutButton=document.querySelector('[data-logout]');
+const profileForm=document.querySelector('[data-profile-form]');
+const garageList=document.querySelector('[data-garage-list]');
+const profileSummary=document.querySelector('[data-profile-summary]');
 
-const VEHICLE_IMAGE_BUCKET = "vehicle-images";
-
-function setStatus(message, type = "") {
-  if (!authStatus) return;
-  authStatus.textContent = message;
-  authStatus.className = type;
-}
-
-function friendlyError(error, context = "general") {
-  if (typeof window.hotFlashFriendlyError === "function") {
-    return window.hotFlashFriendlyError(error, context);
-  }
-  console.error(`[Hot Flash ${context} error]`, error);
-  return "Something went wrong. Please try again.";
-}
-
-function slugify(value) {
-  return value.toString().toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
-}
-
-function getFileExtension(file) {
-  const fallback = file.type?.split("/")[1] || "jpg";
-  return file.name?.split(".").pop()?.toLowerCase() || fallback;
-}
-
-function installPasswordToggles() {
-  document.querySelectorAll('input[type="password"]').forEach((input) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "password-field";
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "password-toggle";
-    button.setAttribute("aria-label", "Show password");
-    button.textContent = "Show";
-    input.parentNode.insertBefore(wrapper, input);
-    wrapper.appendChild(input);
-    wrapper.appendChild(button);
-    button.addEventListener("click", () => {
-      const isHidden = input.type === "password";
-      input.type = isHidden ? "text" : "password";
-      button.textContent = isHidden ? "Hide" : "Show";
-      button.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
-    });
-  });
-}
-
+function setStatus(message,type=''){if(!authStatus)return;authStatus.textContent=message;authStatus.className=type;}
+function friendlyError(error,context='general'){if(typeof window.hotFlashFriendlyError==='function')return window.hotFlashFriendlyError(error,context);console.error(`[Hot Flash ${context} error]`,error);return 'Something went wrong. Please try again.';}
+function slugify(value){return String(value||'').toLowerCase().trim().replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,32);}
+function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function safeCssUrl(value){return String(value||'').replace(/["'()\\\n\r]/g,'');}
+function requestedReturnTo(){const raw=new URLSearchParams(location.search).get('returnTo');if(!raw)return 'dashboard.html';try{const url=new URL(raw,location.origin);if(url.origin===location.origin)return `${url.pathname}${url.search}${url.hash}`;}catch(_){}return 'dashboard.html';}
+function installPasswordToggles(){document.querySelectorAll('input[type="password"]').forEach(input=>{if(input.closest('.password-field'))return;const wrapper=document.createElement('div');wrapper.className='password-field';const button=document.createElement('button');button.type='button';button.className='password-toggle';button.setAttribute('aria-label','Show password');button.textContent='Show';input.parentNode.insertBefore(wrapper,input);wrapper.append(input,button);button.addEventListener('click',()=>{const hidden=input.type==='password';input.type=hidden?'text':'password';button.textContent=hidden?'Hide':'Show';button.setAttribute('aria-label',hidden?'Hide password':'Show password');});});}
 installPasswordToggles();
 
-coverPhotoInput?.addEventListener("change", () => {
-  const file = coverPhotoInput.files?.[0];
-  if (!coverPreview) return;
-  if (!file) {
-    coverPreview.innerHTML = "<span>No cover photo selected yet.</span>";
-    return;
-  }
-  const previewUrl = URL.createObjectURL(file);
-  coverPreview.innerHTML = `<img src="${previewUrl}" alt="Selected vehicle cover preview" /><span>Cover photo ready.</span>`;
-});
+async function getSession(){if(typeof window.hotFlashGetStableSession==='function')return window.hotFlashGetStableSession();const{data,error}=await hotflashSupabase.auth.getSession();if(error)throw error;return data.session;}
+async function requireSession(){const session=await getSession();if(!session){const destination=`login.html?returnTo=${encodeURIComponent(location.pathname+location.search)}`;location.replace(destination);return null;}return session;}
 
-async function getSession() {
-  const { data, error } = await hotflashSupabase.auth.getSession();
-  if (error) throw error;
-  return data.session;
-}
+async function loadGarage(userId){if(!garageList)return;garageList.setAttribute('aria-busy','true');garageList.innerHTML='<article class="post-card"><strong>Loading garage…</strong></article>';const{data,error}=await hotflashSupabase.from('vehicles').select('*').eq('owner_id',userId).order('created_at',{ascending:false});garageList.removeAttribute('aria-busy');if(error){console.error('[Hot Flash garage load error]',error);garageList.innerHTML='<article class="post-card"><strong>Garage unavailable</strong><p class="small-muted">We could not load your garage right now. Refresh and try again.</p></article>';return;}if(!data?.length){garageList.innerHTML='<article class="post-card"><strong>Your garage is ready for its first vehicle.</strong><p class="small-muted">Add a ride using the form and its public profile will be created automatically.</p></article>';return;}garageList.innerHTML=data.map(vehicle=>{const nickname=escapeHtml(vehicle.nickname||'Untitled vehicle');const summary=[vehicle.year,vehicle.make,vehicle.model].filter(Boolean).map(escapeHtml).join(' ');const detail=escapeHtml(vehicle.powertrain||vehicle.engine||vehicle.build_summary||'Build details coming soon');const id=escapeHtml(vehicle.hotflash_id||'Hot Flash build');const style=vehicle.cover_photo?` style="background-image:linear-gradient(0deg,rgba(5,6,7,.58),rgba(5,6,7,.08)),url(&quot;${safeCssUrl(vehicle.cover_photo)}&quot;)"`:'';return `<article class="vehicle-card vehicle-card-live" data-vehicle-id="${escapeHtml(vehicle.id)}"><div class="vehicle-art ${vehicle.cover_photo?'has-cover':''}"${style}></div><div class="vehicle-body"><p class="eyebrow">${id}</p><h2>${nickname}</h2><p class="vehicle-meta">${summary||'Vehicle details not added yet'}</p><p class="small-muted">${detail}</p></div></article>`;}).join('');}
 
-async function requireSession() {
-  const session = await getSession();
-  if (!session) {
-    window.location.href = "login.html";
-    return null;
-  }
-  return session;
-}
+async function loadDashboard(){const session=await requireSession();if(!session)return;const user=session.user;const{data:profile,error}=await hotflashSupabase.from('profiles').select('*').eq('id',user.id).maybeSingle();if(error)throw error;if(profileSummary){profileSummary.innerHTML=profile?`<strong>${escapeHtml(profile.display_name||profile.username||'Hot Flash member')}</strong><span>@${escapeHtml(profile.username||'member')}</span>`:'<strong>Welcome to Hot Flash</strong><span>Finish your profile below.</span>';}if(profileForm&&profile){profileForm.display_name.value=profile.display_name||'';profileForm.username.value=profile.username||'';profileForm.bio.value=profile.bio||'';if(profileForm.music_autoplay)profileForm.music_autoplay.checked=Boolean(profile.music_autoplay);}await loadGarage(user.id);setStatus('Garage ready.','success');}
 
-async function uploadVehicleCover(file, userId, vehicleSlug) {
-  if (!file) return null;
-  if (!file.type.startsWith("image/")) throw new Error("Please choose an image file for the vehicle cover photo.");
-  const extension = getFileExtension(file);
-  const filePath = `${userId}/${vehicleSlug || "vehicle"}/cover-${Date.now()}.${extension}`;
-  const { error: uploadError } = await hotflashSupabase.storage.from(VEHICLE_IMAGE_BUCKET).upload(filePath, file, { cacheControl: "3600", upsert: true });
-  if (uploadError) throw uploadError;
-  return hotflashSupabase.storage.from(VEHICLE_IMAGE_BUCKET).getPublicUrl(filePath).data.publicUrl;
-}
+signupForm?.addEventListener('submit',async event=>{event.preventDefault();if(!signupForm.reportValidity())return;const submit=signupForm.querySelector('button[type="submit"]');if(submit?.disabled)return;submit.disabled=true;setStatus('Creating your Hot Flash account…');const form=new FormData(signupForm);const email=String(form.get('email')||'').trim().toLowerCase();const password=String(form.get('password')||'');const username=slugify(form.get('username'));const displayName=String(form.get('display_name')||'').trim();if(username.length<3){setStatus('Username must be at least 3 characters.','error');submit.disabled=false;return;}try{const{data,error}=await hotflashSupabase.auth.signUp({email,password,options:{data:{username,display_name:displayName}}});if(error)throw error;if(!data.user)throw new Error('Account creation returned no user.');const{error:profileError}=await hotflashSupabase.from('profiles').upsert({id:data.user.id,username,display_name:displayName,email,bio:''});if(profileError)console.warn('[Hot Flash profile setup]',profileError);signupForm.reset();setStatus(data.session?'Account created! Opening your garage…':'Account created! Check your email to confirm it, then sign in.','success');if(data.session)setTimeout(()=>location.assign('dashboard.html'),700);}catch(error){setStatus(friendlyError(error,'signup'),'error');}finally{submit.disabled=false;}});
 
-async function loadDashboard() {
-  const session = await requireSession();
-  if (!session) return;
-  const user = session.user;
-  const { data: profile } = await hotflashSupabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-  if (profileSummary) {
-    profileSummary.innerHTML = profile
-      ? `<strong>${profile.display_name || profile.username}</strong><span>@${profile.username}</span>`
-      : `<strong>Welcome to Hot Flash</strong><span>Create your founder profile below.</span>`;
-  }
-  if (profileForm && profile) {
-    profileForm.display_name.value = profile.display_name || "";
-    profileForm.username.value = profile.username || "";
-    profileForm.bio.value = profile.bio || "";
-  }
-  await loadGarage(user.id);
-}
+loginForm?.addEventListener('submit',async event=>{event.preventDefault();if(!loginForm.reportValidity())return;const submit=loginForm.querySelector('button[type="submit"]');if(submit?.disabled)return;submit.disabled=true;setStatus('Logging in…');const form=new FormData(loginForm);try{const{error}=await hotflashSupabase.auth.signInWithPassword({email:String(form.get('email')||'').trim().toLowerCase(),password:String(form.get('password')||'')});if(error)throw error;location.replace(requestedReturnTo());}catch(error){setStatus(friendlyError(error,'login'),'error');submit.disabled=false;}});
 
-async function loadGarage(userId) {
-  if (!garageList) return;
-  garageList.innerHTML = `<article class="post-card"><strong>Loading garage...</strong></article>`;
-  const { data, error } = await hotflashSupabase.from("vehicles").select("*").eq("owner_id", userId).order("created_at", { ascending: false });
-  if (error) {
-    console.error("[Hot Flash garage load error]", error);
-    garageList.innerHTML = `<article class="post-card"><strong>Garage unavailable</strong><p class="small-muted">We could not load your garage right now. Please refresh and try again.</p></article>`;
-    return;
-  }
-  if (!data || data.length === 0) {
-    garageList.innerHTML = `<article class="post-card"><strong>No vehicles yet</strong><p class="small-muted">Add your first ride and claim account history like a menace.</p></article>`;
-    return;
-  }
-  garageList.innerHTML = data.map((vehicle) => `
-    <article class="vehicle-card vehicle-card-live">
-      <div class="vehicle-art ${vehicle.cover_photo ? "has-cover" : ""}" ${vehicle.cover_photo ? `style="background-image: linear-gradient(0deg, rgba(5, 6, 7, 0.58), rgba(5, 6, 7, 0.08)), url('${vehicle.cover_photo}')"` : ""}></div>
-      <div class="vehicle-body">
-        <p class="eyebrow">${vehicle.hotflash_id || "Hot Flash build"}</p>
-        <h2>${vehicle.nickname}</h2>
-        <p class="vehicle-meta">${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}</p>
-        <p class="small-muted">${vehicle.engine || "Engine details coming soon"}</p>
-      </div>
-    </article>`).join("");
-}
+logoutButton?.addEventListener('click',async()=>{logoutButton.disabled=true;setStatus('Logging out…');try{await hotflashSupabase.auth.signOut();location.replace('login.html');}catch(error){logoutButton.disabled=false;setStatus(friendlyError(error,'logout'),'error');}});
 
-signupForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  setStatus("Creating your Hot Flash account…", "");
-  const submitButton = signupForm.querySelector('button[type="submit"]');
-  if (submitButton) submitButton.disabled = true;
+profileForm?.addEventListener('submit',async event=>{event.preventDefault();if(!profileForm.reportValidity())return;const session=await requireSession();if(!session)return;const submit=profileForm.querySelector('button[type="submit"]');if(submit?.disabled)return;submit.disabled=true;setStatus('Saving profile…');const form=new FormData(profileForm);const username=slugify(form.get('username'));if(username.length<3){setStatus('Username must be at least 3 characters.','error');submit.disabled=false;return;}const payload={id:session.user.id,email:session.user.email,username,display_name:String(form.get('display_name')||'').trim(),bio:String(form.get('bio')||'').trim(),music_autoplay:Boolean(form.get('music_autoplay'))};const{error}=await hotflashSupabase.from('profiles').upsert(payload);submit.disabled=false;if(error){setStatus(friendlyError(error,'profile'),'error');return;}setStatus('Profile saved.','success');await loadDashboard();});
 
-  const form = new FormData(signupForm);
-  const email = String(form.get("email") || "").trim();
-  const password = String(form.get("password") || "");
-  const username = slugify(form.get("username") || "");
-  const displayName = String(form.get("display_name") || "").trim();
-
-  if (!username) {
-    setStatus("Please choose a username using letters or numbers.", "error");
-    if (submitButton) submitButton.disabled = false;
-    return;
-  }
-
-  try {
-    const { data, error } = await hotflashSupabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username, display_name: displayName } },
-    });
-    if (error) throw error;
-    if (!data.user) throw new Error("Account creation returned no user.");
-
-    const { error: profileError } = await hotflashSupabase.from("profiles").upsert({
-      id: data.user.id,
-      username,
-      display_name: displayName,
-      email,
-      bio: "",
-    });
-
-    if (profileError) {
-      console.error("[Hot Flash profile setup warning]", profileError);
-      signupForm.reset();
-      setStatus("Your account was created. Sign in to finish setting up your profile.", "success");
-      return;
-    }
-
-    signupForm.reset();
-    setStatus(data.session ? "Account created! Taking you to your garage…" : "Account created! Check your email to confirm it, then sign in.", "success");
-    if (data.session) window.setTimeout(() => { window.location.href = "dashboard.html"; }, 900);
-  } catch (error) {
-    setStatus(friendlyError(error, "signup"), "error");
-  } finally {
-    if (submitButton) submitButton.disabled = false;
-  }
-});
-
-loginForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  setStatus("Logging in...", "");
-  const form = new FormData(loginForm);
-  const { error } = await hotflashSupabase.auth.signInWithPassword({ email: form.get("email"), password: form.get("password") });
-  if (error) {
-    setStatus(friendlyError(error, "login"), "error");
-    return;
-  }
-  window.location.href = "dashboard.html";
-});
-
-logoutButton?.addEventListener("click", async () => {
-  await hotflashSupabase.auth.signOut();
-  window.location.href = "login.html";
-});
-
-profileForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const session = await requireSession();
-  if (!session) return;
-  setStatus("Saving profile...", "");
-  const form = new FormData(profileForm);
-  const { error } = await hotflashSupabase.from("profiles").upsert({
-    id: session.user.id,
-    email: session.user.email,
-    username: slugify(form.get("username")),
-    display_name: form.get("display_name"),
-    bio: form.get("bio"),
-  });
-  if (error) {
-    setStatus(friendlyError(error, "profile"), "error");
-    return;
-  }
-  setStatus("Profile saved.", "success");
-  await loadDashboard();
-});
-
-vehicleForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const session = await requireSession();
-  if (!session) return;
-  setStatus("Adding vehicle...", "");
-  const form = new FormData(vehicleForm);
-  const nickname = form.get("nickname");
-  try {
-    const coverFile = form.get("cover_photo");
-    const coverPhotoUrl = coverFile && coverFile.size > 0 ? await uploadVehicleCover(coverFile, session.user.id, slugify(nickname)) : null;
-    const { error } = await hotflashSupabase.from("vehicles").insert({
-      owner_id: session.user.id,
-      nickname,
-      slug: slugify(nickname),
-      year: Number(form.get("year")) || null,
-      make: form.get("make"),
-      model: form.get("model"),
-      trim: form.get("trim"),
-      engine: form.get("engine"),
-      horsepower: Number(form.get("horsepower")) || null,
-      cover_photo: coverPhotoUrl,
-    });
-    if (error) throw error;
-    vehicleForm.reset();
-    if (coverPreview) coverPreview.innerHTML = "<span>No cover photo selected yet.</span>";
-    setStatus("Vehicle added. Garage updated.", "success");
-    await loadDashboard();
-  } catch (error) {
-    setStatus(friendlyError(error, "vehicle"), "error");
-  }
-});
-
-if (document.body.dataset.page === "dashboard") {
-  loadDashboard().catch((error) => {
-    console.error("[Hot Flash dashboard error]", error);
-    setStatus("We could not load your dashboard. Please refresh and try again.", "error");
-  });
-}
+if(document.body.dataset.page==='dashboard')loadDashboard().catch(error=>{console.error('[Hot Flash dashboard error]',error);setStatus('We could not load your dashboard. Refresh and try again.','error');});
