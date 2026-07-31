@@ -23,15 +23,12 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const isOwner=vehicle.owner_id===session.user.id;
   const {data:requests,error:requestError}=await hotflashSupabase
     .from('vehicle_transfers')
-    .select('id,vehicle_id,from_user_id,to_user_id,transfer_mode,status,message,requested_at,profiles!vehicle_transfers_from_user_id_fkey(username,display_name)')
+    .select('id,vehicle_id,from_user_id,to_user_id,transfer_mode,status,message,requested_at')
     .eq('vehicle_id',vehicle.id)
     .eq('status','pending')
     .order('requested_at',{ascending:false});
 
-  if(requestError){
-    console.warn('[Vehicle transfer]',requestError);
-  }
-
+  if(requestError)console.warn('[Vehicle transfer]',requestError);
   const pending=requests||[];
   const received=pending.filter(item=>item.to_user_id===session.user.id);
   const sent=pending.filter(item=>item.from_user_id===session.user.id);
@@ -39,12 +36,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
   if(panel.hidden)return;
 
   form.hidden=!isOwner;
-  if(isOwner){
-    panel.querySelector('[data-transfer-vehicle-name]').textContent=vehicle.nickname||[vehicle.year,vehicle.make,vehicle.model].filter(Boolean).join(' ')||vehicle.hotflash_id;
-  }
+  if(isOwner)panel.querySelector('[data-transfer-vehicle-name]').textContent=vehicle.nickname||[vehicle.year,vehicle.make,vehicle.model].filter(Boolean).join(' ')||vehicle.hotflash_id;
 
   outgoing.innerHTML=sent.length?sent.map(item=>`<article class="transfer-request"><strong>Transfer pending</strong><span>${esc(item.transfer_mode.replaceAll('_',' '))}</span><button type="button" class="secondary-button" data-cancel-transfer="${esc(item.id)}">Cancel request</button></article>`).join(''):'';
-  incoming.innerHTML=received.length?received.map(item=>`<article class="transfer-request transfer-request-incoming"><strong>Ownership transfer offered</strong><span>${esc(item.profiles?.display_name||item.profiles?.username||'Current owner')} is offering you this vehicle.</span><small>${esc(item.transfer_mode.replaceAll('_',' '))}</small>${item.message?`<p>${esc(item.message)}</p>`:''}<div class="inline-actions"><button type="button" data-accept-transfer="${esc(item.id)}">Accept transfer</button><button type="button" class="secondary-button" data-decline-transfer="${esc(item.id)}">Decline</button></div></article>`).join(''):'';
+  incoming.innerHTML=received.length?received.map(item=>`<article class="transfer-request transfer-request-incoming"><strong>Ownership transfer offered</strong><span>The current owner is offering you this vehicle.</span><small>${esc(item.transfer_mode.replaceAll('_',' '))}</small>${item.message?`<p>${esc(item.message)}</p>`:''}<div class="inline-actions"><button type="button" data-accept-transfer="${esc(item.id)}">Accept transfer</button><button type="button" class="secondary-button" data-decline-transfer="${esc(item.id)}">Decline</button></div></article>`).join(''):'';
 
   form?.addEventListener('submit',async event=>{
     event.preventDefault();
