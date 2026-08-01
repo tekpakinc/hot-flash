@@ -5,6 +5,7 @@
   const links = [
     ['feed.html', 'Discover'],
     ['events.html', 'Events'],
+    ['shops.html', 'Shops'],
     ['messages.html', 'Messages'],
     ['notifications.html', 'Notifications'],
     ['dashboard.html', 'My Garage'],
