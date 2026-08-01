@@ -4,6 +4,7 @@
 
   const links = [
     ['feed.html', 'Discover'],
+    ['hoon.html', 'Hoon Pad'],
     ['events.html', 'Events'],
     ['shops.html', 'Shops'],
     ['messages.html', 'Messages'],
