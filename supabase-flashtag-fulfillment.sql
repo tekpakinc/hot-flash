@@ -53,9 +53,22 @@ alter table public.flashtag_orders
   add column if not exists updated_at timestamptz not null default now(),
   add column if not exists updated_by uuid references auth.users(id) on delete set null;
 
+-- Older versions of this table used a different status vocabulary. Remove the
+-- old check before normalizing existing rows, then install the current check.
+alter table public.flashtag_orders
+  drop constraint if exists flashtag_orders_status_check;
+
 update public.flashtag_orders set quantity=1 where quantity is null;
 update public.flashtag_orders set country='United States' where country is null or trim(country)='';
-update public.flashtag_orders set status='new' where status is null or status not in ('new','printing','printed','shipped','completed','cancelled');
+update public.flashtag_orders
+set status = case
+  when status in ('new','printing','printed','shipped','completed','cancelled') then status
+  when status in ('pending','paid','submitted','ordered','processing') then 'new'
+  when status in ('in_progress','in-progress') then 'printing'
+  when status in ('fulfilled','delivered') then 'completed'
+  when status in ('canceled','refunded') then 'cancelled'
+  else 'new'
+end;
 update public.flashtag_orders set ordered_at=now() where ordered_at is null;
 update public.flashtag_orders set updated_at=coalesce(updated_at,ordered_at,now()) where updated_at is null;
 
@@ -67,10 +80,11 @@ begin
   if not exists(select 1 from pg_constraint where conname='flashtag_orders_quantity_check') then
     alter table public.flashtag_orders add constraint flashtag_orders_quantity_check check (quantity between 1 and 100);
   end if;
-  if not exists(select 1 from pg_constraint where conname='flashtag_orders_status_check') then
-    alter table public.flashtag_orders add constraint flashtag_orders_status_check check (status in ('new','printing','printed','shipped','completed','cancelled'));
-  end if;
 end $$;
+
+alter table public.flashtag_orders
+  add constraint flashtag_orders_status_check
+  check (status in ('new','printing','printed','shipped','completed','cancelled'));
 
 create index if not exists flashtag_orders_status_idx on public.flashtag_orders(status,ordered_at desc);
 create index if not exists flashtag_orders_vehicle_idx on public.flashtag_orders(vehicle_id);
