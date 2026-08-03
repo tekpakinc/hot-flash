@@ -52,7 +52,7 @@ returns table(user_id uuid,email text,username text,display_name text,avatar_url
 language sql security definer set search_path=public,auth as $$
  select u.id,u.email::text,p.username,p.display_name,p.avatar_url,u.created_at,u.last_sign_in_at,coalesce(s.status,'active'),s.reason,
  (select count(*) from public.vehicles v where v.owner_id=u.id),
- (select count(*) from public.shops sh where sh.owner_id=u.id)
+ (select count(*) from public.shop_members sm where sm.user_id=u.id and sm.role='owner' and sm.status='active')
  from auth.users u left join public.profiles p on p.id=u.id left join public.hotflash_user_status s on s.user_id=u.id
  where public.is_hotflash_admin() and (nullif(trim(p_query),'') is null or lower(coalesce(u.email,'')) like '%'||lower(trim(p_query))||'%' or lower(coalesce(p.username,'')) like '%'||lower(trim(p_query))||'%' or lower(coalesce(p.display_name,'')) like '%'||lower(trim(p_query))||'%' or u.id::text=trim(p_query))
  order by u.created_at desc limit greatest(1,least(coalesce(p_limit,50),100)); $$;
