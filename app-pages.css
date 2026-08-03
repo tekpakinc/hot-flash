@@ -249,6 +249,143 @@ textarea:focus {
   background: linear-gradient(90deg, var(--red), var(--flame), var(--amber));
 }
 
+/* Shared liquid-flame button system */
+body.app-page button,
+body.app-page .primary-button,
+body.app-page .secondary-button,
+body.app-page .button-link,
+body.app-page a[class*="button"] {
+  position: relative;
+  isolation: isolate;
+  min-height: 46px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 13px;
+  border: 1px solid rgba(255, 129, 40, 0.72);
+  color: #fff8ef;
+  font: inherit;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: .025em;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,.08) 27%, transparent 28%),
+    radial-gradient(circle at 25% 0%, rgba(255,235,148,.7), transparent 30%),
+    linear-gradient(135deg, #ffb12b 0%, #ff5a17 42%, #ed2243 72%, #8c2eff 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.48),
+    inset 0 -7px 14px rgba(55,0,32,.24),
+    0 7px 18px rgba(255,61,17,.2),
+    0 0 0 1px rgba(255,255,255,.04);
+  text-shadow: 0 1px 2px rgba(35,0,15,.72);
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease, opacity .16s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body.app-page button::before,
+body.app-page .primary-button::before,
+body.app-page .secondary-button::before,
+body.app-page .button-link::before,
+body.app-page a[class*="button"]::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 1px 8px auto;
+  height: 42%;
+  border-radius: 999px 999px 55% 55%;
+  background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0));
+  opacity: .72;
+  pointer-events: none;
+}
+
+body.app-page .secondary-button,
+body.app-page button.secondary-button,
+body.app-page a.secondary-button {
+  border-color: rgba(181,107,255,.68);
+  color: #f7edff;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,.06) 27%, transparent 28%),
+    radial-gradient(circle at 25% 0%, rgba(244,205,255,.5), transparent 31%),
+    linear-gradient(135deg, #7b2cff 0%, #a42fff 42%, #e02d8b 78%, #ff6236 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -7px 14px rgba(31,0,70,.28),
+    0 7px 18px rgba(127,43,255,.18),
+    0 0 0 1px rgba(255,255,255,.04);
+}
+
+body.app-page button.danger,
+body.app-page .danger-button,
+body.app-page a.danger-button {
+  border-color: rgba(255,90,95,.76);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.22), transparent 30%),
+    linear-gradient(135deg, #ff6a43, #da173f 55%, #7e1437);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 7px 18px rgba(218,23,63,.2);
+}
+
+body.app-page button:hover,
+body.app-page .primary-button:hover,
+body.app-page .secondary-button:hover,
+body.app-page .button-link:hover,
+body.app-page a[class*="button"]:hover {
+  filter: saturate(1.12) brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.52),
+    inset 0 -7px 14px rgba(55,0,32,.2),
+    0 10px 24px rgba(255,61,17,.26),
+    0 0 22px rgba(255,114,22,.16);
+}
+
+body.app-page button:active,
+body.app-page .primary-button:active,
+body.app-page .secondary-button:active,
+body.app-page .button-link:active,
+body.app-page a[class*="button"]:active {
+  transform: translateY(1px) scale(.985);
+  filter: saturate(1.02) brightness(.96);
+}
+
+body.app-page button:focus-visible,
+body.app-page .primary-button:focus-visible,
+body.app-page .secondary-button:focus-visible,
+body.app-page .button-link:focus-visible,
+body.app-page a[class*="button"]:focus-visible {
+  outline: 3px solid rgba(255,223,119,.9);
+  outline-offset: 3px;
+}
+
+body.app-page button:disabled,
+body.app-page [aria-disabled="true"] {
+  opacity: .48;
+  filter: grayscale(.28);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* Compact controls should stay compact instead of inflating like full CTAs. */
+body.app-page .password-toggle,
+body.app-page .gallery-arrow,
+body.app-page .lightbox-arrow,
+body.app-page .lightbox-close,
+body.app-page .hoon-comments-close,
+body.app-page .vehicle-photo-delete,
+body.app-page button[data-tab-button],
+body.app-page .feed-filters button,
+body.app-page .hoon-feed-tabs button {
+  min-height: 38px;
+  padding-inline: 12px;
+  border-radius: 10px;
+}
+
 @media (max-width: 900px) {
   .app-hero,
   .content-grid,
@@ -260,5 +397,95 @@ textarea:focus {
 
   body.app-page {
     padding-top: 82px;
+  }
+}
+
+@media (max-width: 700px) {
+  body.app-page button,
+  body.app-page .primary-button,
+  body.app-page .secondary-button,
+  body.app-page .button-link,
+  body.app-page a[class*="button"] {
+    min-height: 50px;
+    padding: 0 16px;
+    border-radius: 14px;
+    font-size: .92rem;
+  }
+
+  body.app-page .inline-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    width: 100%;
+    gap: 10px;
+  }
+
+  body.app-page .inline-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.app-page form > button[type="submit"],
+  body.app-page .form-grid > button,
+  body.app-page .app-card > button:not(.password-toggle),
+  body.app-page .app-panel > button,
+  body.app-page .hoon-head > button {
+    width: 100%;
+  }
+
+  body.app-page .site-header nav a,
+  body.app-page .site-header nav button {
+    min-height: 42px;
+    padding: 0 13px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+
+  body.app-page .password-toggle,
+  body.app-page .gallery-arrow,
+  body.app-page .lightbox-arrow,
+  body.app-page .lightbox-close,
+  body.app-page .hoon-comments-close,
+  body.app-page .vehicle-photo-delete,
+  body.app-page button[data-tab-button],
+  body.app-page .feed-filters button,
+  body.app-page .hoon-feed-tabs button {
+    width: auto;
+    min-height: 40px;
+    padding-inline: 12px;
+    font-size: .82rem;
+  }
+
+  body.app-page .hoon-actions,
+  body.app-page .vehicle-social-actions,
+  body.app-page .tier-actions {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 9px;
+  }
+
+  body.app-page .hoon-actions > *,
+  body.app-page .vehicle-social-actions > *,
+  body.app-page .tier-actions > * {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  body.app-page .inline-actions,
+  body.app-page .hoon-actions,
+  body.app-page .vehicle-social-actions,
+  body.app-page .tier-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-page button,
+  body.app-page .primary-button,
+  body.app-page .secondary-button,
+  body.app-page .button-link,
+  body.app-page a[class*="button"] {
+    transition: none;
   }
 }
