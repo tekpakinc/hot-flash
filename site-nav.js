@@ -113,5 +113,11 @@
       manager.dataset.vehiclePhotoManager = '';
       document.body.appendChild(manager);
     }
+    if (!document.querySelector('script[data-vehicle-stock-display]')) {
+      const specs = document.createElement('script');
+      specs.src = 'vehicle-stock-display.js?v=1';
+      specs.dataset.vehicleStockDisplay = '';
+      document.body.appendChild(specs);
+    }
   }
 })();
