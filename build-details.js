@@ -1,3 +1,4 @@
+if(!document.querySelector('script[data-shared-site-nav]')){const s=document.createElement('script');s.src='site-nav.js?v=3';s.dataset.sharedSiteNav='';document.body.appendChild(s)}
 const expandedVehicleForm=document.querySelector('[data-expanded-vehicle-form]');
 const expandedCoverInput=document.querySelector('[data-expanded-cover-input]');
 const expandedCoverPreview=document.querySelector('[data-expanded-cover-preview]');
