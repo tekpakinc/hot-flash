@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'hotflash-pwa-v8';
+const CACHE_VERSION = 'hotflash-pwa-v9';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -18,9 +18,11 @@ const APP_SHELL = [
   '/shops.js?v=1',
   '/shop.css?v=1',
   '/shop.js?v=1',
-  '/hoon.css?v=1',
-  '/hoon.js?v=1',
+  '/hoon.css?v=4',
+  '/hoon.js?v=4',
   '/site-nav.js?v=2',
+  '/pwa.js?v=3',
+  '/app-version.json',
   '/assets/hot-flash-logo.png'
 ];
 
@@ -40,6 +42,19 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+async function networkFirst(request, fallback) {
+  try {
+    const response = await fetch(request, { cache: 'no-store' });
+    if (response && response.ok) {
+      const copy = response.clone();
+      caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+    }
+    return response;
+  } catch (error) {
+    return (await caches.match(request)) || (fallback ? caches.match(fallback) : Response.error());
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
@@ -48,15 +63,15 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(async () => (await caches.match(request)) || caches.match('/offline.html'))
-    );
+    event.respondWith(networkFirst(request, '/offline.html'));
+    return;
+  }
+
+  const isCodeOrStyle = ['script', 'style', 'worker'].includes(request.destination)
+    || /\.(?:js|css|json)$/i.test(url.pathname);
+
+  if (isCodeOrStyle) {
+    event.respondWith(networkFirst(request));
     return;
   }
 
@@ -78,4 +93,9 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data === 'CLEAR_APP_CACHES') {
+    event.waitUntil(
+      caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+    );
+  }
 });
