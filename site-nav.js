@@ -107,5 +107,11 @@
       uploader.dataset.vehicleUploadCompat = '';
       document.body.appendChild(uploader);
     }
+    if (!document.querySelector('script[data-vehicle-photo-manager]')) {
+      const manager = document.createElement('script');
+      manager.src = 'vehicle-photo-manager.js?v=1';
+      manager.dataset.vehiclePhotoManager = '';
+      document.body.appendChild(manager);
+    }
   }
 })();
