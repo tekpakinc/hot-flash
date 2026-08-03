@@ -87,6 +87,13 @@
     document.body.appendChild(gates);
   }
 
+  if (document.body?.classList.contains('shop-page') && !document.querySelector('script[data-shop-pro-state]')) {
+    const proState = document.createElement('script');
+    proState.src = 'shop-pro-state.js?v=1';
+    proState.dataset.shopProState = '';
+    document.body.appendChild(proState);
+  }
+
   if (document.body?.dataset?.page === 'vehicle') {
     if (!document.querySelector('script[data-vehicle-permission-guard]')) {
       const guard = document.createElement('script');
