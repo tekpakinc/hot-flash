@@ -79,4 +79,11 @@
 
   syncAuthNavigation().catch((error) => console.warn('[Hot Flash navigation]', error));
   window.hotflashSupabase?.auth?.onAuthStateChange?.(() => syncAuthNavigation().catch((error) => console.warn('[Hot Flash navigation sync]', error)));
+
+  if (document.body?.dataset?.page === 'vehicle' && !document.querySelector('script[data-vehicle-permission-guard]')) {
+    const guard = document.createElement('script');
+    guard.src = 'vehicle-permission-guard.js?v=1';
+    guard.dataset.vehiclePermissionGuard = '';
+    document.body.appendChild(guard);
+  }
 })();
