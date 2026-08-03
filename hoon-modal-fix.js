@@ -2,26 +2,25 @@
   const modal=document.querySelector('[data-hoon-comments-modal]');
   if(!modal)return;
   const closeButton=modal.querySelector('[data-hoon-comments-close]');
-  const close=()=>{
-    modal.hidden=true;
-    modal.setAttribute('aria-hidden','true');
-    document.body.classList.remove('lightbox-open');
-    document.documentElement.classList.remove('lightbox-open');
-  };
-  const openObserver=new MutationObserver(()=>{
-    const open=!modal.hidden;
+  const setOpen=open=>{
+    modal.hidden=!open;
+    modal.style.setProperty('display',open?'grid':'none','important');
     modal.setAttribute('aria-hidden',String(!open));
-    if(!open){
-      document.body.classList.remove('lightbox-open');
-      document.documentElement.classList.remove('lightbox-open');
-    }
+    document.body.classList.toggle('lightbox-open',open);
+    document.documentElement.classList.toggle('lightbox-open',open);
+  };
+  const close=()=>setOpen(false);
+  setOpen(false);
+  const observer=new MutationObserver(()=>{
+    const requestedOpen=!modal.hidden;
+    modal.style.setProperty('display',requestedOpen?'grid':'none','important');
+    modal.setAttribute('aria-hidden',String(!requestedOpen));
+    document.body.classList.toggle('lightbox-open',requestedOpen);
+    document.documentElement.classList.toggle('lightbox-open',requestedOpen);
   });
-  modal.hidden=true;
-  modal.setAttribute('aria-hidden','true');
-  document.body.classList.remove('lightbox-open');
-  document.documentElement.classList.remove('lightbox-open');
-  closeButton?.addEventListener('click',close);
+  closeButton?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();close()});
   modal.addEventListener('click',event=>{if(event.target===modal)close()});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden)close()});
-  openObserver.observe(modal,{attributes:true,attributeFilter:['hidden']});
+  observer.observe(modal,{attributes:true,attributeFilter:['hidden']});
+  window.HotFlashHoonCommentsModal={open:()=>setOpen(true),close};
 })();
