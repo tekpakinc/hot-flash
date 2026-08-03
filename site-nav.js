@@ -2,83 +2,70 @@
   const nav = document.querySelector('.site-header nav');
   if (!nav) return;
 
-  const links = [
-    ['feed.html', 'Discover'],
-    ['hoon.html', 'Hoon Pad'],
-    ['events.html', 'Events'],
-    ['shops.html', 'Shops'],
-    ['account-types.html', 'Account Types'],
-    ['messages.html', 'Messages'],
-    ['notifications.html', 'Notifications'],
-    ['dashboard.html', 'My Garage'],
-    ['settings.html', 'Settings'],
-  ];
-
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  const existing = new Map([...nav.querySelectorAll('a[href]')].map((link) => [link.getAttribute('href').split('?')[0], link]));
-
-  for (const [href, label] of links) {
-    let link = existing.get(href);
-    if (!link) {
-      link = document.createElement('a');
-      link.href = href;
-      link.textContent = label;
-      nav.appendChild(link);
-      existing.set(href, link);
-    }
-    const active = currentPage === href;
-    link.classList.toggle('active', active);
-    if (active) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
-  }
-
   const getSession = async () => window.hotFlashGetStableSession
     ? window.hotFlashGetStableSession()
-    : (await window.hotflashSupabase.auth.getSession()).data.session;
+    : window.hotflashSupabase
+      ? (await window.hotflashSupabase.auth.getSession()).data.session
+      : null;
 
-  const syncAuthNavigation = async () => {
-    if (!window.hotflashSupabase) return;
+  const link = (href, label) => {
+    const a = document.createElement('a');
+    a.href = href;
+    a.textContent = label;
+    if (currentPage === href) {
+      a.classList.add('active');
+      a.setAttribute('aria-current', 'page');
+    }
+    return a;
+  };
+
+  async function renderNavigation() {
     const session = await getSession();
-    const signedIn = Boolean(session);
+    nav.replaceChildren();
 
-    nav.querySelectorAll('a[href="login.html"], a[href="signup.html"]').forEach((link) => { link.hidden = signedIn; });
-    nav.querySelectorAll('a[href="dashboard.html"], a[href="messages.html"], a[href="notifications.html"], a[href="settings.html"]').forEach((link) => { link.hidden = !signedIn; });
+    const publicLinks = [
+      ['feed.html', 'Discover'],
+      ['hoon.html', 'Hoon Pad'],
+      ['events.html', 'Events'],
+      ['shops.html', 'Shops'],
+      ['account-types.html', 'Account Types'],
+    ];
+    publicLinks.forEach(([href, label]) => nav.appendChild(link(href, label)));
 
-    let logout = nav.querySelector('[data-shared-logout]');
-    if (signedIn && !nav.querySelector('[data-logout]') && !logout) {
-      logout = document.createElement('button');
+    if (session) {
+      [
+        ['messages.html', 'Messages'],
+        ['notifications.html', 'Notifications'],
+        ['dashboard.html', 'My Garage'],
+        ['settings.html', 'Settings'],
+      ].forEach(([href, label]) => nav.appendChild(link(href, label)));
+
+      const logout = document.createElement('button');
       logout.type = 'button';
       logout.dataset.sharedLogout = '';
       logout.textContent = 'Logout';
       logout.addEventListener('click', async () => {
-        if (logout.disabled) return;
+        if (logout.disabled || !window.hotflashSupabase) return;
         logout.disabled = true;
         logout.textContent = 'Logging out…';
         const { error } = await window.hotflashSupabase.auth.signOut();
         if (error) {
           logout.disabled = false;
           logout.textContent = 'Logout';
-          console.warn('[Hot Flash logout]', error);
           return;
         }
         window.location.replace('index.html');
       });
       nav.appendChild(logout);
+    } else {
+      nav.appendChild(link(`login.html?returnTo=${encodeURIComponent(location.pathname + location.search)}`, 'Login'));
+      nav.appendChild(link('signup.html', 'Sign Up'));
     }
+  }
 
-    if (!signedIn) {
-      logout?.remove();
-      if (!nav.querySelector('a[href="login.html"]')) {
-        const login = document.createElement('a');
-        login.href = `login.html?returnTo=${encodeURIComponent(location.pathname + location.search)}`;
-        login.textContent = 'Login';
-        nav.appendChild(login);
-      }
-    }
-  };
-
-  syncAuthNavigation().catch((error) => console.warn('[Hot Flash navigation]', error));
-  window.hotflashSupabase?.auth?.onAuthStateChange?.(() => syncAuthNavigation().catch((error) => console.warn('[Hot Flash navigation sync]', error)));
+  renderNavigation().catch((error) => console.warn('[Hot Flash navigation]', error));
+  window.hotflashSupabase?.auth?.onAuthStateChange?.(() => renderNavigation().catch((error) => console.warn('[Hot Flash navigation sync]', error)));
 
   if (!document.querySelector('script[data-permission-gates]')) {
     const gates = document.createElement('script');
@@ -95,29 +82,18 @@
   }
 
   if (document.body?.dataset?.page === 'vehicle') {
-    if (!document.querySelector('script[data-vehicle-permission-guard]')) {
-      const guard = document.createElement('script');
-      guard.src = 'vehicle-permission-guard.js?v=1';
-      guard.dataset.vehiclePermissionGuard = '';
-      document.body.appendChild(guard);
-    }
-    if (!document.querySelector('script[data-vehicle-upload-compat]')) {
-      const uploader = document.createElement('script');
-      uploader.src = 'vehicle-upload-compat.js?v=1';
-      uploader.dataset.vehicleUploadCompat = '';
-      document.body.appendChild(uploader);
-    }
-    if (!document.querySelector('script[data-vehicle-photo-manager]')) {
-      const manager = document.createElement('script');
-      manager.src = 'vehicle-photo-manager.js?v=1';
-      manager.dataset.vehiclePhotoManager = '';
-      document.body.appendChild(manager);
-    }
-    if (!document.querySelector('script[data-vehicle-stock-display]')) {
-      const specs = document.createElement('script');
-      specs.src = 'vehicle-stock-display.js?v=1';
-      specs.dataset.vehicleStockDisplay = '';
-      document.body.appendChild(specs);
-    }
+    const scripts = [
+      ['vehicle-permission-guard.js?v=1', 'vehiclePermissionGuard'],
+      ['vehicle-upload-compat.js?v=1', 'vehicleUploadCompat'],
+      ['vehicle-photo-manager.js?v=1', 'vehiclePhotoManager'],
+      ['vehicle-stock-specs.js?v=1', 'vehicleStockSpecs'],
+    ];
+    scripts.forEach(([src, datasetName]) => {
+      if (document.querySelector(`script[data-${datasetName.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}]`)) return;
+      const script = document.createElement('script');
+      script.src = src;
+      script.dataset[datasetName] = '';
+      document.body.appendChild(script);
+    });
   }
 })();
