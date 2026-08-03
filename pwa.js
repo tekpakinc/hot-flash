@@ -1,4 +1,9 @@
 (() => {
+  const VERSION_KEY = 'hotflash-app-version';
+  const REFRESH_KEY = 'hotflash-version-refresh';
+  let registration = null;
+  let checkingVersion = false;
+
   const ensureHeadTag = (selector, tagName, attrs) => {
     if (document.head.querySelector(selector)) return;
     const node = document.createElement(tagName);
@@ -13,20 +18,72 @@
   ensureHeadTag('meta[name="apple-mobile-web-app-title"]', 'meta', { name: 'apple-mobile-web-app-title', content: 'Hot Flash' });
   ensureHeadTag('link[rel="apple-touch-icon"]', 'link', { rel: 'apple-touch-icon', href: '/assets/hot-flash-logo.png' });
 
+  const standalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  async function fetchBuildVersion() {
+    const response = await fetch(`/app-version.json?ts=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    });
+    if (!response.ok) throw new Error(`Version check failed (${response.status}).`);
+    return String((await response.json()).version || '').trim();
+  }
+
+  async function refreshForNewBuild(version) {
+    if (!version || sessionStorage.getItem(REFRESH_KEY) === version) return;
+    sessionStorage.setItem(REFRESH_KEY, version);
+    localStorage.setItem(VERSION_KEY, version);
+
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((key) => key.startsWith('hotflash-pwa-')).map((key) => caches.delete(key)));
+    }
+
+    registration?.waiting?.postMessage('SKIP_WAITING');
+    registration?.active?.postMessage('CLEAR_APP_CACHES');
+
+    const url = new URL(location.href);
+    url.searchParams.set('_hfbuild', version);
+    location.replace(url.toString());
+  }
+
+  async function checkForFreshBuild() {
+    if (checkingVersion || !navigator.onLine) return;
+    checkingVersion = true;
+    try {
+      await registration?.update?.();
+      if (registration?.waiting) registration.waiting.postMessage('SKIP_WAITING');
+      const latest = await fetchBuildVersion();
+      const known = localStorage.getItem(VERSION_KEY);
+      if (!known) {
+        localStorage.setItem(VERSION_KEY, latest);
+      } else if (latest && latest !== known) {
+        await refreshForNewBuild(latest);
+      }
+    } catch (error) {
+      console.warn('[Hot Flash freshness check]', error);
+    } finally {
+      checkingVersion = false;
+    }
+  }
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
       try {
-        const registration = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
-        registration.update();
+        registration = await navigator.serviceWorker.register('/service-worker.js', { scope: '/', updateViaCache: 'none' });
+        await registration.update();
 
+        if (registration.waiting) registration.waiting.postMessage('SKIP_WAITING');
         registration.addEventListener('updatefound', () => {
           const worker = registration.installing;
           worker?.addEventListener('statechange', () => {
             if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-              showUpdateNotice(worker);
+              worker.postMessage('SKIP_WAITING');
             }
           });
         });
+
+        await checkForFreshBuild();
       } catch (error) {
         console.warn('[Hot Flash PWA registration]', error);
       }
@@ -39,6 +96,18 @@
       location.reload();
     });
   }
+
+  window.addEventListener('pageshow', (event) => {
+    if (standalone() || event.persisted) checkForFreshBuild();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && standalone()) checkForFreshBuild();
+  });
+
+  window.addEventListener('focus', () => {
+    if (standalone()) checkForFreshBuild();
+  });
 
   let deferredInstallPrompt = null;
 
@@ -57,7 +126,7 @@
   function showInstallPrompt() {
     if (!deferredInstallPrompt || document.querySelector('[data-pwa-install-banner]')) return;
     if (localStorage.getItem('hotflash-pwa-install-dismissed') === 'true') return;
-    if (window.matchMedia('(display-mode: standalone)').matches) return;
+    if (standalone()) return;
 
     const banner = document.createElement('aside');
     banner.dataset.pwaInstallBanner = '';
@@ -84,15 +153,5 @@
     });
 
     document.body.appendChild(banner);
-  }
-
-  function showUpdateNotice(worker) {
-    if (document.querySelector('[data-pwa-update]')) return;
-    const notice = document.createElement('aside');
-    notice.dataset.pwaUpdate = '';
-    notice.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:1001;display:flex;align-items:center;gap:12px;max-width:420px;padding:14px 16px;border:1px solid rgba(255,90,0,.45);border-radius:14px;background:#101214;color:#fff;box-shadow:0 18px 55px rgba(0,0,0,.5);font-family:Inter,system-ui,sans-serif';
-    notice.innerHTML = '<span style="flex:1">A fresh Hot Flash update is ready.</span><button type="button" data-pwa-refresh>Update</button>';
-    notice.querySelector('[data-pwa-refresh]').addEventListener('click', () => worker.postMessage('SKIP_WAITING'));
-    document.body.appendChild(notice);
   }
 })();
