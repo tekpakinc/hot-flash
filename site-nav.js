@@ -7,6 +7,7 @@
     ['hoon.html', 'Hoon Pad'],
     ['events.html', 'Events'],
     ['shops.html', 'Shops'],
+    ['account-types.html', 'Account Types'],
     ['messages.html', 'Messages'],
     ['notifications.html', 'Notifications'],
     ['dashboard.html', 'My Garage'],
