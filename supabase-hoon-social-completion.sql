@@ -47,9 +47,8 @@ drop policy if exists "Members delete own Hoon saves" on public.hoon_saves;
 create policy "Members delete own Hoon saves" on public.hoon_saves for delete to authenticated
 using (user_id = auth.uid());
 
-create or replace view public.hoon_post_stats
-with (security_invoker = true)
-as
+-- The view exposes aggregate counts only. Individual save records remain private under RLS.
+create or replace view public.hoon_post_stats as
 select
   p.*,
   coalesce(f.flame_count, 0)::bigint as flame_count,
