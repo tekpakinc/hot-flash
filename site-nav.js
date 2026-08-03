@@ -80,6 +80,13 @@
   syncAuthNavigation().catch((error) => console.warn('[Hot Flash navigation]', error));
   window.hotflashSupabase?.auth?.onAuthStateChange?.(() => syncAuthNavigation().catch((error) => console.warn('[Hot Flash navigation sync]', error)));
 
+  if (!document.querySelector('script[data-permission-gates]')) {
+    const gates = document.createElement('script');
+    gates.src = 'permission-gates.js?v=1';
+    gates.dataset.permissionGates = '';
+    document.body.appendChild(gates);
+  }
+
   if (document.body?.dataset?.page === 'vehicle') {
     if (!document.querySelector('script[data-vehicle-permission-guard]')) {
       const guard = document.createElement('script');
