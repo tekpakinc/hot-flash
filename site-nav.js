@@ -29,7 +29,7 @@
       ['hoon.html', 'Hoon Pad'],
       ['events.html', 'Events'],
       ['shops.html', 'Shops'],
-      ['account-types.html', 'Account Types'],
+      ['pricing.html', 'Memberships'],
     ];
     publicLinks.forEach(([href, label]) => nav.appendChild(link(href, label)));
 
