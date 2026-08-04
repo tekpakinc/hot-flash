@@ -4,6 +4,17 @@
   let registration = null;
   let checkingVersion = false;
 
+  const currentPage = () => location.pathname.split('/').pop() || 'index.html';
+  const authCallbackPages = new Set(['update-password.html', 'login.html', 'signup.html']);
+  const hasAuthCallback = () => {
+    const query = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
+    return authCallbackPages.has(currentPage()) && (
+      query.has('code') || query.has('token_hash') || query.get('type') === 'recovery' ||
+      hash.has('access_token') || hash.has('refresh_token') || hash.get('type') === 'recovery'
+    );
+  };
+
   const ensureHeadTag = (selector, tagName, attrs) => {
     if (document.head.querySelector(selector)) return;
     const node = document.createElement(tagName);
@@ -30,7 +41,7 @@
   }
 
   async function refreshForNewBuild(version) {
-    if (!version || sessionStorage.getItem(REFRESH_KEY) === version) return;
+    if (hasAuthCallback() || !version || sessionStorage.getItem(REFRESH_KEY) === version) return;
     sessionStorage.setItem(REFRESH_KEY, version);
     localStorage.setItem(VERSION_KEY, version);
 
@@ -48,7 +59,7 @@
   }
 
   async function checkForFreshBuild() {
-    if (checkingVersion || !navigator.onLine) return;
+    if (hasAuthCallback() || checkingVersion || !navigator.onLine) return;
     checkingVersion = true;
     try {
       await registration?.update?.();
@@ -73,11 +84,11 @@
         registration = await navigator.serviceWorker.register('/service-worker.js', { scope: '/', updateViaCache: 'none' });
         await registration.update();
 
-        if (registration.waiting) registration.waiting.postMessage('SKIP_WAITING');
+        if (!hasAuthCallback() && registration.waiting) registration.waiting.postMessage('SKIP_WAITING');
         registration.addEventListener('updatefound', () => {
           const worker = registration.installing;
           worker?.addEventListener('statechange', () => {
-            if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (!hasAuthCallback() && worker.state === 'installed' && navigator.serviceWorker.controller) {
               worker.postMessage('SKIP_WAITING');
             }
           });
@@ -91,22 +102,22 @@
 
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (refreshing) return;
+      if (hasAuthCallback() || refreshing) return;
       refreshing = true;
       location.reload();
     });
   }
 
   window.addEventListener('pageshow', (event) => {
-    if (standalone() || event.persisted) checkForFreshBuild();
+    if (!hasAuthCallback() && (standalone() || event.persisted)) checkForFreshBuild();
   });
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && standalone()) checkForFreshBuild();
+    if (!hasAuthCallback() && document.visibilityState === 'visible' && standalone()) checkForFreshBuild();
   });
 
   window.addEventListener('focus', () => {
-    if (standalone()) checkForFreshBuild();
+    if (!hasAuthCallback() && standalone()) checkForFreshBuild();
   });
 
   let deferredInstallPrompt = null;
