@@ -1,11 +1,71 @@
 -- Hot Flash visible comment/journal unification
 -- Run after supabase-universal-comments.sql.
+-- Safe to rerun. Creates the legacy Build Journal foundation when it is absent.
 
 alter table public.hotflash_comments drop constraint if exists hotflash_comments_subject_type_check;
 alter table public.hotflash_comments add constraint hotflash_comments_subject_type_check
   check (subject_type in ('hoon','vehicle','vehicle_image','shop','member','event','build_update'));
 
-alter table public.posts add column if not exists updated_at timestamptz;
+-- Build Journal foundation used by social.js.
+create table if not exists public.posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references auth.users(id) on delete cascade,
+  vehicle_id uuid not null references public.vehicles(id) on delete cascade,
+  body text not null check (char_length(trim(body)) between 1 and 3000),
+  image_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz
+);
+create index if not exists posts_vehicle_created_idx on public.posts(vehicle_id,created_at desc);
+create index if not exists posts_author_created_idx on public.posts(author_id,created_at desc);
+alter table public.posts enable row level security;
+drop policy if exists "Build updates are publicly readable" on public.posts;
+create policy "Build updates are publicly readable" on public.posts for select to anon,authenticated using(true);
+drop policy if exists "Vehicle owners create build updates" on public.posts;
+create policy "Vehicle owners create build updates" on public.posts for insert to authenticated
+with check(author_id=auth.uid() and exists(select 1 from public.vehicles v where v.id=vehicle_id and v.owner_id=auth.uid()));
+drop policy if exists "Authors update build updates" on public.posts;
+create policy "Authors update build updates" on public.posts for update to authenticated
+using(author_id=auth.uid()) with check(author_id=auth.uid());
+drop policy if exists "Authors delete build updates" on public.posts;
+create policy "Authors delete build updates" on public.posts for delete to authenticated
+using(author_id=auth.uid() or public.is_hotflash_admin());
+
+create table if not exists public.post_likes (
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key(post_id,user_id)
+);
+alter table public.post_likes enable row level security;
+drop policy if exists "Post likes are readable" on public.post_likes;
+create policy "Post likes are readable" on public.post_likes for select to anon,authenticated using(true);
+drop policy if exists "Members manage own post likes" on public.post_likes;
+create policy "Members manage own post likes" on public.post_likes for insert to authenticated with check(user_id=auth.uid());
+drop policy if exists "Members remove own post likes" on public.post_likes;
+create policy "Members remove own post likes" on public.post_likes for delete to authenticated using(user_id=auth.uid());
+
+create table if not exists public.post_comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.posts(id) on delete cascade,
+  author_id uuid not null references auth.users(id) on delete cascade,
+  body text not null check(char_length(trim(body)) between 1 and 1200),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz
+);
+create index if not exists post_comments_post_created_idx on public.post_comments(post_id,created_at);
+alter table public.post_comments enable row level security;
+drop policy if exists "Post comments are readable" on public.post_comments;
+create policy "Post comments are readable" on public.post_comments for select to anon,authenticated using(true);
+drop policy if exists "Members create own post comments" on public.post_comments;
+create policy "Members create own post comments" on public.post_comments for insert to authenticated with check(author_id=auth.uid());
+drop policy if exists "Authors update own post comments" on public.post_comments;
+create policy "Authors update own post comments" on public.post_comments for update to authenticated using(author_id=auth.uid()) with check(author_id=auth.uid());
+drop policy if exists "Authors delete own post comments" on public.post_comments;
+create policy "Authors delete own post comments" on public.post_comments for delete to authenticated using(author_id=auth.uid() or public.is_hotflash_admin());
+
+grant select on public.posts,public.post_likes,public.post_comments to anon,authenticated;
+grant insert,update,delete on public.posts,public.post_likes,public.post_comments to authenticated;
 
 create or replace function public.update_build_journal_post(p_post_id uuid,p_body text)
 returns public.posts language plpgsql security definer set search_path=public as $$
@@ -53,16 +113,11 @@ do $$ begin
 end $$;
 
 -- Import existing build-update comments.
-do $$ begin
- if to_regclass('public.post_comments') is not null then
-  insert into public.hotflash_comments(id,subject_type,subject_id,author_id,body,created_at,updated_at)
-  select c.id,'build_update',c.post_id,c.author_id,left(c.body,500),c.created_at,
-         case when to_jsonb(c)?'updated_at' then nullif(to_jsonb(c)->>'updated_at','')::timestamptz else null end
-  from public.post_comments c
-  where not exists(select 1 from public.hotflash_comments h where h.id=c.id)
-  on conflict(id) do nothing;
- end if;
-end $$;
+insert into public.hotflash_comments(id,subject_type,subject_id,author_id,body,created_at,updated_at)
+select c.id,'build_update',c.post_id,c.author_id,left(c.body,500),c.created_at,c.updated_at
+from public.post_comments c
+where not exists(select 1 from public.hotflash_comments h where h.id=c.id)
+on conflict(id) do nothing;
 
 create or replace function public.sync_legacy_comment_to_universal() returns trigger
 language plpgsql security definer set search_path=public as $$
@@ -91,9 +146,7 @@ do $$ begin
   create trigger sync_vehicle_image_comment_universal after insert or update or delete on public.vehicle_image_comments
   for each row execute function public.sync_legacy_comment_to_universal('vehicle_image');
  end if;
- if to_regclass('public.post_comments') is not null then
-  drop trigger if exists sync_post_comment_universal on public.post_comments;
-  create trigger sync_post_comment_universal after insert or update or delete on public.post_comments
-  for each row execute function public.sync_legacy_comment_to_universal('build_update');
- end if;
+ drop trigger if exists sync_post_comment_universal on public.post_comments;
+ create trigger sync_post_comment_universal after insert or update or delete on public.post_comments
+ for each row execute function public.sync_legacy_comment_to_universal('build_update');
 end $$;
