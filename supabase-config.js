@@ -36,6 +36,7 @@ hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?
 hotFlashLoadScript('script[data-hotflash-flashtag-orders]', 'flashtag-orders.js?v=3', 'hotflashFlashtagOrders');
 hotFlashLoadScript('script[data-hotflash-universal-comments]', 'universal-comments.js?v=1', 'hotflashUniversalComments');
 if (window.location.pathname.endsWith('/hoon.html')) hotFlashLoadScript('script[data-hotflash-hoon-universal-comments]', 'hoon-universal-comments.js?v=1', 'hotflashHoonUniversalComments');
+if (document.body?.dataset?.page === 'vehicle' || window.location.pathname.endsWith('/vehicle.html')) hotFlashLoadScript('script[data-hotflash-visible-comment-unification]', 'visible-comment-unification.js?v=1', 'hotflashVisibleCommentUnification');
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
   hotFlashLoadStyle('link[data-member-sections]', 'member-sections.css?v=1', 'memberSections');
