@@ -26,6 +26,7 @@ hotFlashLoadStyle('link[data-hotflash-app-navigation]', 'app-navigation.css?v=1'
 hotFlashLoadStyle('link[data-hotflash-dashboard-themes]', 'dashboard-themes.css?v=2', 'hotflashDashboardThemes');
 hotFlashLoadStyle('link[data-hotflash-action-feedback]', 'action-feedback.css?v=1', 'hotflashActionFeedback');
 hotFlashLoadStyle('link[data-hotflash-flashtag-orders]', 'flashtag-orders.css?v=1', 'hotflashFlashtagOrders');
+hotFlashLoadStyle('link[data-hotflash-universal-comments]', 'universal-comments.css?v=1', 'hotflashUniversalComments');
 
 hotFlashLoadScript('script[data-hotflash-pwa]', '/pwa.js?v=3', 'hotflashPwa');
 hotFlashLoadScript('script[data-hotflash-membership]', 'membership.js?v=1', 'hotflashMembership');
@@ -33,6 +34,7 @@ hotFlashLoadScript('script[data-hotflash-app-navigation]', 'app-navigation.js?v=
 hotFlashLoadScript('script[data-hotflash-dashboard-themes]', 'dashboard-themes.js?v=3', 'hotflashDashboardThemes');
 hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?v=1', 'hotflashActionFeedback');
 hotFlashLoadScript('script[data-hotflash-flashtag-orders]', 'flashtag-orders.js?v=3', 'hotflashFlashtagOrders');
+hotFlashLoadScript('script[data-hotflash-universal-comments]', 'universal-comments.js?v=1', 'hotflashUniversalComments');
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
   hotFlashLoadStyle('link[data-member-sections]', 'member-sections.css?v=1', 'memberSections');
