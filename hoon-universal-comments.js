@@ -1,0 +1,10 @@
+(()=>{
+ let overlay=null,instance=null,activeButton=null;
+ function close(){overlay?.remove();overlay=null;instance=null;activeButton=null;document.body.classList.remove('lightbox-open')}
+ function open(postId,title,button){close();activeButton=button;overlay=document.createElement('div');overlay.className='hoon-comments-modal';overlay.style.display='grid';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','Hoon Pad comments');overlay.innerHTML=`<section class="hoon-comments-panel"><button type="button" class="hoon-comments-close" data-universal-hoon-close aria-label="Close comments">×</button><div data-universal-hoon-comments></div></section>`;document.body.appendChild(overlay);document.body.classList.add('lightbox-open');overlay.querySelector('[data-universal-hoon-close]').onclick=close;overlay.addEventListener('click',e=>{if(e.target===overlay)close()});const root=overlay.querySelector('[data-universal-hoon-comments]');instance=window.HotFlashComments?.mount(root,{type:'hoon',id:postId,title:title||'Hoon Pad comments',empty:'No comments yet. Keep it respectful and start the conversation.'});if(!instance)root.innerHTML='<p class="small-muted">Loading comments…</p>'}
+ function activate(){
+  document.addEventListener('click',e=>{const button=e.target.closest('[data-comments]');if(!button)return;const card=button.closest('[data-post-id]');if(!card?.dataset.postId)return;e.preventDefault();e.stopImmediatePropagation();const title=card.querySelector('h2')?.textContent?.trim()||'Hoon Pad comments';open(card.dataset.postId,title,button)},true);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay)close()});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(activate,0));else setTimeout(activate,0);
+})();
