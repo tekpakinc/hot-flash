@@ -35,6 +35,7 @@ hotFlashLoadScript('script[data-hotflash-dashboard-themes]', 'dashboard-themes.j
 hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?v=1', 'hotflashActionFeedback');
 hotFlashLoadScript('script[data-hotflash-flashtag-orders]', 'flashtag-orders.js?v=3', 'hotflashFlashtagOrders');
 hotFlashLoadScript('script[data-hotflash-universal-comments]', 'universal-comments.js?v=1', 'hotflashUniversalComments');
+if (window.location.pathname.endsWith('/hoon.html')) hotFlashLoadScript('script[data-hotflash-hoon-universal-comments]', 'hoon-universal-comments.js?v=1', 'hotflashHoonUniversalComments');
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
   hotFlashLoadStyle('link[data-member-sections]', 'member-sections.css?v=1', 'memberSections');
