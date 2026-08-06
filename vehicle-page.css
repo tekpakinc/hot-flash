@@ -123,27 +123,29 @@
   inset: 0;
   z-index: 9999;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  padding: 18px;
-  background: rgba(0, 0, 0, 0.96);
+  place-items: center;
+  padding: clamp(10px,2vw,24px);
+  background: rgba(0, 0, 0, 0.94);
   backdrop-filter: blur(12px);
 }
 
 .photo-lightbox figure {
+  position: relative;
+  width: min(94vw, 1400px);
+  max-height: 92vh;
   min-width: 0;
   margin: 0;
   display: grid;
   place-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .photo-lightbox img {
+  display: block;
   max-width: 100%;
-  max-height: 88vh;
+  max-height: 86vh;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 20px 80px rgba(0,0,0,.7);
 }
 
@@ -153,38 +155,67 @@
   text-align: center;
 }
 
+.lightbox-close,
+.lightbox-arrow {
+  position: fixed;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: #fff !important;
+  background: rgba(8,9,11,.68) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.42) !important;
+  backdrop-filter: blur(10px);
+}
+
 .lightbox-close {
-  position: absolute;
-  top: max(14px, env(safe-area-inset-top));
-  right: 14px;
-  z-index: 2;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 2rem;
-  background: rgba(255,255,255,.12);
+  top: max(18px, env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+  width: 36px;
+  height: 36px;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  border-radius: 9px !important;
+  font-size: 1.35rem !important;
+  line-height: 1;
 }
 
 .lightbox-arrow {
-  width: 52px;
-  height: 52px;
-  padding: 0;
-  border-radius: 50%;
-  font-size: 2.2rem;
-  background: rgba(255,255,255,.12);
+  top: 50%;
+  width: 38px;
+  height: 54px;
+  min-width: 38px !important;
+  min-height: 54px !important;
+  transform: translateY(-50%);
+  border-radius: 10px !important;
+  font-size: 1.7rem !important;
+  line-height: 1;
 }
 
+.lightbox-arrow.previous { left: max(18px, env(safe-area-inset-left)); }
+.lightbox-arrow.next { right: max(18px, env(safe-area-inset-right)); }
+
+.lightbox-close:hover,
+.lightbox-arrow:hover {
+  background: rgba(20,22,26,.86) !important;
+  transform: translateY(-50%);
+}
+
+.lightbox-close:hover { transform: none; }
+
 .lightbox-counter {
-  position: absolute;
+  position: fixed;
   left: 50%;
   bottom: max(14px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
-  padding: 7px 11px;
+  padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,.12);
+  background: rgba(8,9,11,.68);
   color: #fff;
+  font-size: .82rem;
   font-weight: 700;
+  backdrop-filter: blur(8px);
 }
 
 body.lightbox-open { overflow: hidden; }
@@ -230,10 +261,27 @@ body.lightbox-open { overflow: hidden; }
   .follow-vehicle-button { width: 100%; }
   .specs-grid { grid-template-columns: 1fr; }
   .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .photo-lightbox { grid-template-columns: 1fr; padding: 8px; }
-  .photo-lightbox figure { width: 100%; }
-  .photo-lightbox img { max-height: 82vh; }
-  .lightbox-arrow { position: absolute; top: 50%; z-index: 2; width: 44px; height: 44px; transform: translateY(-50%); }
-  .lightbox-arrow.previous { left: 8px; }
-  .lightbox-arrow.next { right: 8px; }
+  .photo-lightbox { padding: 6px; }
+  .photo-lightbox figure { width: 100%; max-height: 96vh; }
+  .photo-lightbox img { max-height: 86vh; border-radius: 8px; }
+  .lightbox-close {
+    top: max(10px, env(safe-area-inset-top));
+    right: max(10px, env(safe-area-inset-right));
+    width: 32px;
+    height: 32px;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 8px !important;
+    font-size: 1.15rem !important;
+  }
+  .lightbox-arrow {
+    width: 32px;
+    height: 48px;
+    min-width: 32px !important;
+    min-height: 48px !important;
+    font-size: 1.45rem !important;
+    border-radius: 8px !important;
+  }
+  .lightbox-arrow.previous { left: max(6px, env(safe-area-inset-left)); }
+  .lightbox-arrow.next { right: max(6px, env(safe-area-inset-right)); }
 }
