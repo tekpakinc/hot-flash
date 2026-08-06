@@ -27,6 +27,7 @@ hotFlashLoadStyle('link[data-hotflash-dashboard-themes]', 'dashboard-themes.css?
 hotFlashLoadStyle('link[data-hotflash-action-feedback]', 'action-feedback.css?v=1', 'hotflashActionFeedback');
 hotFlashLoadStyle('link[data-hotflash-flashtag-orders]', 'flashtag-orders.css?v=1', 'hotflashFlashtagOrders');
 hotFlashLoadStyle('link[data-hotflash-universal-comments]', 'universal-comments.css?v=1', 'hotflashUniversalComments');
+hotFlashLoadStyle('link[data-hotflash-ui-tightening]', 'ui-tightening.css?v=1', 'hotflashUiTightening');
 
 hotFlashLoadScript('script[data-hotflash-pwa]', '/pwa.js?v=3', 'hotflashPwa');
 hotFlashLoadScript('script[data-hotflash-membership]', 'membership.js?v=1', 'hotflashMembership');
