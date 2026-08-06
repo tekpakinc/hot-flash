@@ -78,6 +78,31 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select{
 textarea{min-height:104px;padding:11px 12px!important;font-size:16px!important;line-height:1.45!important;resize:vertical}
 label>span{line-height:1.25}
 
+/* All comment composers use a full-width writing area with the action below it. */
+.comment-form,.hf-comment-form,[data-comment-form],[data-vc-form],[data-pc-form]{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:10px!important;
+  align-items:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.comment-form input[name="body"],.comment-form textarea,
+.hf-comment-form textarea,[data-comment-form] input[name="body"],[data-comment-form] textarea,
+[data-vc-form] input[name="body"],[data-vc-form] textarea,[data-pc-form] input[name="body"],[data-pc-form] textarea{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:120px!important;
+}
+.comment-form button[type="submit"],.hf-comment-form button[type="submit"],
+[data-comment-form] button[type="submit"],[data-vc-form] button[type="submit"],[data-pc-form] button[type="submit"]{
+  width:auto!important;
+  min-width:150px!important;
+  justify-self:start!important;
+}
+.comment-form [data-comment-status],[data-comment-form] [data-comment-status]{grid-column:1/-1}
+
 /* Stop giant headings and cramped cards from overpowering mobile screens. */
 .app-card,.app-panel{padding:clamp(16px,2.4vw,24px)!important}
 .app-card h2,.app-panel h2{margin-bottom:8px}
@@ -93,6 +118,16 @@ label>span{line-height:1.25}
   .form-grid>button[type="submit"],.form-grid>.button-link,
   .social-composer>button[type="submit"],.hf-comment-form>button[type="submit"],
   [data-hoon-form]>button[type="submit"]{width:100%}
+  .comment-form input[name="body"],.comment-form textarea,
+  .hf-comment-form textarea,[data-comment-form] input[name="body"],[data-comment-form] textarea,
+  [data-vc-form] input[name="body"],[data-vc-form] textarea,[data-pc-form] input[name="body"],[data-pc-form] textarea{
+    min-height:144px!important;
+  }
+  .comment-form button[type="submit"],.hf-comment-form button[type="submit"],
+  [data-comment-form] button[type="submit"],[data-vc-form] button[type="submit"],[data-pc-form] button[type="submit"]{
+    width:100%!important;
+    justify-self:stretch!important;
+  }
   .inline-actions,.social-actions,.hoon-actions,.flashtag-actions,.hf-comment-actions{align-items:stretch}
   .inline-actions>button,.inline-actions>.button-link,.inline-actions>.secondary-button,
   .social-actions>button,.hoon-actions>button,.hoon-actions>a,.flashtag-actions>button,.flashtag-actions>a{
