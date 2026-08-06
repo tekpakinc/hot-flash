@@ -1,0 +1,116 @@
+:root{--hf-control-h:44px;--hf-control-h-sm:36px;--hf-control-radius:11px;--hf-control-pad:0 16px;--hf-gap:10px}
+
+/* Final consistency layer: sizing first, visual treatment second. */
+button,.button-link,.secondary-button,.nav-cta,input[type="submit"],input[type="button"]{
+  min-height:var(--hf-control-h)!important;
+  height:auto!important;
+  min-width:0;
+  max-width:100%;
+  padding:10px 16px!important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  border-radius:var(--hf-control-radius)!important;
+  font-size:.92rem!important;
+  line-height:1.15!important;
+  letter-spacing:.015em!important;
+  text-transform:none!important;
+  white-space:normal;
+  text-align:center;
+  vertical-align:middle;
+  flex:0 0 auto;
+}
+
+button:not(.secondary-button):not(.danger):not(.gallery-arrow):not(.lightbox-arrow):not(.lightbox-close):not(.photo-comments-close):not(.hoon-comments-close):not([data-tab-button]):not([data-hoon-feed-mode]),
+.button-link,.nav-cta{
+  border:1px solid rgba(255,143,32,.62)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 42%),linear-gradient(135deg,#ff2817 0%,#ff5a00 54%,#ff9d1f 100%)!important;
+  color:#111!important;
+  box-shadow:0 8px 22px rgba(255,75,0,.2),inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+
+.secondary-button{
+  border:1px solid rgba(255,255,255,.16)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;
+  color:#f7f8f8!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)!important;
+}
+
+button.danger,.danger{
+  border:1px solid rgba(255,75,75,.48)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),transparent),linear-gradient(135deg,#8f1515,#d82c2c)!important;
+  color:#fff!important;
+  box-shadow:0 7px 18px rgba(180,20,20,.18)!important;
+}
+
+button:hover,.button-link:hover,.secondary-button:hover,.nav-cta:hover{transform:translateY(-1px);filter:brightness(1.06)}
+button:active,.button-link:active,.secondary-button:active,.nav-cta:active{transform:translateY(0) scale(.985)}
+
+/* Compact controls that should never inflate into full CTA buttons. */
+.gallery-arrow,.lightbox-arrow,.lightbox-close,.photo-comments-close,.hoon-comments-close,
+[data-tab-button],[data-hoon-feed-mode],.feed-filters button,.vehicle-tabs button,
+button[aria-label="Close"],button[aria-label^="Previous"],button[aria-label^="Next"]{
+  min-height:var(--hf-control-h-sm)!important;
+  min-width:var(--hf-control-h-sm)!important;
+  padding:7px 11px!important;
+  font-size:.84rem!important;
+  border-radius:9px!important;
+  white-space:nowrap;
+}
+
+/* Keep action rows neat instead of stretching random children. */
+.inline-actions,.social-actions,.hoon-actions,.flashtag-actions,.hf-comment-actions,
+.vehicle-social-actions,.vehicle-comment-head,.hoon-composer-head,.home-section-head{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:var(--hf-gap);
+}
+.inline-actions>* ,.social-actions>* ,.hoon-actions>* ,.flashtag-actions>* ,.hf-comment-actions>*{margin:0!important}
+
+/* Forms and text controls share predictable proportions. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),select{
+  min-height:44px!important;
+  padding:10px 12px!important;
+  font-size:16px!important;
+}
+textarea{min-height:104px;padding:11px 12px!important;font-size:16px!important;line-height:1.45!important;resize:vertical}
+label>span{line-height:1.25}
+
+/* Stop giant headings and cramped cards from overpowering mobile screens. */
+.app-card,.app-panel{padding:clamp(16px,2.4vw,24px)!important}
+.app-card h2,.app-panel h2{margin-bottom:8px}
+.form-grid{gap:14px!important}
+
+@media(max-width:760px){
+  :root{--hf-control-h:46px;--hf-gap:8px}
+  button,.button-link,.secondary-button,.nav-cta,input[type="submit"],input[type="button"]{
+    width:auto;
+    padding:11px 14px!important;
+    font-size:.9rem!important;
+  }
+  .form-grid>button[type="submit"],.form-grid>.button-link,
+  .social-composer>button[type="submit"],.hf-comment-form>button[type="submit"],
+  [data-hoon-form]>button[type="submit"]{width:100%}
+  .inline-actions,.social-actions,.hoon-actions,.flashtag-actions,.hf-comment-actions{align-items:stretch}
+  .inline-actions>button,.inline-actions>.button-link,.inline-actions>.secondary-button,
+  .social-actions>button,.hoon-actions>button,.hoon-actions>a,.flashtag-actions>button,.flashtag-actions>a{
+    flex:1 1 calc(50% - 8px);
+  }
+  .vehicle-tabs,.hoon-feed-tabs,.feed-filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .vehicle-tabs::-webkit-scrollbar,.hoon-feed-tabs::-webkit-scrollbar,.feed-filters::-webkit-scrollbar{display:none}
+  .vehicle-tabs button,.hoon-feed-tabs button,.feed-filters button{flex:0 0 auto}
+  .site-header{min-height:62px!important}
+  .brand-logo{width:38px!important;height:38px!important}
+  .app-shell,.feed-shell,.vehicle-profile-shell{width:min(100% - 16px,1460px)!important}
+}
+
+@media(max-width:430px){
+  .inline-actions>button,.inline-actions>.button-link,.inline-actions>.secondary-button,
+  .hoon-actions>button,.hoon-actions>a,.flashtag-actions>button,.flashtag-actions>a{
+    flex-basis:100%;
+  }
+  .social-actions>button,.hf-comment-actions>button{flex:1 1 calc(50% - 6px)}
+  .app-card,.app-panel{padding:15px!important}
+}
