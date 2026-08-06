@@ -28,6 +28,7 @@ hotFlashLoadStyle('link[data-hotflash-action-feedback]', 'action-feedback.css?v=
 hotFlashLoadStyle('link[data-hotflash-flashtag-orders]', 'flashtag-orders.css?v=1', 'hotflashFlashtagOrders');
 hotFlashLoadStyle('link[data-hotflash-universal-comments]', 'universal-comments.css?v=1', 'hotflashUniversalComments');
 hotFlashLoadStyle('link[data-hotflash-ui-tightening]', 'ui-tightening.css?v=1', 'hotflashUiTightening');
+hotFlashLoadStyle('link[data-hotflash-layout-guard]', 'layout-guard.css?v=1', 'hotflashLayoutGuard');
 
 hotFlashLoadScript('script[data-hotflash-pwa]', '/pwa.js?v=3', 'hotflashPwa');
 hotFlashLoadScript('script[data-hotflash-membership]', 'membership.js?v=1', 'hotflashMembership');
@@ -37,7 +38,10 @@ hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?
 hotFlashLoadScript('script[data-hotflash-flashtag-orders]', 'flashtag-orders.js?v=3', 'hotflashFlashtagOrders');
 hotFlashLoadScript('script[data-hotflash-universal-comments]', 'universal-comments.js?v=1', 'hotflashUniversalComments');
 if (window.location.pathname.endsWith('/hoon.html')) hotFlashLoadScript('script[data-hotflash-hoon-universal-comments]', 'hoon-universal-comments.js?v=1', 'hotflashHoonUniversalComments');
-if (document.body?.dataset?.page === 'vehicle' || window.location.pathname.endsWith('/vehicle.html')) hotFlashLoadScript('script[data-hotflash-visible-comment-unification]', 'visible-comment-unification.js?v=1', 'hotflashVisibleCommentUnification');
+if (document.body?.dataset?.page === 'vehicle' || window.location.pathname.endsWith('/vehicle.html')) {
+  hotFlashLoadScript('script[data-hotflash-visible-comment-unification]', 'visible-comment-unification.js?v=1', 'hotflashVisibleCommentUnification');
+  hotFlashLoadScript('script[data-hotflash-vehicle-lightbox-layout]', 'vehicle-lightbox-layout.js?v=1', 'hotflashVehicleLightboxLayout');
+}
 
 if (document.body?.dataset?.page === 'dashboard' || window.location.pathname.endsWith('/dashboard.html')) {
   hotFlashLoadStyle('link[data-member-sections]', 'member-sections.css?v=1', 'memberSections');
