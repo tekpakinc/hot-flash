@@ -32,11 +32,12 @@ hotFlashLoadStyle('link[data-hotflash-layout-guard]', 'layout-guard.css?v=1', 'h
 
 hotFlashLoadScript('script[data-hotflash-pwa]', '/pwa.js?v=3', 'hotflashPwa');
 hotFlashLoadScript('script[data-hotflash-membership]', 'membership.js?v=1', 'hotflashMembership');
-hotFlashLoadScript('script[data-hotflash-app-navigation]', 'app-navigation.js?v=1', 'hotflashAppNavigation');
+hotFlashLoadScript('script[data-hotflash-app-navigation]', 'app-navigation.js?v=2', 'hotflashAppNavigation');
 hotFlashLoadScript('script[data-hotflash-dashboard-themes]', 'dashboard-themes.js?v=3', 'hotflashDashboardThemes');
 hotFlashLoadScript('script[data-hotflash-action-feedback]', 'action-feedback.js?v=1', 'hotflashActionFeedback');
 hotFlashLoadScript('script[data-hotflash-flashtag-orders]', 'flashtag-orders.js?v=3', 'hotflashFlashtagOrders');
 hotFlashLoadScript('script[data-hotflash-universal-comments]', 'universal-comments.js?v=1', 'hotflashUniversalComments');
+hotFlashLoadScript('script[data-hotflash-universal-follow]', 'universal-follow.js?v=1', 'hotflashUniversalFollow');
 if (window.location.pathname.endsWith('/hoon.html')) hotFlashLoadScript('script[data-hotflash-hoon-universal-comments]', 'hoon-universal-comments.js?v=1', 'hotflashHoonUniversalComments');
 if (document.body?.dataset?.page === 'vehicle' || window.location.pathname.endsWith('/vehicle.html')) {
   hotFlashLoadScript('script[data-hotflash-visible-comment-unification]', 'visible-comment-unification.js?v=1', 'hotflashVisibleCommentUnification');
