@@ -22,7 +22,7 @@ function hotFlashLoadScript(selector, src, dataKey) {
 }
 
 hotFlashLoadStyle('link[data-hotflash-final-theme]', 'final-theme.css?v=1', 'hotflashFinalTheme');
-hotFlashLoadStyle('link[data-hotflash-app-navigation]', 'app-navigation.css?v=1', 'hotflashAppNavigation');
+hotFlashLoadStyle('link[data-hotflash-app-navigation]', 'app-navigation.css?v=2', 'hotflashAppNavigation');
 hotFlashLoadStyle('link[data-hotflash-dashboard-themes]', 'dashboard-themes.css?v=2', 'hotflashDashboardThemes');
 hotFlashLoadStyle('link[data-hotflash-action-feedback]', 'action-feedback.css?v=1', 'hotflashActionFeedback');
 hotFlashLoadStyle('link[data-hotflash-flashtag-orders]', 'flashtag-orders.css?v=1', 'hotflashFlashtagOrders');
