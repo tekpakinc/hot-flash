@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'hotflash-pwa-v9';
+const CACHE_VERSION = 'hotflash-pwa-v10';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -12,7 +12,8 @@ const APP_SHELL = [
   '/app-pages.css',
   '/final-theme.css?v=2',
   '/legal.css?v=1',
-  '/home-final.css?v=3',
+  '/home-final.css?v=5',
+  '/home-flashtag-premium.css?v=1',
   '/home-final.js?v=3',
   '/shops.css?v=1',
   '/shops.js?v=1',
@@ -23,7 +24,8 @@ const APP_SHELL = [
   '/site-nav.js?v=2',
   '/pwa.js?v=3',
   '/app-version.json',
-  '/assets/hot-flash-logo.png'
+  '/assets/hot-flash-logo.png',
+  '/assets/flashtag-founder-hf000006-valid.webp?v=2'
 ];
 
 self.addEventListener('install', (event) => {
