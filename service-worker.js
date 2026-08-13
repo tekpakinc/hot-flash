@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'hotflash-pwa-v11';
+const CACHE_VERSION = 'hotflash-pwa-v12';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -25,7 +25,7 @@ const APP_SHELL = [
   '/pwa.js?v=3',
   '/app-version.json',
   '/assets/hot-flash-logo.png',
-  '/assets/flashtag-founder-hf000006-vector.svg?v=1'
+  '/assets/flashtag-hf000006-real.webp?v=3'
 ];
 
 self.addEventListener('install', (event) => {
