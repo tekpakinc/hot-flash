@@ -20,7 +20,7 @@ jobs:
   deploy:
     name: Deploy functions
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Check out repository
@@ -31,7 +31,13 @@ jobs:
         with:
           version: latest
 
-      - name: Deploy discover-events
+      - name: Deploy production Edge Functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase functions deploy discover-events --project-ref juwkzmlchffbovlrqhex
+        run: |
+          set -euo pipefail
+          PROJECT_REF="juwkzmlchffbovlrqhex"
+          for function in discover-events manage-event-sources import-event-email vehicle-share create-paypal-subscription paypal-subscription-webhook; do
+            echo "Deploying ${function}..."
+            supabase functions deploy "${function}" --project-ref "${PROJECT_REF}"
+          done
