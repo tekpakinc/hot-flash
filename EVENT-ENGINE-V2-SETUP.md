@@ -15,7 +15,7 @@ In Supabase Dashboard, open **Edge Functions → Secrets** and add:
 The built-in `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` values are supplied by Supabase.
 
 ## 3. Deploy the Edge Function
-From the repository root:
+Production deployments are handled automatically by `.github/workflows/deploy-supabase-functions.yml` whenever files under `supabase/functions/` change. For a manual deployment from the repository root, run:
 
 ```bash
 supabase functions deploy manage-event-sources
@@ -28,6 +28,7 @@ The function supports:
 - public ICS/iCal feed imports
 - deduplicated event upserts
 - per-source sync status and error logs
+- service-role authenticated scheduled syncing
 
 ## 4. Open the source console
 Visit:
@@ -51,4 +52,10 @@ Choose **ICS / iCal feed** and paste the public `.ics` subscription URL.
 - Eventbrite and MotorsportReg: adapters planned
 
 ## Automatic scheduling
-The console can sync sources immediately. For unattended syncing, schedule the function using Supabase Cron after confirming manual sync works. Keep the function protected; use a scheduled service-role invocation rather than exposing secrets in browser code.
+After confirming manual sync works, Supabase Cron can invoke `manage-event-sources` with a POST body of:
+
+```json
+{"action":"sync"}
+```
+
+Authenticate that server-side request with `Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>`. Service-role authentication is accepted only for the `sync` action; source listing, creation, toggling, and deletion still require an authenticated active Hot Flash Super Admin. Never expose the service-role key in browser code.
