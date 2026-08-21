@@ -135,15 +135,25 @@ Deno.serve(async req => {
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const auth = req.headers.get('Authorization') || '';
-    const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: auth } } });
+    const serviceAuth = auth === `Bearer ${serviceKey}`;
     const admin = createClient(supabaseUrl, serviceKey);
-    const { data: { user } } = await userClient.auth.getUser();
-    if (!user) return json({ error: 'Sign in required.' }, 401);
-    const { data: access } = await admin.from('beta_testers').select('is_admin,is_active').eq('user_id', user.id).maybeSingle();
-    if (!access?.is_active || !access?.is_admin) return json({ error: 'Super Admin access required.' }, 403);
 
     const body = await req.json().catch(() => ({}));
     const action = body.action || 'list';
+
+    // Scheduled jobs may authenticate with the Supabase service-role key, but
+    // that privileged path is intentionally limited to syncing enabled sources.
+    let user: any = null;
+    if (serviceAuth) {
+      if (action !== 'sync') return json({ error: 'Service authentication is limited to event syncing.' }, 403);
+    } else {
+      const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: auth } } });
+      const { data } = await userClient.auth.getUser();
+      user = data.user;
+      if (!user) return json({ error: 'Sign in required.' }, 401);
+      const { data: access } = await admin.from('beta_testers').select('is_admin,is_active').eq('user_id', user.id).maybeSingle();
+      if (!access?.is_active || !access?.is_admin) return json({ error: 'Super Admin access required.' }, 403);
+    }
 
     if (action === 'list') {
       const { data, error } = await admin.from('event_sources').select('*').order('created_at', { ascending: false });
