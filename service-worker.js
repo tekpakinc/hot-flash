@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'hotflash-pwa-v12';
+const CACHE_VERSION = 'hotflash-pwa-v13';
 const APP_SHELL = [
   '/',
   '/index.html',
