@@ -1,0 +1,51 @@
+/* Compact mobile-first control surfaces for Garage + Vehicle pages */
+.compact-section{padding:0;overflow:hidden}
+.compact-section>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px;-webkit-tap-highlight-color:transparent}
+.compact-section>summary::-webkit-details-marker{display:none}
+.compact-section>summary:after{content:"+";flex:0 0 auto;font-size:1.45rem;font-weight:800;color:var(--lime,#9cff00);line-height:1}
+.compact-section[open]>summary:after{content:"–"}
+.compact-section>summary span{display:grid;gap:3px;min-width:0}
+.compact-section>summary b{font-size:1rem;color:var(--ink,#fff)}
+.compact-section>summary small{color:var(--muted,#9aa1a9);font-size:.78rem;font-weight:500}
+.compact-section[open]>summary{border-bottom:1px solid rgba(255,255,255,.08)}
+.compact-section-body{padding:18px}
+details.compact-section form.compact-section-body{margin:0}
+.vehicle-transfer-card.compact-section,.owner-gallery-tools.compact-section,.video-owner-tools.compact-section{margin-block:12px}
+@media(max-width:700px){
+ body.app-page{padding-top:72px}
+ .app-shell,.vehicle-profile-shell{width:calc(100% - 12px);margin-bottom:28px}
+ .app-panel{padding:16px;margin-bottom:10px}
+ .app-panel h1{font-size:2.25rem;margin-bottom:8px}
+ .app-panel p{font-size:.9rem;line-height:1.45}
+ .content-grid{margin-top:10px;gap:10px}
+ .stack{gap:10px}
+ .app-card{padding:14px;border-radius:10px}
+ .compact-section{padding:0}
+ .compact-section>summary{padding:15px}
+ .compact-section-body{padding:14px}
+ .form-grid,.form-grid.two{grid-template-columns:1fr;gap:11px}
+ .full-span{grid-column:auto}
+ input,select,textarea{max-width:100%;box-sizing:border-box}
+ textarea{min-height:92px}
+ .vehicle-gallery{margin-bottom:8px}
+ .vehicle-hero-frame{min-height:330px}
+ .gallery-thumbnails{gap:7px}
+ .vehicle-social-actions{margin:8px 0}
+ .stat-row{margin:10px 0;gap:7px}
+ .stat-card{padding:11px}
+ .stat-card strong{font-size:1.25rem}
+ .stat-card span{font-size:.72rem}
+ .vehicle-tabs{top:62px;margin:8px 0;display:grid;grid-template-columns:repeat(3,1fr)}
+ .vehicle-tabs button{min-width:0;padding-inline:6px!important}
+ .vehicle-tab-panel .app-card{padding:14px}
+ .vehicle-video-section{margin-block:10px}
+ .site-header{min-height:62px;overflow-x:auto;overflow-y:hidden;gap:8px}
+ .site-header .brand span{display:none}
+ .site-header nav{display:flex;gap:5px;min-width:max-content}
+ .site-header nav a,.site-header nav button{font-size:.76rem!important;padding-inline:9px!important}
+ .transfer-request input[data-claim-link]{width:100%;box-sizing:border-box}
+}
+@media(min-width:701px){
+ .compact-section>summary{padding:18px 22px}
+ .compact-section-body{padding:22px}
+}
