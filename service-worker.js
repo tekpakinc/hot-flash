@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'hotflash-pwa-v18';
+const CACHE_VERSION = 'hotflash-pwa-v19';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -10,7 +10,7 @@ const APP_SHELL = [
   '/hoon.html',
   '/styles.css',
   '/app-pages.css',
-  '/final-theme.css?v=3',
+  '/final-theme.css?v=4',
   '/legal.css?v=1',
   '/home-final.css?v=5',
   '/home-flashtag-premium.css?v=1',
