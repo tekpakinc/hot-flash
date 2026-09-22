@@ -22,11 +22,12 @@ function ownerName(vehicle) {
 
 function card(vehicle, featured = false) {
   const photo = vehicle.cover_photo || '';
+  const stockData=!photo&&vehicle.make&&vehicle.model?escapeHtml(JSON.stringify({year:vehicle.year,make:vehicle.make,model:vehicle.model,vehicle_type:vehicle.vehicle_type||'automobile'})):'';
   const title = escapeHtml(vehicle.nickname || 'Untitled build');
   const meta = [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(' ');
   return `
     <article class="feed-card ${featured ? 'featured-feed-card' : ''}">
-      <a class="feed-card-media" href="${vehicleUrl(vehicle)}" ${photo ? `style="background-image:linear-gradient(0deg,rgba(7,8,10,.72),rgba(7,8,10,.05)),url('${photo}')"` : ''}>
+      <a class="feed-card-media" href="${vehicleUrl(vehicle)}" ${stockData?`data-stock-vehicle="${stockData}"`:``} ${photo ? `style="background-image:linear-gradient(0deg,rgba(32,34,37,.72),rgba(32,34,37,.05)),url(\'${photo}\')"` : ''}>
         <span class="feed-hf-id">${escapeHtml(vehicle.hotflash_id || 'Hot Flash build')}</span>
       </a>
       <div class="feed-card-body">
@@ -65,6 +66,7 @@ function render() {
   featuredWrap.hidden = false;
   featuredCard.innerHTML = card(result[0], true);
   stream.innerHTML = result.map(v => card(v)).join('');
+  window.HotFlashStockVehicleImages?.hydrate(document);
 }
 
 filterButtons.forEach(button => button.addEventListener('click', () => {
